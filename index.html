@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>综合布线实训室虚拟仿真平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1e3a5f;
+            --secondary: #2d5a87;
+            --accent: #4a90d9;
+            --light: #e8f1f8;
+            --success: #28a745;
+            --error: #dc3545;
+            --warning: #ffc107;
+            --text: #333;
+            --text-light: #666;
+            --white: #fff;
+            --shadow: 0 4px 20px rgba(30, 58, 95, 0.15);
+            --radius: 12px;
+        }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e6f2 100%);
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 24px; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: 500; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            color: var(--white);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 90, 135, 0.4);
+        }
+        .btn-secondary {
+            background: var(--white); color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .btn-secondary:hover { background: var(--light); }
+        .card {
+            background: var(--white); border-radius: var(--radius);
+            box-shadow: var(--shadow); padding: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(30, 58, 95, 0.2);
+        }
+        .page-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white); padding: 40px 20px; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+        .page-header h1 {
+            font-size: 2.2rem; margin-bottom: 10px;
+            position: relative; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .page-header .subtitle { font-size: 1.1rem; opacity: 0.9; position: relative; }
+        .navbar {
+            background: var(--white); box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+        }
+        .navbar .container {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px;
+        }
+        .nav-brand { font-size: 1.2rem; font-weight: 600; color: var(--primary); }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-link {
+            color: var(--text); text-decoration: none; padding: 8px 16px;
+            border-radius: 6px; transition: all 0.3s ease;
+        }
+        .nav-link:hover { background: var(--light); color: var(--primary); }
+        .nav-link.active { background: var(--primary); color: var(--white); }
+        .hero { text-align: center; padding: 60px 20px; }
+        .hero h2 { font-size: 1.8rem; color: var(--primary); margin-bottom: 20px; }
+        .hero p {
+            color: var(--text-light); font-size: 1.1rem;
+            max-width: 600px; margin: 0 auto 40px;
+        }
+        .modules-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px; padding: 20px 0;
+        }
+        .module-card { cursor: pointer; text-align: center; padding: 40px 30px; }
+        .module-icon {
+            width: 80px; height: 80px; margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; transition: transform 0.3s ease;
+        }
+        .module-card:hover .module-icon { transform: scale(1.1) rotate(5deg); }
+        .module-icon svg { width: 40px; height: 40px; fill: var(--white); }
+        .module-card h3 { color: var(--primary); margin-bottom: 10px; font-size: 1.3rem; }
+        .module-card p { color: var(--text-light); font-size: 0.95rem; }
+        .module-number {
+            display: inline-block; width: 28px; height: 28px; line-height: 28px;
+            background: var(--accent); color: var(--white); border-radius: 50%;
+            font-size: 0.9rem; margin-bottom: 15px;
+        }
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .step-indicator {
+            display: flex; justify-content: center; gap: 15px;
+            margin: 30px 0; flex-wrap: wrap;
+        }
+        .step-dot {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--light); color: var(--text-light);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; transition: all 0.3s ease; position: relative;
+        }
+        .step-dot.active { background: var(--accent); color: var(--white); transform: scale(1.1); }
+        .step-dot.completed { background: var(--success); color: var(--white); }
+        .step-dot::after {
+            content: ''; position: absolute; width: 30px; height: 3px;
+            background: var(--light); right: -30px;
+        }
+        .step-dot:last-child::after { display: none; }
+        .experiment-area {
+            background: var(--white); border-radius: var(--radius);
+            box-shadow: var(--shadow); padding: 30px; margin: 20px 0;
+        }
+        .experiment-title {
+            font-size: 1.3rem; color: var(--primary); margin-bottom: 20px;
+            padding-bottom: 10px; border-bottom: 2px solid var(--light);
+        }
+        .experiment-instruction {
+            background: var(--light); padding: 20px; border-radius: 8px;
+            margin-bottom: 25px; border-left: 4px solid var(--accent);
+        }
+        .experiment-instruction p { color: var(--text); }
+        .tip-box {
+            background: #fff3cd; border-left: 4px solid var(--warning);
+            padding: 15px; border-radius: 0 8px 8px 0; margin: 15px 0; font-size: 0.95rem;
+        }
+        .options-grid {
+            display: flex; gap: 15px; flex-wrap: wrap;
+            justify-content: center; margin: 20px 0;
+        }
+        .option-btn {
+            padding: 15px 30px; border: 2px solid var(--light);
+            background: var(--white); border-radius: 10px; cursor: pointer;
+            transition: all 0.3s ease; font-size: 1rem; min-width: 120px;
+        }
+        .option-btn:hover { border-color: var(--accent); background: var(--light); }
+        .option-btn.selected { border-color: var(--accent); background: rgba(74, 144, 217, 0.1); }
+        .option-btn.correct { border-color: var(--success); background: rgba(40, 167, 69, 0.1); color: var(--success); }
+        .option-btn.incorrect { border-color: var(--error); background: rgba(220, 53, 69, 0.1); color: var(--error); }
+        .drag-container {
+            display: flex; gap: 40px; justify-content: center;
+            flex-wrap: wrap; padding: 20px;
+        }
+        .drag-section { flex: 1; min-width: 300px; max-width: 400px; }
+        .drag-section h4 { text-align: center; color: var(--primary); margin-bottom: 15px; font-size: 1.1rem; }
+        .drag-box {
+            background: var(--light); border: 2px dashed var(--accent);
+            border-radius: 10px; padding: 20px; min-height: 350px;
+        }
+        .drag-box-inner {
+            background: var(--white); border-radius: 8px;
+            padding: 15px; min-height: 320px;
+        }
+        .wire-slot {
+            display: flex; align-items: center; gap: 10px; padding: 10px;
+            margin: 8px 0; background: var(--light); border-radius: 8px;
+            min-height: 50px; transition: all 0.3s ease;
+        }
+        .wire-slot.drag-over { background: rgba(74, 144, 217, 0.2); border: 2px dashed var(--accent); }
+        .wire-slot.correct { background: rgba(40, 167, 69, 0.1); border: 2px solid var(--success); }
+        .wire-slot.incorrect { background: rgba(220, 53, 69, 0.1); border: 2px solid var(--error); }
+        .slot-number {
+            width: 30px; height: 30px; background: var(--primary); color: var(--white);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 0.9rem; font-weight: 600;
+        }
+        .wire-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 15px;
+            border-radius: 8px; cursor: grab; transition: all 0.3s ease;
+            user-select: none; font-size: 0.9rem; margin: 5px 0;
+            background: var(--white); border: 1px solid #eee;
+        }
+        .wire-item:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .wire-item.dragging { opacity: 0.5; cursor: grabbing; }
+        .wire-color { width: 30px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.2); }
+        .action-area { display: flex; justify-content: center; gap: 20px; margin: 30px 0; flex-wrap: wrap; }
+        .punch-panel {
+            background: #f5f5f5; border: 3px solid #666; border-radius: 10px;
+            padding: 20px; max-width: 600px; margin: 0 auto;
+        }
+        .punch-panel-header {
+            background: #333; color: var(--white); padding: 10px;
+            text-align: center; border-radius: 5px; margin-bottom: 15px;
+        }
+        .punch-rows { display: flex; flex-direction: column; gap: 10px; }
+        .punch-row { display: flex; align-items: center; gap: 10px; }
+        .punch-label { width: 60px; font-weight: 600; color: var(--primary); }
+        .punch-slots { display: flex; gap: 5px; flex: 1; }
+        .punch-slot {
+            flex: 1; height: 40px; background: var(--white); border: 2px solid #ccc;
+            border-radius: 4px; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; color: #666;
+        }
+        .punch-slot:hover { border-color: var(--accent); }
+        .punch-slot.selected { border-color: var(--accent); background: rgba(74, 144, 217, 0.1); }
+        .punch-slot.wired { background: var(--success); border-color: var(--success); color: var(--white); }
+        .tester-container {
+            display: flex; justify-content: center; gap: 100px;
+            align-items: flex-start; flex-wrap: wrap; padding: 20px;
+        }
+        .tester-unit { text-align: center; }
+        .tester-body {
+            width: 180px; height: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            border-radius: 15px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .tester-screen {
+            background: #0a0; border-radius: 5px; padding: 10px; margin-bottom: 15px;
+            font-family: monospace; font-size: 0.7rem; color: #0f0; min-height: 80px;
+        }
+        .tester-leds { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; margin: 10px 0; }
+        .led { width: 12px; height: 12px; border-radius: 50%; background: #333; }
+        .led.on-green { background: #0f0; box-shadow: 0 0 10px #0f0; }
+        .led.on-red { background: #f00; box-shadow: 0 0 10px #f00; }
+        .tester-port { width: 60px; height: 20px; background: #222; border-radius: 3px; margin: 10px auto; border: 2px solid #444; }
+        .test-results { background: var(--white); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+        .test-results table { width: 100%; border-collapse: collapse; }
+        .test-results th, .test-results td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .test-results th { background: var(--primary); color: var(--white); font-weight: 500; }
+        .test-results tr:nth-child(even) { background: var(--light); }
+        .status-pass { color: var(--success); font-weight: 600; }
+        .status-fail { color: var(--error); font-weight: 600; }
+        .feedback {
+            padding: 20px; border-radius: 10px; margin: 20px 0;
+            text-align: center; animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .feedback.success { background: rgba(40, 167, 69, 0.1); border: 2px solid var(--success); color: var(--success); }
+        .feedback.error { background: rgba(220, 53, 69, 0.1); border: 2px solid var(--error); color: var(--error); }
+        .feedback.warning { background: rgba(255, 193, 7, 0.1); border: 2px solid var(--warning); color: #856404; }
+        .feedback-icon { font-size: 2rem; margin-bottom: 10px; }
+        .score-display { text-align: center; padding: 30px; }
+        .score-circle {
+            width: 150px; height: 150px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; margin: 0 auto 20px;
+            color: var(--white); box-shadow: 0 10px 30px rgba(74, 144, 217, 0.3);
+        }
+        .score-value { font-size: 3rem; font-weight: 700; line-height: 1; }
+        .score-label { font-size: 0.9rem; opacity: 0.9; }
+        .score-breakdown {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; margin-top: 20px;
+        }
+        .score-item { display: flex; justify-content: space-between; padding: 12px 15px; background: var(--light); border-radius: 8px; }
+        .score-item-name { color: var(--text); }
+        .score-item-value { font-weight: 600; }
+        .score-item-value.pass { color: var(--success); }
+        .score-item-value.fail { color: var(--error); }
+        .footer { text-align: center; padding: 30px 20px; color: var(--text-light); font-size: 0.9rem; margin-top: 40px; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .report-container { background: var(--white); border-radius: 10px; padding: 30px; max-width: 800px; margin: 0 auto; }
+        .report-header { text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 20px; }
+        .report-header h2 { color: var(--primary); margin-bottom: 10px; }
+        .report-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; font-size: 0.95rem; }
+        .report-section { margin-bottom: 20px; }
+        .report-section h4 { color: var(--primary); margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--light); }
+        .progress-bar { height: 10px; background: var(--light); border-radius: 5px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); transition: width 0.5s ease; }
+        .input-group { margin: 20px 0; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--primary); }
+        .input-group input {
+            padding: 12px 15px; border: 2px solid var(--light); border-radius: 8px;
+            font-size: 1rem; width: 200px; transition: border-color 0.3s ease;
+        }
+        .input-group input:focus { outline: none; border-color: var(--accent); }
+        @keyframes wireInsert { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .wire-insert { animation: wireInsert 0.5s ease-out; }
+        @keyframes crimp { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.9) translateY(10px); } }
+        .crimp-animation { animation: crimp 0.5s ease-in-out; }
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 1.6rem; }
+            .modules-grid { grid-template-columns: 1fr; }
+            .drag-container { flex-direction: column; align-items: center; }
+            .tester-container { flex-direction: column; align-items: center; gap: 30px; }
+        }
+        .hidden { display: none !important; }
+        .loading { display: flex; justify-content: center; align-items: center; padding: 40px; }
+        .spinner { width: 50px; height: 50px; border: 4px solid var(--light); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* 模块4 - 光纤熔接样式 */
+        .fiber-container { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; padding: 20px; }
+        .fiber-section { flex: 1; min-width: 280px; max-width: 380px; text-align: center; }
+        .fiber-section h4 { color: var(--primary); margin-bottom: 15px; font-size: 1.1rem; }
+        .fiber-box { background: var(--light); border: 2px dashed var(--accent); border-radius: 10px; padding: 20px; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
+        .fiber-item { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 8px; cursor: grab; transition: all 0.3s ease; user-select: none; font-size: 0.95rem; background: var(--white); border: 1px solid #eee; min-width: 150px; }
+        .fiber-item:hover { transform: scale(1.03); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .fiber-item.dragging { opacity: 0.5; cursor: grabbing; }
+        .fiber-item.selected { border-color: var(--accent); background: rgba(74, 144, 217, 0.15); }
+        .fiber-slot { width: 100%; height: 60px; border: 2px dashed #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; background: var(--white); }
+        .fiber-slot.drag-over { border-color: var(--accent); background: rgba(74, 144, 217, 0.1); }
+        .fiber-slot.correct { border-color: var(--success); background: rgba(40, 167, 69, 0.1); }
+        .fiber-slot.incorrect { border-color: var(--error); background: rgba(220, 53, 69, 0.1); }
+        .splicer-visual { background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%); border-radius: 15px; padding: 20px; max-width: 450px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .splicer-screen { background: #0a0; border-radius: 8px; padding: 15px; margin-bottom: 15px; font-family: monospace; text-align: center; }
+        .splicer-screen .title { color: #0f0; font-size: 0.85rem; }
+        .splicer-screen .value { color: #0f0; font-size: 1.2rem; font-weight: bold; }
+        .splicer-v-groove { display: flex; gap: 30px; justify-content: center; margin: 20px 0; }
+        .v-groove { width: 120px; height: 80px; background: #333; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+        .v-groove-label { color: #fff; font-size: 0.8rem; }
+        .v-groove-slot { width: 80px; height: 25px; border: 2px dashed #666; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .fiber-visual { width: 60px; height: 6px; background: linear-gradient(180deg, #87ceeb, #add8e6); border-radius: 3px; }
+        .splicer-electrode { display: flex; justify-content: center; gap: 8px; margin: 15px 0; }
+        .electrode { width: 8px; height: 40px; background: linear-gradient(180deg, #888, #444); border-radius: 2px; }
+        .electrode.arc { background: linear-gradient(180deg, #ff6b6b, #ffd93d); box-shadow: 0 0 20px #ff6b6b; animation: electrodeArc 0.5s ease-in-out infinite; }
+        @keyframes electrodeArc { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; box-shadow: 0 0 30px #ff6b6b; } }
+        .heat-sleeve-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 20px; }
+        .heat-sleeve-box { width: 200px; min-height: 150px; background: var(--light); border: 2px dashed var(--accent); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .heat-sleeve-box h5 { color: var(--primary); margin: 0; font-size: 1rem; }
+        .sleeve-slot { width: 100%; height: 40px; border: 2px dashed #ccc; border-radius: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+        .sleeve-slot.drag-over { border-color: var(--accent); background: rgba(74, 144, 217, 0.1); }
+        .sleeve-slot.filled { border-style: solid; border-color: var(--success); background: rgba(40, 167, 69, 0.1); }
+        .sleeve-item { width: 80px; height: 25px; background: linear-gradient(180deg, #fff, #e0e0e0); border: 1px solid #ccc; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: grab; }
+        .heat-progress { width: 100%; height: 30px; background: var(--light); border-radius: 15px; overflow: hidden; margin: 15px 0; }
+        .heat-progress-bar { height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffd93d, #28a745); width: 0%; transition: width 0.5s ease; }
+        .heat-progress-bar.heating { animation: heatGlow 0.5s ease-in-out infinite; }
+        @keyframes heatGlow { 0%, 100% { box-shadow: 0 0 10px #ff6b6b; } 50% { box-shadow: 0 0 25px #ff6b6b; } }
+        .splice-result { background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 10px; margin: 15px 0; text-align: center; }
+        .splice-result.fail { background: linear-gradient(135deg, #dc3545, #c82333); }
+        .splice-result .loss-value { font-size: 2rem; font-weight: bold; margin: 10px 0; }
+        .fiber-box-container { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; padding: 20px; }
+        .fiber-box-section { text-align: center; }
+        .fiber-box-section h4 { color: var(--primary); margin-bottom: 15px; font-size: 1.1rem; }
+        .fiber-storage-box { width: 350px; height: 280px; background: linear-gradient(180deg, #f5f5f5, #e0e0e0); border: 3px solid #666; border-radius: 10px; position: relative; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 5px; padding: 10px; }
+        .storage-cell { background: var(--white); border: 1px dashed #999; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #999; transition: all 0.3s ease; cursor: pointer; min-height: 80px; }
+        .storage-cell.occupied { background: rgba(74, 144, 217, 0.1); border: 2px solid var(--accent); color: var(--primary); font-size: 0.7rem; }
+        .storage-cell.occupied.warning { background: rgba(220, 53, 69, 0.1); border-color: var(--error); }
+        .storage-cell:hover { border-color: var(--accent); }
+        .fiber-coil { width: 50px; height: 50px; border: 3px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .fiber-coil-inner { width: 30px; height: 30px; border: 2px solid var(--accent); border-radius: 50%; }
+        .tool-selector { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+        .tool-btn { padding: 15px 25px; border: 2px solid var(--light); background: var(--white); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 120px; }
+        .tool-btn:hover { border-color: var(--accent); background: var(--light); transform: translateY(-2px); }
+        .tool-btn.selected { border-color: var(--accent); background: rgba(74, 144, 217, 0.15); }
+        .tool-btn.correct { border-color: var(--success); background: rgba(40, 167, 69, 0.1); }
+        .tool-btn.incorrect { border-color: var(--error); background: rgba(220, 53, 69, 0.1); }
+        .tool-icon { width: 40px; height: 40px; background: var(--light); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .length-selector { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+        .length-btn { padding: 12px 20px; border: 2px solid var(--light); background: var(--white); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; }
+        .length-btn:hover { border-color: var(--accent); }
+        .length-btn.selected { border-color: var(--accent); background: rgba(74, 144, 217, 0.1); }
+        .length-btn.correct { border-color: var(--success); background: rgba(40, 167, 69, 0.1); }
+        .length-btn.incorrect { border-color: var(--error); background: rgba(220, 53, 69, 0.1); }
+        .clean-steps { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+        .clean-step { padding: 15px 20px; background: var(--white); border: 2px solid var(--light); border-radius: 10px; cursor: grab; transition: all 0.3s ease; min-width: 150px; text-align: center; }
+        .clean-step:hover { transform: scale(1.03); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .clean-step.dragging { opacity: 0.5; }
+        .clean-step.correct { border-color: var(--success); background: rgba(40, 167, 69, 0.1); }
+        .clean-step.incorrect { border-color: var(--error); background: rgba(220, 53, 69, 0.1); }
+        .clean-target { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; min-height: 60px; padding: 15px; background: var(--light); border-radius: 10px; margin-top: 20px; }
+        .cut-visual { text-align: center; padding: 30px; }
+        .cut-visual svg { max-width: 100%; }
+        .arc-animation { animation: arcFlash 0.3s ease-in-out 3; }
+        @keyframes arcFlash { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; filter: brightness(2); } }
+        .fiber-status { display: flex; gap: 20px; justify-content: center; margin: 15px 0; }
+        .status-indicator { display: flex; align-items: center; gap: 8px; padding: 8px 15px; background: var(--light); border-radius: 20px; font-size: 0.9rem; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; background: #ccc; }
+        .status-dot.ready { background: var(--success); }
+        .status-dot.active { background: var(--accent); animation: pulse 1s infinite; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">综合布线虚拟仿真</div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="home">首页</a>
+                <a href="#" class="nav-link" data-page="module1">模块一</a>
+                <a href="#" class="nav-link" data-page="module2">模块二</a>
+                <a href="#" class="nav-link" data-page="module3">模块三</a>
+                <a href="#" class="nav-link" data-page="module4">模块四</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 首页 -->
+    <div id="page-home" class="page active">
+        <header class="page-header">
+            <h1>综合布线实训室虚拟仿真平台</h1>
+            <p class="subtitle">山东工业技师学院 · 计算机网络应用专业</p>
+        </header>
+        <main class="container">
+            <section class="hero">
+                <h2>选择实训模块</h2>
+                <p>通过虚拟仿真技术，在安全的模拟环境中练习综合布线实操技能，掌握行业标准规范。</p>
+            </section>
+            <section class="modules-grid">
+                <div class="card module-card" onclick="showModule(1)">
+                    <div class="module-icon">
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/></svg>
+                    </div>
+                    <span class="module-number">1</span>
+                    <h3>双绞线T568B端接实操</h3>
+                    <p>学习并实践T568B标准的网线端接技术，完成从剥线到压接的全流程操作。</p>
+                </div>
+                <div class="card module-card" onclick="showModule(2)">
+                    <div class="module-icon">
+                        <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                    </div>
+                    <span class="module-number">2</span>
+                    <h3>配线架打线实操</h3>
+                    <p>掌握配线架的标准打线方法，学习T568A/B线序标准，完成110型配线架端接。</p>
+                </div>
+                <div class="card module-card" onclick="showModule(3)">
+                    <div class="module-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H6v-2h6v2zm4-4H6v-2h10v2zm0-4H6V7h10v2z"/></svg>
+                    </div>
+                    <span class="module-number">3</span>
+                    <h3>链路测试与认证</h3>
+                    <p>使用专业测试仪对布线链路进行认证测试，分析测试结果并生成测试报告。</p>
+                </div>
+                <div class="card module-card" onclick="showModule(4)">
+                    <div class="module-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    </div>
+                    <span class="module-number">4</span>
+                    <h3>光纤熔接实操</h3>
+                    <p>学习光纤熔接的全流程操作，从开剥光缆到盘纤收容，掌握光纤接续的核心技术。</p>
+                </div>
+            </section>
+        </main>
+        <footer class="footer">
+            <p>2024 山东工业技师学院 · 计算机网络应用专业 · 综合布线实训虚拟仿真平台</p>
+        </footer>
+    </div>
+
+    <!-- 模块1：双绞线T568B端接实操 -->
+    <div id="page-module1" class="page">
+        <header class="page-header">
+            <h1>模块一：双绞线T568B端接实操</h1>
+            <p class="subtitle">学习T568B标准端接技术</p>
+        </header>
+        <main class="container">
+            <div class="step-indicator" id="steps-m1">
+                <div class="step-dot active" data-step="1">1</div>
+                <div class="step-dot" data-step="2">2</div>
+                <div class="step-dot" data-step="3">3</div>
+                <div class="step-dot" data-step="4">4</div>
+                <div class="step-dot" data-step="5">5</div>
+            </div>
+            <div class="experiment-area">
+                <!-- Step 1: 剥线 -->
+                <div id="m1-step1" class="step-content">
+                    <h3 class="experiment-title">Step 1：剥线</h3>
+                    <div class="experiment-instruction">
+                        <p>使用剥线钳剥除网线外皮，露出内部8根芯线。请选择正确的剥线长度：</p>
+                    </div>
+                    <div class="tip-box"><strong>提示：</strong>剥线长度应适中，太短无法排列线序，太长会超出水晶头。通常2cm左右为宜。</div>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="1cm" onclick="checkM1Step1(this)">1cm</button>
+                        <button class="option-btn" data-value="2cm" onclick="checkM1Step1(this)">2cm</button>
+                        <button class="option-btn" data-value="3cm" onclick="checkM1Step1(this)">3cm</button>
+                    </div>
+                    <div id="m1-step1-visual" class="hidden" style="text-align: center; margin-top: 20px;">
+                        <svg width="300" height="100" viewBox="0 0 300 100">
+                            <rect x="0" y="40" width="300" height="20" fill="#333" rx="5"/>
+                            <rect x="80" y="35" width="120" height="30" fill="none" stroke="#4a90d9" stroke-width="2" stroke-dasharray="5,3"/>
+                            <text x="140" y="30" fill="#666" font-size="12" text-anchor="middle">2cm</text>
+                            <line x1="100" y1="35" x2="100" y2="65" stroke="#fff" stroke-width="4"/>
+                            <line x1="115" y1="35" x2="115" y2="65" stroke="#ff8c00" stroke-width="4"/>
+                            <line x1="130" y1="35" x2="130" y2="65" stroke="#90ee90" stroke-width="4"/>
+                            <line x1="145" y1="35" x2="145" y2="65" stroke="#4169e1" stroke-width="4"/>
+                            <line x1="160" y1="35" x2="160" y2="65" stroke="#87ceeb" stroke-width="4"/>
+                            <line x1="175" y1="35" x2="175" y2="65" stroke="#228b22" stroke-width="4"/>
+                            <line x1="190" y1="35" x2="190" y2="65" stroke="#d2b48c" stroke-width="4"/>
+                            <line x1="205" y1="35" x2="205" y2="65" stroke="#8b4513" stroke-width="4"/>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Step 2: 排列线序 -->
+                <div id="m1-step2" class="step-content hidden">
+                    <h3 class="experiment-title">Step 2：排列线序（核心步骤）</h3>
+                    <div class="experiment-instruction">
+                        <p>按照 <strong>T568B标准</strong> 排列8根芯线的顺序。将左侧散乱的线拖拽到右侧对应位置。</p>
+                    </div>
+                    <div class="tip-box"><strong>T568B线序：</strong>白橙-橙-白绿-蓝-白蓝-绿-白棕-棕</div>
+                    <div class="drag-container">
+                        <div class="drag-section">
+                            <h4>待排列的线</h4>
+                            <div class="drag-box"><div class="drag-box-inner" id="m1-source"></div></div>
+                        </div>
+                        <div class="drag-section">
+                            <h4>目标位置</h4>
+                            <div class="drag-box"><div class="drag-box-inner" id="m1-target"></div></div>
+                        </div>
+                    </div>
+                    <div id="m1-step2-feedback"></div>
+                </div>
+                <!-- Step 3: 剪齐 -->
+                <div id="m1-step3" class="step-content hidden">
+                    <h3 class="experiment-title">Step 3：剪齐</h3>
+                    <div class="experiment-instruction"><p>将排列好的线序剪齐，保留适当长度以便插入水晶头。</p></div>
+                    <div class="tip-box"><strong>提示：</strong>剪齐后长度约1.5cm，确保能完全插入水晶头底部。</div>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="1cm" onclick="checkM1Step3(this)">1cm</button>
+                        <button class="option-btn" data-value="1.5cm" onclick="checkM1Step3(this)">1.5cm</button>
+                        <button class="option-btn" data-value="2.5cm" onclick="checkM1Step3(this)">2.5cm</button>
+                    </div>
+                    <div id="m1-step3-visual" class="hidden" style="text-align: center; margin-top: 20px;">
+                        <svg width="250" height="80" viewBox="0 0 250 80">
+                            <rect x="20" y="30" width="210" height="20" fill="#333" rx="5"/>
+                            <rect x="120" y="25" width="100" height="30" fill="none" stroke="#4a90d9" stroke-width="2"/>
+                            <text x="170" y="20" fill="#666" font-size="11" text-anchor="middle">保留1.5cm</text>
+                            <line x1="120" y1="20" x2="120" y2="60" stroke="#dc3545" stroke-width="2" stroke-dasharray="4,2"/>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Step 4: 插入水晶头 -->
+                <div id="m1-step4" class="step-content hidden">
+                    <h3 class="experiment-title">Step 4：插入水晶头</h3>
+                    <div class="experiment-instruction"><p>将剪齐后的8根芯线插入RJ45水晶头，确保每根线都到达水晶头顶部。</p></div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="background: #333; padding: 20px; border-radius: 10px; display: inline-block;">
+                            <p style="color: #fff; margin-bottom: 15px;">水晶头视图</p>
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                <div style="width: 30px; height: 50px; background: linear-gradient(180deg, #ffd700, #daa520); border-radius: 3px;"></div>
+                                <div style="width: 30px; height: 50px; background: linear-gradient(180deg, #ffd700, #daa520); border-radius: 3px;"></div>
+                                <div style="width: 30px; height: 50px; background: linear-gradient(180deg, #ffd700, #daa520); border-radius: 3px;"></div>
+                                <div style="width: 30px; height: 50px; background: linear-gradient(180deg, #ffd700, #daa520); border-radius: 3px;"></div>
+                                <div style="width: 30px; height: 50px; background: linear-gradient(180deg, #ffd700, #daa520); border-radius: 3px;"></div>
+                                <div style="width: 30px; height: 50px; background: linear-gradient(180deg, #ffd700, #daa520); border-radius: 3px;"></div>
+                                <div style="width: 30px; height: 50px; background: linear-gradient(180deg, #ffd700, #daa520); border-radius: 3px;"></div>
+                                <div style="width: 30px; height: 50px; background: linear-gradient(180deg, #ffd700, #daa520); border-radius: 3px;"></div>
+                            </div>
+                            <p style="color: #aaa; margin-top: 10px; font-size: 0.85rem;">8个金属引脚</p>
+                        </div>
+                    </div>
+                    <div class="action-area"><button class="btn btn-primary" onclick="checkM1Step4()">插入水晶头</button></div>
+                    <div id="m1-step4-feedback"></div>
+                </div>
+                <!-- Step 5: 压接 -->
+                <div id="m1-step5" class="step-content hidden">
+                    <h3 class="experiment-title">Step 5：压接</h3>
+                    <div class="experiment-instruction"><p>使用压线钳对水晶头进行压接，使铜片刺破线芯形成可靠连接。</p></div>
+                    <div style="text-align: center; padding: 20px;">
+                        <svg width="300" height="120" viewBox="0 0 300 120" id="crimp-tool">
+                            <g id="tool-body"><rect x="100" y="20" width="100" height="50" fill="#666" rx="5"/><rect x="110" y="30" width="80" height="30" fill="#444" rx="3"/><text x="150" y="50" fill="#fff" font-size="10" text-anchor="middle">压线钳</text></g>
+                            <rect x="120" y="80" width="60" height="30" fill="#555" rx="3"/>
+                            <text x="150" y="100" fill="#aaa" font-size="10" text-anchor="middle">水晶头</text>
+                        </svg>
+                    </div>
+                    <div class="action-area"><button class="btn btn-primary" onclick="checkM1Step5()">压接完成</button></div>
+                </div>
+                <!-- 完成界面 -->
+                <div id="m1-complete" class="step-content hidden">
+                    <div class="score-display">
+                        <h3 class="experiment-title">恭喜完成！</h3>
+                        <div class="score-circle"><span class="score-value" id="m1-total-score">0</span><span class="score-label">总分</span></div>
+                        <div class="score-breakdown" id="m1-score-breakdown"></div>
+                        <div class="feedback" id="m1-final-feedback"></div>
+                        <div class="action-area" style="margin-top: 30px;">
+                            <button class="btn btn-secondary" onclick="resetModule1()">重新开始</button>
+                            <button class="btn btn-primary" onclick="showModule(2)">下一模块</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-area" id="m1-nav-buttons" style="display: none;">
+                    <button class="btn btn-primary" id="m1-next-btn" onclick="nextStepM1()">下一步</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 模块2：配线架打线实操 -->
+    <div id="page-module2" class="page">
+        <header class="page-header">
+            <h1>模块二：配线架打线实操</h1>
+            <p class="subtitle">110型配线架标准端接</p>
+        </header>
+        <main class="container">
+            <div class="step-indicator" id="steps-m2">
+                <div class="step-dot active" data-step="1">1</div>
+                <div class="step-dot" data-step="2">2</div>
+                <div class="step-dot" data-step="3">3</div>
+                <div class="step-dot" data-step="4">4</div>
+            </div>
+            <div class="experiment-area">
+                <div id="m2-step1" class="step-content">
+                    <h3 class="experiment-title">Step 1：选择线序标准</h3>
+                    <div class="experiment-instruction"><p>配线架端接需要选择正确的线序标准。请选择本次实训使用的标准：</p></div>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="T568A" onclick="checkM2Step1(this)">T568A</button>
+                        <button class="option-btn" data-value="T568B" onclick="checkM2Step1(this)">T568B</button>
+                    </div>
+                    <div id="m2-step1-feedback"></div>
+                </div>
+                <div id="m2-step2" class="step-content hidden">
+                    <h3 class="experiment-title">Step 2：按顺序放入卡槽</h3>
+                    <div class="experiment-instruction"><p>按照T568B线序，点击每个位置选择对应的颜色。</p></div>
+                    <div class="tip-box"><strong>提示：</strong>从左到右依次点击每个卡槽，选择对应的颜色。</div>
+                    <div class="punch-panel"><div class="punch-panel-header">110型配线架 - 端口01</div><div class="punch-rows" id="m2-punch-rows"></div></div>
+                    <div id="m2-step2-feedback"></div>
+                </div>
+                <div id="m2-step3" class="step-content hidden">
+                    <h3 class="experiment-title">Step 3：使用打线刀打线</h3>
+                    <div class="experiment-instruction"><p>使用打线刀将每根线打压到卡槽中，形成可靠连接。</p></div>
+                    <div class="punch-panel"><div class="punch-panel-header">配线架端口01 - 打线中</div><div class="punch-rows" id="m2-punch-rows-wired"></div></div>
+                    <div class="action-area"><button class="btn btn-primary" onclick="punchAllM2()">全部打线</button></div>
+                    <div id="m2-step3-feedback"></div>
+                </div>
+                <div id="m2-step4" class="step-content hidden">
+                    <h3 class="experiment-title">Step 4：标签标注</h3>
+                    <div class="experiment-instruction"><p>为配线架端口添加标签，便于识别和管理。</p></div>
+                    <div class="input-group" style="text-align: center;">
+                        <label>输入端口编号（如 D01）：</label>
+                        <input type="text" id="m2-port-label" placeholder="D01" maxlength="4" oninput="checkM2Step4()">
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <div class="punch-panel" style="display: inline-block;">
+                            <div class="punch-panel-header" id="m2-label-display">端口: 未标注</div>
+                            <p style="padding: 20px; color: var(--text-light);">配线架端口标识</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="m2-complete" class="step-content hidden">
+                    <div class="score-display">
+                        <h3 class="experiment-title">配线架打线完成！</h3>
+                        <div class="score-circle"><span class="score-value" id="m2-total-score">0</span><span class="score-label">总分</span></div>
+                        <div class="score-breakdown" id="m2-score-breakdown"></div>
+                        <div class="action-area" style="margin-top: 30px;">
+                            <button class="btn btn-secondary" onclick="resetModule2()">重新开始</button>
+                            <button class="btn btn-primary" onclick="showModule(3)">下一模块</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-area" id="m2-nav-buttons" style="display: none;"><button class="btn btn-primary" id="m2-next-btn" onclick="nextStepM2()">下一步</button></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 模块3：链路测试与认证 -->
+    <div id="page-module3" class="page">
+        <header class="page-header">
+            <h1>模块三：链路测试与认证</h1>
+            <p class="subtitle">TIA标准测试与认证分析</p>
+        </header>
+        <main class="container">
+            <div class="step-indicator" id="steps-m3">
+                <div class="step-dot active" data-step="1">1</div>
+                <div class="step-dot" data-step="2">2</div>
+                <div class="step-dot" data-step="3">3</div>
+                <div class="step-dot" data-step="4">4</div>
+            </div>
+            <div class="experiment-area">
+                <div id="m3-step1" class="step-content">
+                    <h3 class="experiment-title">Step 1：选择测试标准</h3>
+                    <div class="experiment-instruction"><p>根据布线等级选择对应的测试标准。本次实训链路应选择：</p></div>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="Cat5e" onclick="checkM3Step1(this)">Cat5e</button>
+                        <button class="option-btn" data-value="Cat6" onclick="checkM3Step1(this)">Cat6</button>
+                    </div>
+                    <div id="m3-step1-feedback"></div>
+                </div>
+                <div id="m3-step2" class="step-content hidden">
+                    <h3 class="experiment-title">Step 2：连接测试仪</h3>
+                    <div class="experiment-instruction"><p>将测试仪的主机和远端单元分别连接到链路两端，然后点击"开始测试"。</p></div>
+                    <div class="tester-container">
+                        <div class="tester-unit">
+                            <div class="tester-body">
+                                <div class="tester-screen">MAIN UNIT<br>Ready...</div>
+                                <div class="tester-leds"><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div></div>
+                                <div class="tester-port"></div>
+                                <p style="color: #fff; font-size: 0.8rem; margin-top: 10px;">主机单元</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; margin-top: 100px;">
+                            <svg width="150" height="20" viewBox="0 0 150 40"><path d="M0,20 L150,20" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round"/></svg>
+                        </div>
+                        <div class="tester-unit">
+                            <div class="tester-body">
+                                <div class="tester-screen">REMOTE<br>Waiting...</div>
+                                <div class="tester-leds"><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div><div class="led"></div></div>
+                                <div class="tester-port"></div>
+                                <p style="color: #fff; font-size: 0.8rem; margin-top: 10px;">远端单元</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-area"><button class="btn btn-primary" onclick="checkM3Step2()">开始测试</button></div>
+                    <div id="m3-step2-feedback"></div>
+                </div>
+                <div id="m3-step3" class="step-content hidden">
+                    <h3 class="experiment-title">Step 3：测试结果分析</h3>
+                    <div class="experiment-instruction"><p>测试已完成，请查看以下测试参数结果：</p></div>
+                    <div class="test-results">
+                        <table><thead><tr><th>测试参数</th><th>测量值</th><th>限值</th><th>结果</th></tr></thead><tbody id="m3-test-results-body"></tbody></table>
+                    </div>
+                    <div id="m3-step3-feedback"></div>
+                </div>
+                <div id="m3-step4" class="step-content hidden">
+                    <h3 class="experiment-title">Step 4：不合格项分析与整改</h3>
+                    <div class="experiment-instruction"><p>请分析测试结果中不合格的项目，并查看整改建议：</p></div>
+                    <div id="m3-analysis-results"></div>
+                    <div class="action-area"><button class="btn btn-primary" onclick="generateReport()">生成测试报告</button></div>
+                </div>
+                <div id="m3-report" class="step-content hidden">
+                    <div class="report-container">
+                        <div class="report-header"><h2>链路测试认证报告</h2><p>Certification Test Report</p></div>
+                        <div class="report-info">
+                            <div><strong>测试日期：</strong><span id="report-date"></span></div>
+                            <div><strong>测试标准：</strong><span id="report-standard"></span></div>
+                            <div><strong>链路类型：</strong>永久链路</div>
+                            <div><strong>测试结果：</strong><span id="report-result" class="status-fail">不合格</span></div>
+                        </div>
+                        <div class="report-section"><h4>测试摘要</h4><div id="report-summary"></div></div>
+                        <div class="report-section"><h4>不合格项整改建议</h4><div id="report-recommendations"></div></div>
+                        <div class="action-area">
+                            <button class="btn btn-secondary" onclick="window.print()">打印报告</button>
+                            <button class="btn btn-primary" onclick="showModule(1)">返回首页</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-area" id="m3-nav-buttons" style="display: none;"><button class="btn btn-primary" id="m3-next-btn" onclick="nextStepM3()">下一步</button></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 模块4：光纤熔接实操 -->
+    <div id="page-module4" class="page">
+        <header class="page-header">
+            <h1>模块四：光纤熔接实操</h1>
+            <p class="subtitle">光纤端面制备与熔接技术</p>
+        </header>
+        <main class="container">
+            <div class="step-indicator" id="steps-m4">
+                <div class="step-dot active" data-step="1">1</div>
+                <div class="step-dot" data-step="2">2</div>
+                <div class="step-dot" data-step="3">3</div>
+                <div class="step-dot" data-step="4">4</div>
+                <div class="step-dot" data-step="5">5</div>
+                <div class="step-dot" data-step="6">6</div>
+                <div class="step-dot" data-step="7">7</div>
+                <div class="step-dot" data-step="8">8</div>
+            </div>
+            <div class="experiment-area">
+                <!-- Step 1: 开剥光缆 -->
+                <div id="m4-step1" class="step-content">
+                    <h3 class="experiment-title">Step 1：开剥光缆</h3>
+                    <div class="experiment-instruction">
+                        <p>使用开剥工具去除光缆外护套，露出内部光纤。请选择正确的开剥长度：</p>
+                    </div>
+                    <div class="tip-box"><strong>知识要点：</strong>开剥长度应适中，通常30-50cm为宜，便于后续操作且不浪费材料。</div>
+                    <div class="length-selector">
+                        <button class="length-btn" data-value="20cm" onclick="checkM4Step1(this, 'length')">20cm</button>
+                        <button class="length-btn" data-value="40cm" onclick="checkM4Step1(this, 'length')">40cm</button>
+                        <button class="length-btn" data-value="60cm" onclick="checkM4Step1(this, 'length')">60cm</button>
+                    </div>
+                    <div id="m4-step1-feedback"></div>
+                    <div id="m4-step1-visual" class="hidden" style="text-align: center; margin-top: 20px;">
+                        <svg width="350" height="120" viewBox="0 0 350 120">
+                            <rect x="10" y="50" width="330" height="25" fill="#333" rx="5"/>
+                            <rect x="80" y="45" width="150" height="35" fill="none" stroke="#4a90d9" stroke-width="2" stroke-dasharray="5,3"/>
+                            <text x="155" y="35" fill="#666" font-size="12" text-anchor="middle">开剥区域 40cm</text>
+                            <rect x="80" y="48" width="150" height="29" fill="#add8e6" opacity="0.3"/>
+                            <text x="155" y="105" fill="#999" font-size="11" text-anchor="middle">外护套已开剥</text>
+                        </svg>
+                    </div>
+                    <div class="tool-selector hidden" id="m4-step1-tools" style="margin-top: 20px;">
+                        <p style="width: 100%; text-align: center; margin-bottom: 15px;">选择开剥工具：</p>
+                        <button class="tool-btn" data-tool="knife" onclick="checkM4Step1(this, 'tool')">
+                            <div class="tool-icon">🔪</div>
+                            <span>光缆开剥刀</span>
+                        </button>
+                        <button class="tool-btn" data-tool="scissors" onclick="checkM4Step1(this, 'tool')">
+                            <div class="tool-icon">✂️</div>
+                            <span>普通剪刀</span>
+                        </button>
+                        <button class="tool-btn" data-tool="stripper" onclick="checkM4Step1(this, 'tool')">
+                            <div class="tool-icon">⚡</div>
+                            <span>光纤剥线钳</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: 剥除涂覆层 -->
+                <div id="m4-step2" class="step-content hidden">
+                    <h3 class="experiment-title">Step 2：剥除涂覆层</h3>
+                    <div class="experiment-instruction">
+                        <p>使用米勒钳剥除光纤涂覆层，露出裸光纤。请选择正确的剥除长度：</p>
+                    </div>
+                    <div class="tip-box"><strong>知识要点：</strong>涂覆层剥除长度通常为3-5cm，过长会削弱光纤强度，过短影响熔接。</div>
+                    <div class="length-selector">
+                        <button class="length-btn" data-value="1cm" onclick="checkM4Step2(this)">1cm</button>
+                        <button class="length-btn" data-value="4cm" onclick="checkM4Step2(this)">4cm</button>
+                        <button class="length-btn" data-value="8cm" onclick="checkM4Step2(this)">8cm</button>
+                    </div>
+                    <div id="m4-step2-feedback"></div>
+                    <div id="m4-step2-visual" class="hidden" style="text-align: center; margin-top: 20px;">
+                        <svg width="300" height="100" viewBox="0 0 300 100">
+                            <rect x="20" y="45" width="260" height="15" fill="#333" rx="3"/>
+                            <rect x="80" y="42" width="100" height="21" fill="none" stroke="#4a90d9" stroke-width="2" stroke-dasharray="4,2"/>
+                            <rect x="80" y="43" width="100" height="19" fill="#add8e6" opacity="0.4"/>
+                            <rect x="80" y="48" width="100" height="9" fill="#87ceeb"/>
+                            <text x="130" y="85" fill="#666" font-size="11" text-anchor="middle">涂覆层 4cm | 裸光纤 4cm</text>
+                            <text x="130" y="25" fill="#666" font-size="10" text-anchor="middle">涂覆层剥除后</text>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Step 3: 清洁光纤 -->
+                <div id="m4-step3" class="step-content hidden">
+                    <h3 class="experiment-title">Step 3：清洁光纤</h3>
+                    <div class="experiment-instruction">
+                        <p>按照正确顺序清洁光纤端面。将下方步骤拖拽到正确顺序：</p>
+                    </div>
+                    <div class="tip-box"><strong>清洁顺序：</strong>酒精棉擦拭 → 干燥擦拭 → 端面检查。正确的清洁顺序确保光纤端面无污染。</div>
+                    <div id="m4-clean-source" class="clean-steps"></div>
+                    <div class="clean-target" id="m4-clean-target">
+                        <span style="color: #999; font-size: 0.9rem;">拖拽步骤到这里排序</span>
+                    </div>
+                    <div id="m4-step3-feedback"></div>
+                </div>
+                
+                <!-- Step 4: 切割光纤 -->
+                <div id="m4-step4" class="step-content hidden">
+                    <h3 class="experiment-title">Step 4：切割光纤</h3>
+                    <div class="experiment-instruction">
+                        <p>使用光纤切割刀切割光纤端面。请选择正确的切割长度（预留长度）：</p>
+                    </div>
+                    <div class="tip-box"><strong>知识要点：</strong>切割后预留长度通常为15-20mm，确保端面垂直、角度偏差&lt;1°。</div>
+                    <div class="length-selector">
+                        <button class="length-btn" data-value="10mm" onclick="checkM4Step4(this)">10mm</button>
+                        <button class="length-btn" data-value="18mm" onclick="checkM4Step4(this)">18mm</button>
+                        <button class="length-btn" data-value="25mm" onclick="checkM4Step4(this)">25mm</button>
+                    </div>
+                    <div id="m4-step4-feedback"></div>
+                    <div id="m4-step4-visual" class="hidden" style="text-align: center; margin-top: 20px;">
+                        <svg width="280" height="120" viewBox="0 0 280 120">
+                            <rect x="20" y="55" width="180" height="10" fill="#87ceeb" rx="2"/>
+                            <rect x="200" y="52" width="60" height="16" fill="#333" rx="2"/>
+                            <line x1="200" y1="50" x2="200" y2="70" stroke="#4a90d9" stroke-width="2" stroke-dasharray="4,2"/>
+                            <text x="230" y="45" fill="#666" font-size="10" text-anchor="middle">18mm</text>
+                            <path d="M140 35 L140 45 M155 30 L155 50 M170 35 L170 45" stroke="#dc3545" stroke-width="2"/>
+                            <text x="155" y="22" fill="#dc3545" font-size="11" text-anchor="middle">切割刀</text>
+                            <rect x="130" y="40" width="50" height="8" fill="#666" rx="2"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Step 5: 光纤对准放入熔接机 -->
+                <div id="m4-step5" class="step-content hidden">
+                    <h3 class="experiment-title">Step 5：光纤对准放入熔接机</h3>
+                    <div class="experiment-instruction">
+                        <p>将两根光纤分别放入熔接机左右两侧V型槽中，确保端面紧贴对准。</p>
+                    </div>
+                    <div class="fiber-status">
+                        <div class="status-indicator">
+                            <div class="status-dot" id="m4-left-status"></div>
+                            <span>左侧光纤</span>
+                        </div>
+                        <div class="status-indicator">
+                            <div class="status-dot" id="m4-right-status"></div>
+                            <span>右侧光纤</span>
+                        </div>
+                    </div>
+                    <div class="splicer-visual">
+                        <div class="splicer-screen">
+                            <div class="title">光纤熔接机</div>
+                            <div class="value" id="m4-splicer-status">待机中...</div>
+                        </div>
+                        <div class="splicer-v-groove">
+                            <div class="v-groove">
+                                <span class="v-groove-label">左侧 V型槽</span>
+                                <div class="v-groove-slot" id="m4-left-vgroove" ondragover="handleFiberDragOver(event)" ondragleave="handleFiberDragLeave(event)" ondrop="handleFiberDrop(event, 'left')">
+                                    <span style="color: #666; font-size: 0.8rem;">放入光纤</span>
+                                </div>
+                            </div>
+                            <div class="v-groove">
+                                <span class="v-groove-label">右侧 V型槽</span>
+                                <div class="v-groove-slot" id="m4-right-vgroove" ondragover="handleFiberDragOver(event)" ondragleave="handleFiberDragLeave(event)" ondrop="handleFiberDrop(event, 'right')">
+                                    <span style="color: #666; font-size: 0.8rem;">放入光纤</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="splicer-electrode">
+                            <div class="electrode" id="m4-electrode1"></div>
+                            <div class="electrode" id="m4-electrode2"></div>
+                        </div>
+                    </div>
+                    <div class="fiber-container" style="margin-top: 20px;">
+                        <div class="fiber-section">
+                            <h4>可用光纤</h4>
+                            <div class="fiber-box" id="m4-fiber-source">
+                                <div class="fiber-item" draggable="true" data-fiber="left" ondragstart="handleFiberDragStart(event)">
+                                    <div style="width: 60px; height: 6px; background: linear-gradient(90deg, #87ceeb, #add8e6); border-radius: 3px;"></div>
+                                    <span>左侧光纤</span>
+                                </div>
+                                <div class="fiber-item" draggable="true" data-fiber="right" ondragstart="handleFiberDragStart(event)">
+                                    <div style="width: 60px; height: 6px; background: linear-gradient(90deg, #90ee90, #98fb98); border-radius: 3px;"></div>
+                                    <span>右侧光纤</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="m4-step5-feedback"></div>
+                </div>
+                
+                <!-- Step 6: 熔接 -->
+                <div id="m4-step6" class="step-content hidden">
+                    <h3 class="experiment-title">Step 6：熔接</h3>
+                    <div class="experiment-instruction">
+                        <p>确认光纤位置正确后，点击"开始熔接"按钮进行光纤熔接。</p>
+                    </div>
+                    <div class="tip-box"><strong>熔接标准：</strong>合格熔接损耗应&lt;0.1dB，优质熔接&lt;0.05dB。单模光纤熔接损耗通常比多模光纤更低。</div>
+                    <div class="splicer-visual" id="m4-splicer-visual">
+                        <div class="splicer-screen">
+                            <div class="title">熔接中...</div>
+                            <div class="value" id="m4-arc-status">准备放电</div>
+                        </div>
+                        <div class="splicer-v-groove">
+                            <div class="v-groove">
+                                <span class="v-groove-label">左侧 V型槽</span>
+                                <div class="v-groove-slot" id="m4-step6-left" style="border-color: var(--success);">
+                                    <div class="fiber-visual"></div>
+                                </div>
+                            </div>
+                            <div class="v-groove">
+                                <span class="v-groove-label">右侧 V型槽</span>
+                                <div class="v-groove-slot" id="m4-step6-right" style="border-color: var(--success);">
+                                    <div class="fiber-visual"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="splicer-electrode">
+                            <div class="electrode" id="m4-step6-electrode1"></div>
+                            <div class="electrode" id="m4-step6-electrode2"></div>
+                        </div>
+                    </div>
+                    <div class="action-area"><button class="btn btn-primary" id="m4-splice-btn" onclick="startSplice()">开始熔接</button></div>
+                    <div id="m4-step6-result" class="hidden"></div>
+                    <div id="m4-step6-feedback"></div>
+                </div>
+                
+                <!-- Step 7: 热熔保护 -->
+                <div id="m4-step7" class="step-content hidden">
+                    <h3 class="experiment-title">Step 7：热熔保护</h3>
+                    <div class="experiment-instruction">
+                        <p>将热缩管移动到熔接点位置，然后放入加热器进行热熔保护。</p>
+                    </div>
+                    <div class="tip-box"><strong>热熔标准：</strong>加热温度通常为120-140°C，加热时间约60-90秒。热缩管应完全收缩并包裹住熔接点。</div>
+                    <div class="heat-sleeve-container">
+                        <div class="heat-sleeve-box">
+                            <h5>热缩管</h5>
+                            <div class="sleeve-slot" id="m4-sleeve-source" ondragover="handleSleeveDragOver(event)" ondragleave="handleSleeveDragLeave(event)" ondrop="handleSleeveDrop(event)">
+                                <div class="sleeve-item" draggable="true" id="m4-heat-sleeve" ondragstart="handleSleeveDragStart(event)">
+                                    <span style="font-size: 0.7rem;">热缩管</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="heat-sleeve-box" id="m4-splice-point-box" style="border-color: var(--success);">
+                            <h5>熔接点</h5>
+                            <div class="sleeve-slot filled" id="m4-splice-point" ondragover="handleSleeveDragOver(event)" ondragleave="handleSleeveDragLeave(event)" ondrop="handleSleeveDrop(event)">
+                                <div style="width: 60px; height: 6px; background: linear-gradient(90deg, #87ceeb, #90ee90); border-radius: 3px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="m4-step7-visual" class="hidden" style="text-align: center; margin-top: 20px;">
+                        <div class="heat-sleeve-box" style="width: 250px; margin: 0 auto; border-style: solid;">
+                            <h5>加热器</h5>
+                            <div style="background: #333; border-radius: 8px; padding: 20px; margin: 15px 0;">
+                                <div style="width: 100px; height: 35px; background: linear-gradient(180deg, #ff6b6b, #ffd93d); border-radius: 17px; margin: 0 auto; opacity: 0.8;"></div>
+                            </div>
+                            <div class="heat-progress">
+                                <div class="heat-progress-bar" id="m4-heat-bar"></div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: #666;" id="m4-heat-text">等待加热...</p>
+                        </div>
+                    </div>
+                    <div class="action-area">
+                        <button class="btn btn-primary" id="m4-heat-btn" onclick="startHeating()" style="display: none;">开始加热</button>
+                    </div>
+                    <div id="m4-step7-feedback"></div>
+                </div>
+                
+                <!-- Step 8: 盘纤收容 -->
+                <div id="m4-step8" class="step-content hidden">
+                    <h3 class="experiment-title">Step 8：盘纤收容</h3>
+                    <div class="experiment-instruction">
+                        <p>将熔接完成的光纤按照最小弯曲半径（≥30mm）盘入光纤盒中。</p>
+                    </div>
+                    <div class="tip-box"><strong>重要提示：</strong>光纤弯曲半径不得小于30mm，否则会造成光信号衰减甚至断裂！点击下方单元格放置光纤。</div>
+                    <div class="fiber-box-container">
+                        <div class="fiber-box-section">
+                            <h4>光纤盒 (9宫格)</h4>
+                            <div class="fiber-storage-box" id="m4-storage-box">
+                                <div class="storage-cell" data-index="0" onclick="placeFiberCoil(0)"><span>1</span></div>
+                                <div class="storage-cell" data-index="1" onclick="placeFiberCoil(1)"><span>2</span></div>
+                                <div class="storage-cell" data-index="2" onclick="placeFiberCoil(2)"><span>3</span></div>
+                                <div class="storage-cell" data-index="3" onclick="placeFiberCoil(3)"><span>4</span></div>
+                                <div class="storage-cell" data-index="4" onclick="placeFiberCoil(4)"><span>5</span></div>
+                                <div class="storage-cell" data-index="5" onclick="placeFiberCoil(5)"><span>6</span></div>
+                                <div class="storage-cell" data-index="6" onclick="placeFiberCoil(6)"><span>7</span></div>
+                                <div class="storage-cell" data-index="7" onclick="placeFiberCoil(7)"><span>8</span></div>
+                                <div class="storage-cell" data-index="8" onclick="placeFiberCoil(8)"><span>9</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="m4-step8-feedback"></div>
+                </div>
+                
+                <!-- 完成界面 -->
+                <div id="m4-complete" class="step-content hidden">
+                    <div class="score-display">
+                        <h3 class="experiment-title">光纤熔接实操完成！</h3>
+                        <div class="score-circle"><span class="score-value" id="m4-total-score">0</span><span class="score-label">总分</span></div>
+                        <div class="score-breakdown" id="m4-score-breakdown"></div>
+                        <div id="m4-final-feedback"></div>
+                        <div class="action-area" style="margin-top: 30px;">
+                            <button class="btn btn-secondary" onclick="resetModule4()">重新开始</button>
+                            <button class="btn btn-primary" onclick="showModule(1)">返回首页</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-area" id="m4-nav-buttons" style="display: none;">
+                    <button class="btn btn-primary" id="m4-next-btn" onclick="nextStepM4()">下一步</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const T568B_ORDER = ['白橙', '橙', '白绿', '蓝', '白蓝', '绿', '白棕', '棕'];
+        const WIRE_COLORS = { '白橙': '#fff', '橙': '#ff8c00', '白绿': '#fff', '绿': '#228b22', '蓝': '#4169e1', '白蓝': '#fff', '白棕': '#fff', '棕': '#8b4513' };
+        const WIRE_BORDER = { '白橙': '#ff8c00', '白绿': '#228b22', '白蓝': '#4169e1', '白棕': '#8b4513' };
+
+        let module1Scores = { step1: 0, step2: 0, step3: 0, step4: 0, step5: 0 };
+        let module2Scores = { step1: 0, step2: 0, step3: 0, step4: 0 };
+        let module3Scores = { step1: 0, step2: 0, step3: 0, step4: 0 };
+        let currentStepM1 = 0, m1PlacedWires = [], m1CorrectCount = 0;
+        let m2SelectedColors = [], m2PunchedCount = 0;
+        let m3TestResults = [
+            { name: '接线图 (Wire Map)', value: 'Pass', limit: 'Pass', status: 'pass' },
+            { name: '长度 (Length)', value: '72m', limit: '<=90m', status: 'pass' },
+            { name: '插入损耗 (IL)', value: '22.5dB', limit: '<=24.2dB', status: 'pass' },
+            { name: 'NEXT', value: '38.2dB', limit: '>=39.1dB', status: 'fail' },
+            { name: 'PS-NEXT', value: '36.8dB', limit: '>=36.1dB', status: 'pass' },
+            { name: '回波损耗 (RL)', value: '8.5dB', limit: '>=10.0dB', status: 'fail' },
+            { name: 'PS-ACR', value: '14.3dB', limit: '>=12.1dB', status: 'pass' }
+        ];
+        let draggedWire = null, selectedM2Wire = null;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelector('.nav-link[data-page="' + pageId + '"]')?.classList.add('active');
+        }
+
+        function showModule(num) {
+            showPage('module' + num);
+            if (num === 1) initModule1();
+            else if (num === 2) initModule2();
+            else if (num === 3) initModule3();
+            else if (num === 4) initModule4();
+        }
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => { 
+                e.preventDefault(); 
+                const page = link.dataset.page;
+                if (page === 'home') {
+                    showPage(page);
+                } else if (page.startsWith('module')) {
+                    const num = parseInt(page.replace('module', ''));
+                    showModule(num);
+                } else {
+                    showPage(page);
+                }
+            });
+        });
+
+        function initModule1() {
+            currentStepM1 = 1; m1PlacedWires = []; m1CorrectCount = 0;
+            module1Scores = { step1: 0, step2: 0, step3: 0, step4: 0, step5: 0 };
+            updateStepIndicator('m1', 1); showStepContent('m1', 1);
+            document.getElementById('m1-nav-buttons').style.display = 'none';
+            document.getElementById('m1-step1-visual').classList.add('hidden');
+            document.getElementById('m1-step2-feedback').innerHTML = '';
+            document.getElementById('m1-step3-visual').classList.add('hidden');
+            document.getElementById('m1-step4-feedback').innerHTML = '';
+            document.querySelectorAll('#m1-step1 .option-btn, #m1-step3 .option-btn').forEach(btn => btn.classList.remove('correct', 'incorrect', 'selected'));
+        }
+
+        function checkM1Step1(btn) {
+            const value = btn.dataset.value;
+            btn.parentElement.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('correct', 'incorrect'); if (b.dataset.value === '2cm') b.classList.add('correct'); });
+            btn.classList.add(value === '2cm' ? 'correct' : 'incorrect');
+            if (value === '2cm') {
+                module1Scores.step1 = 20;
+                showFeedback('m1-step1', '正确！2cm是合适的剥线长度。', 'success');
+                document.getElementById('m1-step1-visual').classList.remove('hidden');
+                setTimeout(() => { document.getElementById('m1-nav-buttons').style.display = 'flex'; document.getElementById('m1-next-btn').style.display = 'inline-flex'; }, 500);
+            } else { showFeedback('m1-step1', '不正确。剥线长度应为2cm左右。', 'error'); }
+        }
+
+        function initM1Step2() {
+            const source = document.getElementById('m1-source'), target = document.getElementById('m1-target');
+            const shuffled = [...T568B_ORDER].sort(() => Math.random() - 0.5);
+            m1PlacedWires = Array(8).fill(null); m1CorrectCount = 0;
+            source.innerHTML = ''; target.innerHTML = '';
+            shuffled.forEach((color, i) => { source.appendChild(createWireElement(color, i, true)); });
+            T568B_ORDER.forEach((expectedColor, i) => {
+                const slot = document.createElement('div');
+                slot.className = 'wire-slot';
+                slot.dataset.index = i; slot.dataset.expected = expectedColor;
+                slot.innerHTML = '<span class="slot-number">' + (i + 1) + '</span><span style="color: #999;">放入线材</span>';
+                slot.addEventListener('dragover', handleDragOver); slot.addEventListener('dragleave', handleDragLeave); slot.addEventListener('drop', handleDrop);
+                target.appendChild(slot);
+            });
+        }
+
+        function createWireElement(color, id, draggable) {
+            const wire = document.createElement('div');
+            wire.className = 'wire-item'; wire.draggable = draggable;
+            wire.dataset.color = color; wire.dataset.id = id;
+            wire.innerHTML = '<div class="wire-color" style="background:' + WIRE_COLORS[color] + ';border-color:' + (WIRE_BORDER[color] || 'transparent') + '"></div><span>' + color + '</span>';
+            if (draggable) { wire.addEventListener('dragstart', handleDragStart); wire.addEventListener('dragend', handleDragEnd); }
+            return wire;
+        }
+
+        function handleDragStart(e) { draggedWire = e.target.closest('.wire-item'); draggedWire.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+        function handleDragEnd(e) { if (draggedWire) draggedWire.classList.remove('dragging'); document.querySelectorAll('.wire-slot').forEach(slot => slot.classList.remove('drag-over')); }
+        function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+        function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const slot = e.currentTarget; slot.classList.remove('drag-over');
+            if (!draggedWire) return;
+            const color = draggedWire.dataset.color, index = parseInt(slot.dataset.index), expected = slot.dataset.expected;
+            if (m1PlacedWires[index]) { document.getElementById('m1-source').appendChild(createWireElement(m1PlacedWires[index], Date.now(), true)); }
+            m1PlacedWires[index] = color;
+            const wireEl = createWireElement(color, draggedWire.dataset.id, true); wireEl.classList.add('wire-insert');
+            slot.innerHTML = ''; slot.appendChild(wireEl);
+            if (color === expected) { slot.classList.add('correct'); slot.classList.remove('incorrect'); m1CorrectCount++; }
+            else { slot.classList.add('incorrect'); slot.classList.remove('correct'); }
+            draggedWire.remove(); checkM1Step2Complete();
+        }
+
+        function checkM1Step2Complete() {
+            if (m1PlacedWires.filter(w => w !== null).length === 8) {
+                const score = Math.round((m1CorrectCount / 8) * 60); module1Scores.step2 = score;
+                const feedbackEl = document.getElementById('m1-step2-feedback');
+                if (m1CorrectCount === 8) { feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">🎉</div><p>完美！线序完全正确！获得满分60分。</p></div>'; }
+                else { let wrongList = []; m1PlacedWires.forEach((color, i) => { if (color !== T568B_ORDER[i]) wrongList.push('位置' + (i+1) + ': 应为' + T568B_ORDER[i] + '，放了' + color); }); feedbackEl.innerHTML = '<div class="feedback warning"><div class="feedback-icon">⚠️</div><p>正确' + m1CorrectCount + '/8根线，获得' + score + '分。</p><p style="margin-top:10px;font-size:0.9rem;">' + wrongList.join('<br>') + '</p></div>'; }
+                setTimeout(() => { document.getElementById('m1-nav-buttons').style.display = 'flex'; document.getElementById('m1-next-btn').style.display = 'inline-flex'; }, 500);
+            }
+        }
+
+        function checkM1Step3(btn) {
+            const value = btn.dataset.value;
+            btn.parentElement.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('correct', 'incorrect'); if (b.dataset.value === '1.5cm') b.classList.add('correct'); });
+            btn.classList.add(value === '1.5cm' ? 'correct' : 'incorrect');
+            if (value === '1.5cm') { module1Scores.step3 = 10; showFeedback('m1-step3', '正确！保留1.5cm长度适中。', 'success'); document.getElementById('m1-step3-visual').classList.remove('hidden'); setTimeout(() => { document.getElementById('m1-nav-buttons').style.display = 'flex'; document.getElementById('m1-next-btn').style.display = 'inline-flex'; }, 500); }
+            else { showFeedback('m1-step3', '不正确。保留长度约1.5cm。', 'error'); }
+        }
+
+        function checkM1Step4() {
+            const feedbackEl = document.getElementById('m1-step4-feedback');
+            feedbackEl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            setTimeout(() => { module1Scores.step4 = 5; feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>水晶头插入完成！</p></div>'; setTimeout(() => { document.getElementById('m1-nav-buttons').style.display = 'flex'; document.getElementById('m1-next-btn').style.display = 'inline-flex'; }, 500); }, 800);
+        }
+
+        function checkM1Step5() {
+            document.getElementById('crimp-tool').classList.add('crimp-animation');
+            setTimeout(() => { module1Scores.step5 = 5; document.getElementById('m1-nav-buttons').innerHTML = ''; showM1Complete(); }, 600);
+        }
+
+        function showM1Complete() {
+            showStepContent('m1', 6); updateStepIndicator('m1', 6, true);
+            const total = Object.values(module1Scores).reduce((a, b) => a + b, 0);
+            document.getElementById('m1-total-score').textContent = total;
+            document.getElementById('m1-score-breakdown').innerHTML = '<div class="score-item"><span class="score-item-name">Step1 剥线 (20分)</span><span class="score-item-value ' + (module1Scores.step1 >= 15 ? 'pass' : 'fail') + '">' + module1Scores.step1 + '分</span></div>' + '<div class="score-item"><span class="score-item-name">Step2 线序 (60分)</span><span class="score-item-value ' + (module1Scores.step2 >= 45 ? 'pass' : 'fail') + '">' + module1Scores.step2 + '分</span></div>' + '<div class="score-item"><span class="score-item-name">Step3 剪齐 (10分)</span><span class="score-item-value ' + (module1Scores.step3 >= 8 ? 'pass' : 'fail') + '">' + module1Scores.step3 + '分</span></div>' + '<div class="score-item"><span class="score-item-name">Step4 插入 (5分)</span><span class="score-item-value pass">' + module1Scores.step4 + '分</span></div>' + '<div class="score-item"><span class="score-item-name">Step5 压接 (5分)</span><span class="score-item-value pass">' + module1Scores.step5 + '分</span></div>';
+            const feedback = document.getElementById('m1-final-feedback');
+            if (total >= 90) { feedback.className = 'feedback success'; feedback.innerHTML = '<div class="feedback-icon">🏆</div><p>优秀！您已掌握T568B端接技术！</p>'; }
+            else if (total >= 70) { feedback.className = 'feedback warning'; feedback.innerHTML = '<div class="feedback-icon">👍</div><p>良好！继续练习可进一步提高。</p>'; }
+            else { feedback.className = 'feedback error'; feedback.innerHTML = '<div class="feedback-icon">📚</div><p>建议重新练习，重点掌握线序排列。</p>'; }
+        }
+
+        function nextStepM1() { currentStepM1++; if (currentStepM1 === 2) initM1Step2(); updateStepIndicator('m1', currentStepM1); showStepContent('m1', currentStepM1); document.getElementById('m1-nav-buttons').style.display = 'none'; }
+        function resetModule1() { initModule1(); }
+
+        function initModule2() { module2Scores = { step1: 0, step2: 0, step3: 0, step4: 0 }; m2SelectedColors = []; m2PunchedCount = 0; updateStepIndicator('m2', 1); showStepContent('m2', 1); document.getElementById('m2-nav-buttons').style.display = 'none'; document.getElementById('m2-step1-feedback').innerHTML = ''; document.querySelectorAll('#m2-step1 .option-btn').forEach(btn => btn.classList.remove('correct', 'incorrect', 'selected')); }
+
+        function checkM2Step1(btn) {
+            const value = btn.dataset.value;
+            btn.parentElement.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('correct', 'incorrect'); if (b.dataset.value === 'T568B') b.classList.add('correct'); });
+            btn.classList.add(value === 'T568B' ? 'correct' : 'incorrect');
+            const feedbackEl = document.getElementById('m2-step1-feedback');
+            if (value === 'T568B') { module2Scores.step1 = 20; feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>正确！配线架应使用T568B标准线序。</p></div>'; setTimeout(() => { document.getElementById('m2-nav-buttons').style.display = 'flex'; document.getElementById('m2-next-btn').style.display = 'inline-flex'; }, 500); }
+            else { feedbackEl.innerHTML = '<div class="feedback error"><div class="feedback-icon">✗</div><p>不正确。配线架标准端接应使用T568B线序。</p></div>'; }
+        }
+
+        function initM2Step2() {
+            const rows = document.getElementById('m2-punch-rows'); rows.innerHTML = ''; m2SelectedColors = [];
+            const row = document.createElement('div'); row.className = 'punch-row';
+            const label = document.createElement('span'); label.className = 'punch-label'; label.textContent = '线序:'; row.appendChild(label);
+            const slots = document.createElement('div'); slots.className = 'punch-slots'; slots.id = 'm2-slots';
+            T568B_ORDER.forEach((color, i) => { const slot = document.createElement('div'); slot.className = 'punch-slot'; slot.dataset.index = i; slot.dataset.expected = color; slot.textContent = (i + 1); slot.onclick = function() { selectM2Color(i, this); }; slots.appendChild(slot); });
+            row.appendChild(slots); rows.appendChild(row);
+            let colorBtns = ''; T568B_ORDER.forEach(color => { colorBtns += '<button class="option-btn" data-color="' + color + '" onclick="selectM2WireColor(\'' + color + '\', this)" style="padding: 8px 12px; min-width: auto;"><span style="display:inline-block;width:20px;height:20px;background:' + WIRE_COLORS[color] + ';border:1px solid ' + (WIRE_BORDER[color] || '#ccc') + ';border-radius:3px;margin-right:5px;"></span>' + color + '</button>'; });
+            const colorSelect = document.createElement('div'); colorSelect.style.cssText = 'margin-top: 20px; text-align: center;'; colorSelect.innerHTML = '<p style="margin-bottom: 10px; color: #666;">选择颜色：</p><div class="options-grid" id="m2-color-options">' + colorBtns + '</div>'; rows.appendChild(colorSelect);
+        }
+
+        function selectM2WireColor(color, btn) { document.querySelectorAll('#m2-color-options .option-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedM2Wire = color; }
+
+        function selectM2Color(index, slot) {
+            if (!selectedM2Wire) { alert('请先选择一种线缆颜色！'); return; }
+            if (slot.classList.contains('selected') && m2SelectedColors[index] === selectedM2Wire) { slot.classList.remove('selected'); m2SelectedColors[index] = null; slot.style.background = ''; slot.style.color = '#666'; slot.textContent = (index + 1); }
+            else { slot.classList.add('selected'); m2SelectedColors[index] = selectedM2Wire; slot.style.background = WIRE_COLORS[selectedM2Wire]; slot.style.color = ['白橙', '白绿', '白蓝', '白棕'].includes(selectedM2Wire) ? '#333' : '#fff'; slot.textContent = selectedM2Wire; }
+            checkM2Step2Complete();
+        }
+
+        function checkM2Step2Complete() {
+            if (m2SelectedColors.filter(c => c !== null).length === 8) {
+                let correct = 0; m2SelectedColors.forEach((color, i) => { if (color === T568B_ORDER[i]) correct++; });
+                module2Scores.step2 = Math.round((correct / 8) * 50);
+                const feedbackEl = document.getElementById('m2-step2-feedback');
+                if (correct === 8) { feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">🎉</div><p>完美！线序完全正确！获得' + module2Scores.step2 + '分。</p></div>'; }
+                else { feedbackEl.innerHTML = '<div class="feedback warning"><div class="feedback-icon">⚠️</div><p>正确' + correct + '/8，获得' + module2Scores.step2 + '分。</p></div>'; }
+                setTimeout(() => { document.getElementById('m2-nav-buttons').style.display = 'flex'; document.getElementById('m2-next-btn').style.display = 'inline-flex'; }, 500);
+            }
+        }
+
+        function initM2Step3() {
+            const rows = document.getElementById('m2-punch-rows-wired'); rows.innerHTML = ''; m2PunchedCount = 0;
+            const row = document.createElement('div'); row.className = 'punch-row';
+            const label = document.createElement('span'); label.className = 'punch-label'; label.textContent = '线序:'; row.appendChild(label);
+            const slots = document.createElement('div'); slots.className = 'punch-slots'; slots.id = 'm2-wired-slots';
+            m2SelectedColors.forEach((color, i) => { const slot = document.createElement('div'); slot.className = 'punch-slot'; slot.dataset.index = i; slot.style.background = WIRE_COLORS[color]; slot.style.color = ['白橙', '白绿', '白蓝', '白棕'].includes(color) ? '#333' : '#fff'; slot.textContent = color; slot.id = 'm2-wired-slot-' + i; slots.appendChild(slot); });
+            row.appendChild(slots); rows.appendChild(row);
+        }
+
+        function punchAllM2() {
+            const slots = document.querySelectorAll('#m2-wired-slots .punch-slot'); let delay = 0;
+            slots.forEach((slot, i) => { setTimeout(() => { slot.classList.add('wired'); slot.style.background = '#28a745'; slot.innerHTML = '✓'; m2PunchedCount++; if (m2PunchedCount === 8) { module2Scores.step3 = 20; document.getElementById('m2-step3-feedback').innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>打线完成！获得' + module2Scores.step3 + '分。</p></div>'; setTimeout(() => { document.getElementById('m2-nav-buttons').style.display = 'flex'; document.getElementById('m2-next-btn').style.display = 'inline-flex'; }, 500); } }, delay); delay += 200; });
+        }
+
+        function checkM2Step4() {
+            const input = document.getElementById('m2-port-label'), value = input.value.toUpperCase();
+            document.getElementById('m2-label-display').textContent = '端口: ' + (value || '未标注');
+            const valid = /^[A-Z]\d{2}$/.test(value); input.style.borderColor = valid ? '#28a745' : (value.length >= 2 ? '#ffc107' : '');
+            if (valid) { module2Scores.step4 = 10; showM2Complete(); }
+        }
+
+        function showM2Complete() {
+            showStepContent('m2', 5); updateStepIndicator('m2', 5, true);
+            const total = Object.values(module2Scores).reduce((a, b) => a + b, 0);
+            document.getElementById('m2-total-score').textContent = total;
+            document.getElementById('m2-score-breakdown').innerHTML = '<div class="score-item"><span class="score-item-name">Step1 线序标准 (20分)</span><span class="score-item-value ' + (module2Scores.step1 >= 15 ? 'pass' : 'fail') + '">' + module2Scores.step1 + '分</span></div>' + '<div class="score-item"><span class="score-item-name">Step2 放入卡槽 (50分)</span><span class="score-item-value ' + (module2Scores.step2 >= 40 ? 'pass' : 'fail') + '">' + module2Scores.step2 + '分</span></div>' + '<div class="score-item"><span class="score-item-name">Step3 打线 (20分)</span><span class="score-item-value pass">' + module2Scores.step3 + '分</span></div>' + '<div class="score-item"><span class="score-item-name">Step4 标签标注 (10分)</span><span class="score-item-value pass">' + module2Scores.step4 + '分</span></div>';
+        }
+
+        function nextStepM2() {
+            const currentStep = parseInt(document.querySelector('#steps-m2 .step-dot.active').dataset.step), nextStep = currentStep + 1;
+            updateStepIndicator('m2', nextStep); showStepContent('m2', nextStep); document.getElementById('m2-nav-buttons').style.display = 'none';
+            if (nextStep === 2) initM2Step2(); else if (nextStep === 3) initM2Step3();
+        }
+        function resetModule2() { initModule2(); }
+
+        function initModule3() { module3Scores = { step1: 0, step2: 0, step3: 0, step4: 0 }; updateStepIndicator('m3', 1); showStepContent('m3', 1); document.getElementById('m3-nav-buttons').style.display = 'none'; document.getElementById('m3-step1-feedback').innerHTML = ''; document.querySelectorAll('#m3-step1 .option-btn').forEach(btn => btn.classList.remove('correct', 'incorrect', 'selected')); }
+
+        function checkM3Step1(btn) {
+            const value = btn.dataset.value;
+            btn.parentElement.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('correct', 'incorrect'); if (b.dataset.value === 'Cat6') b.classList.add('correct'); });
+            btn.classList.add(value === 'Cat6' ? 'correct' : 'incorrect');
+            const feedbackEl = document.getElementById('m3-step1-feedback');
+            if (value === 'Cat6') { module3Scores.step1 = 20; feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>正确！本次实训使用Cat6标准测试。</p></div>'; setTimeout(() => { document.getElementById('m3-nav-buttons').style.display = 'flex'; document.getElementById('m3-next-btn').style.display = 'inline-flex'; }, 500); }
+            else { feedbackEl.innerHTML = '<div class="feedback error"><div class="feedback-icon">✗</div><p>不正确。应选择Cat6标准进行测试。</p></div>'; }
+        }
+
+        function checkM3Step2() {
+            const feedbackEl = document.getElementById('m3-step2-feedback'); feedbackEl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            const leds = document.querySelectorAll('.tester-leds .led'); let ledIndex = 0;
+            const ledInterval = setInterval(() => { leds.forEach(led => led.classList.remove('on-green', 'on-red')); if (ledIndex < 16) { for (let i = 0; i < 8; i++) { if (Math.random() > 0.5) leds[i].classList.add(i < 4 ? 'on-red' : 'on-green'); } ledIndex++; } else { clearInterval(ledInterval); leds.forEach(led => led.classList.remove('on-green', 'on-red')); module3Scores.step2 = 20; feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>测试完成！正在分析结果...</p></div>'; setTimeout(() => { document.getElementById('m3-nav-buttons').style.display = 'flex'; document.getElementById('m3-next-btn').style.display = 'inline-flex'; }, 1000); } }, 150);
+        }
+
+        function initM3Step3() {
+            const tbody = document.getElementById('m3-test-results-body'); tbody.innerHTML = '';
+            m3TestResults.forEach(result => { const tr = document.createElement('tr'); tr.innerHTML = '<td>' + result.name + '</td><td>' + result.value + '</td><td>' + result.limit + '</td><td class="' + (result.status === 'pass' ? 'status-pass' : 'status-fail') + '">' + (result.status === 'pass' ? '✓ 通过' : '✗ 未通过') + '</td>'; tbody.appendChild(tr); });
+        }
+
+        function showM3Step3Feedback() {
+            const failCount = m3TestResults.filter(r => r.status === 'fail').length, passCount = m3TestResults.length - failCount;
+            module3Scores.step3 = Math.round((passCount / m3TestResults.length) * 40);
+            const feedbackEl = document.getElementById('m3-step3-feedback');
+            if (failCount === 0) { feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">🎉</div><p>所有测试项目通过！获得' + module3Scores.step3 + '分。</p></div>'; }
+            else { feedbackEl.innerHTML = '<div class="feedback warning"><div class="feedback-icon">⚠️</div><p>' + passCount + '/' + m3TestResults.length + '项通过，获得' + module3Scores.step3 + '分。</p><p style="margin-top:10px;">请分析不合格项并查看整改建议。</p></div>'; }
+            setTimeout(() => { document.getElementById('m3-nav-buttons').style.display = 'flex'; document.getElementById('m3-next-btn').style.display = 'inline-flex'; }, 500);
+        }
+
+        function initM3Step4() {
+            const analysisEl = document.getElementById('m3-analysis-results'); const failItems = m3TestResults.filter(r => r.status === 'fail');
+            if (failItems.length === 0) { analysisEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>所有测试项目均已通过！</p></div>'; module3Scores.step4 = 20; }
+            else {
+                let html = '<div class="card" style="margin-bottom: 20px;"><h4 style="color: var(--primary); margin-bottom: 15px;">不合格项分析：</h4>';
+                const recommendations = { 'NEXT': { reason: 'NEXT不合格，通常是由于线对绞距不当或端接质量差导致。', suggestion: '1. 检查水晶头端接质量<br>2. 确保线对绞距未被破坏<br>3. 重新制作水晶头' }, '回波损耗 (RL)': { reason: '回波损耗不合格，表示链路中存在阻抗不匹配。', suggestion: '1. 检查线缆是否有损伤<br>2. 检查连接器端接质量<br>3. 确保插头与插座匹配' } };
+                failItems.forEach(item => { const rec = recommendations[item.name] || { reason: '该参数不合格，需要进一步检查。', suggestion: '请检查端接质量和线缆状况。'; }; html += '<div style="margin-bottom: 20px; padding: 15px; background: rgba(220,53,69,0.1); border-radius: 8px;"><h5 style="color: var(--error);">❌ ' + item.name + '</h5><p><strong>原因：</strong>' + rec.reason + '</p><p><strong>整改建议：</strong>' + rec.suggestion + '</p></div>'; });
+                html += '</div>'; analysisEl.innerHTML = html;
+                module3Scores.step4 = Math.round(((m3TestResults.length - failItems.length) / m3TestResults.length) * 20);
+            }
+        }
+
+        function generateReport() {
+            showStepContent('m3', 5);
+            const today = new Date(); document.getElementById('report-date').textContent = today.toLocaleDateString('zh-CN'); document.getElementById('report-standard').textContent = 'TIA Cat6';
+            const failCount = m3TestResults.filter(r => r.status === 'fail').length;
+            document.getElementById('report-result').textContent = failCount === 0 ? '合格' : '不合格'; document.getElementById('report-result').className = failCount === 0 ? 'status-pass' : 'status-fail';
+            document.getElementById('report-summary').innerHTML = '<div class="progress-bar"><div class="progress-fill" style="width:' + ((m3TestResults.length - failCount) / m3TestResults.length * 100) + '%"></div></div><p>通过率：' + (m3TestResults.length - failCount) + '/' + m3TestResults.length + ' 项</p>';
+            const recommendationsEl = document.getElementById('report-recommendations'); const failItems = m3TestResults.filter(r => r.status === 'fail');
+            if (failItems.length === 0) { recommendationsEl.innerHTML = '<p style="color: var(--success);">所有测试项目均已通过，无需整改。</p>'; }
+            else { let html = '<ul style="padding-left: 20px;">'; failItems.forEach(item => { html += '<li style="margin-bottom: 10px;"><strong>' + item.name + '：</strong>' + item.value + '（限值：' + item.limit + '）</li>'; }); html += '</ul>'; recommendationsEl.innerHTML = html; }
+        }
+
+        function nextStepM3() {
+            const currentStep = parseInt(document.querySelector('#steps-m3 .step-dot.active').dataset.step), nextStep = currentStep + 1;
+            if (nextStep === 3) { initM3Step3(); showM3Step3Feedback(); return; }
+            else if (nextStep === 4) { initM3Step4(); }
+            updateStepIndicator('m3', nextStep); showStepContent('m3', nextStep); document.getElementById('m3-nav-buttons').style.display = 'none';
+        }
+        function resetModule3() { initModule3(); }
+        
+        // 模块4 - 光纤熔接实操
+        let module4Scores = { step1: 0, step2: 0, step3: 0, step4: 0, step5: 0, step6: 0, step7: 0, step8: 0 };
+        let m4Step1Complete = false, m4Step2Complete = false;
+        let m4CleanOrder = [], m4CleanCorrect = 0;
+        let m4LeftPlaced = false, m4RightPlaced = false;
+        let m4DraggedFiber = null;
+        let m4SpliceLoss = 0;
+        let m4SleevePlaced = false;
+        let m4CoilsPlaced = 0;
+        let draggedCleanStep = null;
+        let draggedSleeve = null;
+        
+        const CLEAN_STEPS = ['酒精棉擦拭', '干燥擦拭', '端面检查'];
+        const CORRECT_CLEAN_ORDER = ['酒精棉擦拭', '干燥擦拭', '端面检查'];
+        
+        function initModule4() {
+            module4Scores = { step1: 0, step2: 0, step3: 0, step4: 0, step5: 0, step6: 0, step7: 0, step8: 0 };
+            m4Step1Complete = false; m4Step2Complete = false;
+            m4CleanOrder = []; m4CleanCorrect = 0;
+            m4LeftPlaced = false; m4RightPlaced = false;
+            m4SpliceLoss = 0;
+            m4SleevePlaced = false;
+            m4CoilsPlaced = 0;
+            updateStepIndicator('m4', 1);
+            showStepContent('m4', 1);
+            document.getElementById('m4-nav-buttons').style.display = 'none';
+            // Reset UI elements
+            ['m4-step1', 'm4-step2', 'm4-step3', 'm4-step4', 'm4-step5', 'm4-step6', 'm4-step7', 'm4-step8'].forEach(id => {
+                document.getElementById(id + '-feedback').innerHTML = '';
+            });
+            document.querySelectorAll('#m4-step1 .length-btn, #m4-step2 .length-btn, #m4-step4 .length-btn').forEach(btn => btn.classList.remove('correct', 'incorrect', 'selected'));
+            document.getElementById('m4-step1-visual').classList.add('hidden');
+            document.getElementById('m4-step1-tools').classList.add('hidden');
+            document.getElementById('m4-step2-visual').classList.add('hidden');
+            document.getElementById('m4-step4-visual').classList.add('hidden');
+            // Reset splicer status
+            document.getElementById('m4-splicer-status').textContent = '待机中...';
+            document.getElementById('m4-left-status').className = 'status-dot';
+            document.getElementById('m4-right-status').className = 'status-dot';
+            document.getElementById('m4-left-vgroove').innerHTML = '<span style="color: #666; font-size: 0.8rem;">放入光纤</span>';
+            document.getElementById('m4-right-vgroove').innerHTML = '<span style="color: #666; font-size: 0.8rem;">放入光纤</span>';
+            document.getElementById('m4-step6-result').classList.add('hidden');
+            document.getElementById('m4-splice-btn').style.display = 'inline-flex';
+            document.getElementById('m4-step7-visual').classList.add('hidden');
+            document.getElementById('m4-heat-btn').style.display = 'none';
+            // Reset storage cells
+            document.querySelectorAll('.storage-cell').forEach(cell => {
+                cell.classList.remove('occupied', 'warning');
+                cell.innerHTML = '<span>' + (parseInt(cell.dataset.index) + 1) + '</span>';
+            });
+        }
+        
+        function checkM4Step1(btn, type) {
+            if (type === 'length') {
+                const value = btn.dataset.value;
+                btn.parentElement.querySelectorAll('.length-btn').forEach(b => b.classList.remove('correct', 'incorrect'));
+                btn.classList.add(value === '40cm' ? 'correct' : 'incorrect');
+                if (value === '40cm') {
+                    document.getElementById('m4-step1-visual').classList.remove('hidden');
+                    document.getElementById('m4-step1-tools').classList.remove('hidden');
+                    showFeedback('m4-step1', '正确！40cm是合适的开剥长度。', 'success');
+                } else {
+                    showFeedback('m4-step1', '不正确。开剥长度应为30-50cm。', 'error');
+                }
+            } else if (type === 'tool') {
+                const tool = btn.dataset.tool;
+                btn.parentElement.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('correct', 'incorrect'));
+                btn.classList.add(tool === 'knife' ? 'correct' : 'incorrect');
+                if (tool === 'knife') {
+                    module4Scores.step1 = 15;
+                    showFeedback('m4-step1', '正确！使用光缆开剥刀是正确的工具选择。获得15分。', 'success');
+                    setTimeout(() => { document.getElementById('m4-nav-buttons').style.display = 'flex'; document.getElementById('m4-next-btn').style.display = 'inline-flex'; }, 500);
+                } else {
+                    showFeedback('m4-step1', '不正确。应使用专用的光缆开剥刀。', 'error');
+                    module4Scores.step1 = 5;
+                }
+            }
+        }
+        
+        function checkM4Step2(btn) {
+            const value = btn.dataset.value;
+            btn.parentElement.querySelectorAll('.length-btn').forEach(b => b.classList.remove('correct', 'incorrect'));
+            btn.classList.add(value === '4cm' ? 'correct' : 'incorrect');
+            if (value === '4cm') {
+                module4Scores.step2 = 12;
+                document.getElementById('m4-step2-visual').classList.remove('hidden');
+                showFeedback('m4-step2', '正确！4cm是合适的涂覆层剥除长度。获得12分。', 'success');
+                setTimeout(() => { document.getElementById('m4-nav-buttons').style.display = 'flex'; document.getElementById('m4-next-btn').style.display = 'inline-flex'; }, 500);
+            } else {
+                showFeedback('m4-step2', '不正确。涂覆层剥除长度应为3-5cm。', 'error');
+                module4Scores.step2 = 4;
+            }
+        }
+        
+        function initM4Step3() {
+            const source = document.getElementById('m4-clean-source');
+            source.innerHTML = '';
+            const shuffled = [...CLEAN_STEPS].sort(() => Math.random() - 0.5);
+            shuffled.forEach(step => {
+                const el = document.createElement('div');
+                el.className = 'clean-step';
+                el.dataset.step = step;
+                el.draggable = true;
+                el.textContent = step;
+                el.addEventListener('dragstart', handleCleanDragStart);
+                el.addEventListener('dragend', handleCleanDragEnd);
+                el.addEventListener('dragover', handleCleanDragOver);
+                el.addEventListener('drop', handleCleanDrop);
+                source.appendChild(el);
+            });
+            document.getElementById('m4-clean-target').innerHTML = '<span style="color: #999; font-size: 0.9rem;">拖拽步骤到这里排序</span>';
+            m4CleanOrder = [];
+            m4CleanCorrect = 0;
+        }
+        
+        function handleCleanDragStart(e) {
+            draggedCleanStep = e.target;
+            draggedCleanStep.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleCleanDragEnd(e) {
+            if (draggedCleanStep) draggedCleanStep.classList.remove('dragging');
+        }
+        
+        function handleCleanDragOver(e) {
+            e.preventDefault();
+        }
+        
+        function handleCleanDrop(e) {
+            e.preventDefault();
+            const target = e.currentTarget;
+            if (!draggedCleanStep) return;
+            
+            const step = draggedCleanStep.dataset.step;
+            m4CleanOrder.push(step);
+            
+            draggedCleanStep.classList.remove('dragging');
+            draggedCleanStep.remove();
+            
+            const newEl = document.createElement('div');
+            newEl.className = 'clean-step';
+            newEl.dataset.step = step;
+            newEl.textContent = step;
+            newEl.style.cursor = 'default';
+            target.appendChild(newEl);
+            
+            // Remove placeholder text
+            const placeholder = target.querySelector('span');
+            if (placeholder) placeholder.remove();
+            
+            draggedCleanStep = null;
+            checkM4Step3Complete();
+        }
+        
+        function checkM4Step3Complete() {
+            if (m4CleanOrder.length === 3) {
+                let correct = 0;
+                m4CleanOrder.forEach((step, i) => {
+                    if (step === CORRECT_CLEAN_ORDER[i]) correct++;
+                });
+                m4CleanCorrect = correct;
+                module4Scores.step3 = Math.round((correct / 3) * 13);
+                
+                const feedbackEl = document.getElementById('m4-step3-feedback');
+                if (correct === 3) {
+                    feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">🎉</div><p>完美！清洁顺序完全正确！获得' + module4Scores.step3 + '分。</p></div>';
+                    document.querySelectorAll('#m4-clean-target .clean-step').forEach(el => el.classList.add('correct'));
+                } else {
+                    let wrongList = [];
+                    m4CleanOrder.forEach((step, i) => {
+                        if (step !== CORRECT_CLEAN_ORDER[i]) {
+                            wrongList.push('顺序' + (i+1) + ': 应为"' + CORRECT_CLEAN_ORDER[i] + '"，放了"' + step + '"');
+                        }
+                    });
+                    feedbackEl.innerHTML = '<div class="feedback warning"><div class="feedback-icon">⚠️</div><p>正确' + correct + '/3步，获得' + module4Scores.step3 + '分。</p><p style="margin-top:10px;font-size:0.9rem;">' + wrongList.join('<br>') + '</p></div>';
+                    document.querySelectorAll('#m4-clean-target .clean-step').forEach((el, i) => {
+                        el.classList.add(el.dataset.step === CORRECT_CLEAN_ORDER[i] ? 'correct' : 'incorrect');
+                    });
+                }
+                setTimeout(() => { document.getElementById('m4-nav-buttons').style.display = 'flex'; document.getElementById('m4-next-btn').style.display = 'inline-flex'; }, 500);
+            }
+        }
+        
+        function checkM4Step4(btn) {
+            const value = btn.dataset.value;
+            btn.parentElement.querySelectorAll('.length-btn').forEach(b => b.classList.remove('correct', 'incorrect'));
+            btn.classList.add(value === '18mm' ? 'correct' : 'incorrect');
+            if (value === '18mm') {
+                module4Scores.step4 = 12;
+                document.getElementById('m4-step4-visual').classList.remove('hidden');
+                showFeedback('m4-step4', '正确！18mm是合适的切割预留长度。获得12分。', 'success');
+                setTimeout(() => { document.getElementById('m4-nav-buttons').style.display = 'flex'; document.getElementById('m4-next-btn').style.display = 'inline-flex'; }, 500);
+            } else {
+                showFeedback('m4-step4', '不正确。切割预留长度应为15-20mm。', 'error');
+                module4Scores.step4 = 4;
+            }
+        }
+        
+        function handleFiberDragStart(e) {
+            m4DraggedFiber = e.target.closest('.fiber-item');
+            m4DraggedFiber.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleFiberDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        
+        function handleFiberDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        function handleFiberDrop(e, side) {
+            e.preventDefault();
+            const slot = e.currentTarget;
+            slot.classList.remove('drag-over');
+            
+            if (!m4DraggedFiber) return;
+            const fiber = m4DraggedFiber.dataset.fiber;
+            
+            if ((fiber === 'left' && side === 'left') || (fiber === 'right' && side === 'right')) {
+                slot.innerHTML = '<div class="fiber-visual"></div>';
+                slot.style.borderColor = 'var(--success)';
+                document.getElementById('m4-' + side + '-status').className = 'status-dot ready';
+                
+                if (side === 'left') m4LeftPlaced = true;
+                else m4RightPlaced = true;
+                
+                m4DraggedFiber.remove();
+                m4DraggedFiber = null;
+                
+                if (m4LeftPlaced && m4RightPlaced) {
+                    module4Scores.step5 = 10;
+                    document.getElementById('m4-splicer-status').textContent = '光纤已就位';
+                    document.getElementById('m4-step5-feedback').innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>两根光纤已正确放入V型槽！获得' + module4Scores.step5 + '分。</p></div>';
+                    setTimeout(() => { document.getElementById('m4-nav-buttons').style.display = 'flex'; document.getElementById('m4-next-btn').style.display = 'inline-flex'; }, 500);
+                }
+            } else {
+                document.getElementById('m4-step5-feedback').innerHTML = '<div class="feedback error"><div class="feedback-icon">✗</div><p>请将对应侧的光纤放入对应位置的V型槽中。</p></div>';
+            }
+        }
+        
+        function startSplice() {
+            const btn = document.getElementById('m4-splice-btn');
+            const status = document.getElementById('m4-arc-status');
+            const electrode1 = document.getElementById('m4-step6-electrode1');
+            const electrode2 = document.getElementById('m4-step6-electrode2');
+            const visual = document.getElementById('m4-splicer-visual');
+            
+            btn.style.display = 'none';
+            status.textContent = '放电熔接中...';
+            electrode1.classList.add('arc');
+            electrode2.classList.add('arc');
+            visual.classList.add('arc-animation');
+            
+            setTimeout(() => {
+                electrode1.classList.remove('arc');
+                electrode2.classList.remove('arc');
+                visual.classList.remove('arc-animation');
+                status.textContent = '熔接完成';
+                
+                // Generate random loss value
+                m4SpliceLoss = (Math.random() * 0.15 + 0.01).toFixed(2);
+                const isPass = parseFloat(m4SpliceLoss) < 0.1;
+                
+                module4Scores.step6 = isPass ? 10 : 5;
+                
+                const resultEl = document.getElementById('m4-step6-result');
+                resultEl.classList.remove('hidden');
+                if (isPass) {
+                    resultEl.innerHTML = '<div class="splice-result"><div class="feedback-icon">✓</div><div class="loss-value">' + m4SpliceLoss + ' dB</div><p>熔接损耗合格！</p></div>';
+                    document.getElementById('m4-step6-feedback').innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>熔接质量良好！获得' + module4Scores.step6 + '分。</p></div>';
+                } else {
+                    resultEl.innerHTML = '<div class="splice-result fail"><div class="feedback-icon">!</div><div class="loss-value">' + m4SpliceLoss + ' dB</div><p>熔接损耗偏高，建议重新熔接。</p></div>';
+                    document.getElementById('m4-step6-feedback').innerHTML = '<div class="feedback warning"><div class="feedback-icon">⚠️</div><p>熔接损耗超过0.1dB，获得' + module4Scores.step6 + '分。</p></div>';
+                }
+                
+                setTimeout(() => { document.getElementById('m4-nav-buttons').style.display = 'flex'; document.getElementById('m4-next-btn').style.display = 'inline-flex'; }, 500);
+            }, 2000);
+        }
+        
+        function handleSleeveDragStart(e) {
+            draggedSleeve = e.target.closest('.sleeve-item');
+            draggedSleeve.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleSleeveDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        
+        function handleSleeveDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        function handleSleeveDrop(e) {
+            e.preventDefault();
+            const slot = e.currentTarget;
+            slot.classList.remove('drag-over');
+            
+            if (!draggedSleeve) return;
+            if (slot.id === 'm4-splice-point') {
+                slot.innerHTML = '<div style="display:flex;gap:5px;"><div style="width:30px;height:8px;background:linear-gradient(90deg,#87ceeb,#add8e6);border-radius:3px;"></div><div style="width:10px;height:8px;background:#fff;border:1px solid #ccc;border-radius:4px;"></div><div style="width:30px;height:8px;background:linear-gradient(90deg,#90ee90,#98fb98);border-radius:3px;"></div></div>';
+                draggedSleeve.remove();
+                draggedSleeve = null;
+                m4SleevePlaced = true;
+                module4Scores.step7 = 8;
+                document.getElementById('m4-heat-btn').style.display = 'inline-flex';
+                document.getElementById('m4-step7-feedback').innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>热缩管已放置到熔接点！点击开始加热。</p></div>';
+            }
+        }
+        
+        function startHeating() {
+            document.getElementById('m4-step7-visual').classList.remove('hidden');
+            document.getElementById('m4-heat-btn').style.display = 'none';
+            
+            const bar = document.getElementById('m4-heat-bar');
+            const text = document.getElementById('m4-heat-text');
+            bar.classList.add('heating');
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 2;
+                bar.style.width = progress + '%';
+                
+                if (progress < 30) {
+                    text.textContent = '加热中... ' + progress + '%';
+                } else if (progress < 70) {
+                    text.textContent = '收缩中... ' + progress + '%';
+                } else if (progress < 100) {
+                    text.textContent = '完成中... ' + progress + '%';
+                } else {
+                    clearInterval(interval);
+                    bar.classList.remove('heating');
+                    text.textContent = '加热完成！';
+                    module4Scores.step7 = 10;
+                    document.getElementById('m4-step7-feedback').innerHTML = '<div class="feedback success"><div class="feedback-icon">🎉</div><p>热熔保护完成！热缩管已完全收缩。获得' + module4Scores.step7 + '分。</p></div>';
+                    setTimeout(() => { document.getElementById('m4-nav-buttons').style.display = 'flex'; document.getElementById('m4-next-btn').style.display = 'inline-flex'; }, 500);
+                }
+            }, 100);
+        }
+        
+        function placeFiberCoil(index) {
+            const cell = document.querySelector('.storage-cell[data-index="' + index + '"]');
+            if (cell.classList.contains('occupied')) return;
+            
+            // Check bend radius - cells 0, 2, 6, 8 have larger radius, 1, 3, 5, 7 are borderline, 4 is center
+            const centerIndex = 4;
+            const isGoodPosition = index === 0 || index === 2 || index === 6 || index === 8;
+            const isBorderPosition = index === 1 || index === 3 || index === 5 || index === 7;
+            
+            cell.classList.add('occupied');
+            if (isBorderPosition) {
+                cell.classList.add('warning');
+                cell.innerHTML = '<div class="fiber-coil"><div class="fiber-coil-inner"></div></div><span style="font-size:0.65rem;color:var(--warning);">弯曲半径警告</span>';
+            } else {
+                cell.innerHTML = '<div class="fiber-coil"><div class="fiber-coil-inner"></div></div><span style="font-size:0.65rem;">盘纤完成</span>';
+            }
+            
+            m4CoilsPlaced++;
+            
+            if (m4CoilsPlaced >= 1) {
+                // Score based on position
+                if (isGoodPosition) {
+                    module4Scores.step8 = 15;
+                } else if (isBorderPosition) {
+                    module4Scores.step8 = 8;
+                } else {
+                    module4Scores.step8 = 5;
+                }
+                
+                const feedbackEl = document.getElementById('m4-step8-feedback');
+                if (isGoodPosition) {
+                    feedbackEl.innerHTML = '<div class="feedback success"><div class="feedback-icon">✓</div><p>盘纤位置合适，弯曲半径满足要求！获得' + module4Scores.step8 + '分。</p></div>';
+                } else if (isBorderPosition) {
+                    feedbackEl.innerHTML = '<div class="feedback warning"><div class="feedback-icon">⚠️</div><p>盘纤完成，但弯曲半径偏小。建议选择角落位置。获得' + module4Scores.step8 + '分。</p></div>';
+                } else {
+                    feedbackEl.innerHTML = '<div class="feedback error"><div class="feedback-icon">✗</div><p>中心位置弯曲半径过小，可能造成光信号衰减！获得' + module4Scores.step8 + '分。</p></div>';
+                }
+                
+                setTimeout(() => { document.getElementById('m4-nav-buttons').style.display = 'flex'; document.getElementById('m4-next-btn').style.display = 'inline-flex'; }, 500);
+            }
+        }
+        
+        function nextStepM4() {
+            const currentStep = parseInt(document.querySelector('#steps-m4 .step-dot.active').dataset.step);
+            const nextStep = currentStep + 1;
+            
+            if (nextStep === 3) {
+                initM4Step3();
+            }
+            
+            updateStepIndicator('m4', nextStep);
+            showStepContent('m4', nextStep);
+            document.getElementById('m4-nav-buttons').style.display = 'none';
+            
+            if (nextStep === 9) {
+                showM4Complete();
+            }
+        }
+        
+        function showM4Complete() {
+            const total = Object.values(module4Scores).reduce((a, b) => a + b, 0);
+            document.getElementById('m4-total-score').textContent = total;
+            
+            const scoreBreakdown = document.getElementById('m4-score-breakdown');
+            scoreBreakdown.innerHTML = 
+                '<div class="score-item"><span class="score-item-name">Step1 开剥光缆 (15分)</span><span class="score-item-value ' + (module4Scores.step1 >= 10 ? 'pass' : 'fail') + '">' + module4Scores.step1 + '分</span></div>' +
+                '<div class="score-item"><span class="score-item-name">Step2 剥除涂覆层 (12分)</span><span class="score-item-value ' + (module4Scores.step2 >= 8 ? 'pass' : 'fail') + '">' + module4Scores.step2 + '分</span></div>' +
+                '<div class="score-item"><span class="score-item-name">Step3 清洁光纤 (13分)</span><span class="score-item-value ' + (module4Scores.step3 >= 8 ? 'pass' : 'fail') + '">' + module4Scores.step3 + '分</span></div>' +
+                '<div class="score-item"><span class="score-item-name">Step4 切割光纤 (12分)</span><span class="score-item-value ' + (module4Scores.step4 >= 8 ? 'pass' : 'fail') + '">' + module4Scores.step4 + '分</span></div>' +
+                '<div class="score-item"><span class="score-item-name">Step5 放入熔接机 (10分)</span><span class="score-item-value ' + (module4Scores.step5 >= 7 ? 'pass' : 'fail') + '">' + module4Scores.step5 + '分</span></div>' +
+                '<div class="score-item"><span class="score-item-name">Step6 熔接 (10分)</span><span class="score-item-value ' + (module4Scores.step6 >= 7 ? 'pass' : 'fail') + '">' + module4Scores.step6 + '分</span></div>' +
+                '<div class="score-item"><span class="score-item-name">Step7 热熔保护 (10分)</span><span class="score-item-value ' + (module4Scores.step7 >= 7 ? 'pass' : 'fail') + '">' + module4Scores.step7 + '分</span></div>' +
+                '<div class="score-item"><span class="score-item-name">Step8 盘纤收容 (15分)</span><span class="score-item-value ' + (module4Scores.step8 >= 10 ? 'pass' : 'fail') + '">' + module4Scores.step8 + '分</span></div>';
+            
+            const feedback = document.getElementById('m4-final-feedback');
+            if (total >= 85) {
+                feedback.className = 'feedback success';
+                feedback.innerHTML = '<div class="feedback-icon">🏆</div><p>优秀！您已掌握光纤熔接技术！</p><p style="margin-top:10px;font-size:0.9rem;">熔接损耗：' + m4SpliceLoss + ' dB</p>';
+            } else if (total >= 65) {
+                feedback.className = 'feedback warning';
+                feedback.innerHTML = '<div class="feedback-icon">👍</div><p>良好！继续练习可进一步提高。</p>';
+            } else {
+                feedback.className = 'feedback error';
+                feedback.innerHTML = '<div class="feedback-icon">📚</div><p>建议重新练习，重点掌握光纤端面处理和熔接技术。</p>';
+            }
+        }
+        
+        function resetModule4() { initModule4(); }
+        
+        function showM4StepContent(step) {
+            for (let i = 1; i <= 8; i++) {
+                const content = document.getElementById('m4-step' + i);
+                if (content) content.classList.add('hidden');
+            }
+            const complete = document.getElementById('m4-complete');
+            if (complete) complete.classList.add('hidden');
+            
+            if (step === 9) {
+                complete.classList.remove('hidden');
+            } else {
+                const current = document.getElementById('m4-step' + step);
+                if (current) current.classList.remove('hidden');
+            }
+        }
+        
+        function updateStepIndicator(module, step, completed) { 
+            if (module === 'm4' && step === 9) {
+                document.querySelectorAll('#steps-m4 .step-dot').forEach(dot => dot.classList.add('completed'));
+                return;
+            }
+            document.querySelectorAll('#steps-' + module + ' .step-dot').forEach((dot, i) => { 
+                dot.classList.remove('active', 'completed', 'error'); 
+                if (i + 1 < step) dot.classList.add('completed'); 
+                else if (i + 1 === step) dot.classList.add(completed ? 'completed' : 'active'); 
+            }); 
+        }
+        function showStepContent(module, step) { 
+            for (let i = 1; i <= 6; i++) { 
+                const content = document.getElementById(module + '-step' + i); 
+                if (content) content.classList.add('hidden'); 
+            } 
+            if (module === 'm4') {
+                showM4StepContent(step);
+                return;
+            }
+            const current = document.getElementById(module + '-step' + step); 
+            if (current) current.classList.remove('hidden'); 
+            if (step === 5 && module === 'm3') document.getElementById('m3-report').classList.remove('hidden'); 
+        }
+        function showFeedback(containerId, message, type) { const container = document.getElementById(containerId); const feedback = document.createElement('div'); feedback.className = 'feedback ' + type; feedback.innerHTML = '<p>' + message + '</p>'; container.appendChild(feedback); setTimeout(() => { feedback.remove(); }, 5000); }
+
+        document.addEventListener('DOMContentLoaded', () => { showPage('home'); });
+    </script>
+</body>
+</html>
