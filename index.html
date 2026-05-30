@@ -533,8 +533,7 @@
             const stepEl = document.getElementById(prefix + '-step' + step) || document.getElementById(prefix + '-complete');
             if (stepEl) stepEl.classList.remove('hidden');
         }
-    </script>
-// ========= 光纤熔接模块 JS =========
+    // ========= 光纤熔接模块 JS =========
 let m4State = { currentStep: 1, toolSelected: {}, lengthSelected: {}, sortResult: null, fiberPlaced: {}, spliceLoss: 0, splicePass: false, heatDone: false, coilType: null };
 let m4Scores = { step1: 0, step2: 0, step3: 0, step4: 0, step5: 0, step6: 0, step7: 0, step8: 0 };
 
@@ -878,4 +877,5 @@ function m4ShowComplete() {
     else if (total >= 70) { fb.className = 'feedback warning'; fb.innerHTML = '<div class="feedback-icon">👍</div><p>良好！部分步骤需要加强练习</p>'; }
     else { fb.className = 'feedback error'; fb.innerHTML = '<div class="feedback-icon">📚</div><p>建议重新练习，重点掌握工具选择和操作规范</p>'; }
 }
+</script>
 </body></html>
