@@ -39,8 +39,8 @@ a{text-decoration:none;color:inherit}
 .modules{background:#f7f9fc;padding:80px 24px 60px}
 .modules-title{font-size:1.8rem;font-weight:700;text-align:center;margin-bottom:8px;color:var(--txt)}
 .modules-sub{text-align:center;color:var(--txl);margin-bottom:48px;font-size:1rem}
-.mgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:960px;margin:0 auto}
-.mcard{background:#fff;border-radius:var(--rd);padding:32px 28px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;position:relative;overflow:hidden}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1200px;margin:0 auto}
+.mcard{background:#fff;border-radius:var(--rd);padding:28px 20px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;position:relative;overflow:hidden;text-align:center}
 .mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--rd) var(--rd) 0 0;transition:height .35s}
 .mcard:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.1);border-color:transparent}
 .mcard:hover::before{height:6px}
@@ -48,16 +48,27 @@ a{text-decoration:none;color:inherit}
 .mc-g::before{background:linear-gradient(90deg,#059669,#10b981)}
 .mc-o::before{background:linear-gradient(90deg,#d97706,#f59e0b)}
 .mc-p::before{background:linear-gradient(90deg,#7c3aed,#8b5cf6)}
-.micon{font-size:2.4rem;margin-bottom:16px}
-.minfo h3{font-size:1.2rem;font-weight:700;margin-bottom:8px;color:var(--txt)}
-.minfo p{color:var(--txl);font-size:.9rem;line-height:1.7;margin-bottom:16px}
-.mbtn{display:inline-block;font-size:.88rem;font-weight:600;transition:all .3s}
+.micon{font-size:2.2rem;margin-bottom:12px}
+.minfo h3{font-size:1.05rem;font-weight:700;margin-bottom:6px;color:var(--txt)}
+.minfo p{color:var(--txl);font-size:.82rem;line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.mbtn{display:inline-block;font-size:.82rem;font-weight:600;transition:all .3s}
 .mc-b .mbtn{color:#2563eb}.mc-g .mbtn{color:#059669}.mc-o .mbtn{color:#d97706}.mc-p .mbtn{color:#7c3aed}
 
 /* ===== FOOTER ===== */
 .footer-light{background:#f1f5f9;color:var(--txl);text-align:center;padding:32px 20px;font-size:.85rem;line-height:2;border-top:1px solid #e2e8f0}
 .footer-light .footer-logo{height:32px;margin-bottom:8px;opacity:.6}
 .footer-light p{margin:0}
+
+/* ===== SKILLS ===== */
+.skills{background:#fff;padding:60px 24px 72px}
+.skills-title{font-size:1.8rem;font-weight:700;text-align:center;margin-bottom:8px;color:var(--txt)}
+.skills-sub{text-align:center;color:var(--txl);margin-bottom:40px;font-size:1rem}
+.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1200px;margin:0 auto}
+.skill-card{border-radius:var(--rd);overflow:hidden;position:relative;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;aspect-ratio:4/3}
+.skill-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.skill-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.12);border-color:transparent}
+.skill-card:hover img{transform:scale(1.08)}
+.skill-label{position:absolute;bottom:0;left:0;right:0;padding:16px 14px 12px;background:linear-gradient(0deg,rgba(22,78,99,.88) 0%,rgba(22,78,99,.5) 60%,transparent 100%);color:#fff;font-size:.92rem;font-weight:600;letter-spacing:1px}
 
 /* ===== SIM PAGE ===== */
 .sim-hd{text-align:center;padding:48px 24px 24px;background:linear-gradient(135deg,#164e63,#1e3a5f);color:#fff}
@@ -142,11 +153,14 @@ a{text-decoration:none;color:inherit}
   .hero-logo{height:80px;margin-bottom:20px}
   .modules{padding:48px 16px 40px}
   .modules-title{font-size:1.4rem}
+  .mgrid{grid-template-columns:repeat(2,1fr)!important}
+  .skills-grid{grid-template-columns:repeat(2,1fr)!important}
   .drag-row{flex-direction:column;align-items:center}
   .score-grid{grid-template-columns:1fr}
 }
 @media(max-width:640px){
   .mgrid{grid-template-columns:1fr!important}
+  .skills-grid{grid-template-columns:1fr!important}
   .sim-g{grid-template-columns:1fr!important}
 }
 </style>
@@ -199,6 +213,18 @@ a{text-decoration:none;color:inherit}
 <div class="micon">🔬</div>
 <div class="minfo"><h3>虚拟仿真实训平台</h3><p>综合布线实训室虚拟仿真，光纤熔接等全真模拟操作。3D沉浸式交互，步骤化训练+智能评分。</p><span class="mbtn">进入实训 →</span></div>
 </div>
+</div>
+</section>
+
+<!-- Skills Showcase -->
+<section class="skills">
+<h2 class="skills-title">技能展示</h2>
+<p class="skills-sub">以赛促学，以技立业——展现专业风采</p>
+<div class="skills-grid">
+<div class="skill-card"><img src="skill-competition.jpg" alt="技能竞赛"><div class="skill-label">技能竞赛</div></div>
+<div class="skill-card"><img src="skill-electrical.jpg" alt="电气安装与维修"><div class="skill-label">电气安装与维修</div></div>
+<div class="skill-card"><img src="skill-computer.jpg" alt="信息网络搭建"><div class="skill-label">信息网络搭建</div></div>
+<div class="skill-card"><img src="skill-automation.jpg" alt="机电一体化"><div class="skill-label">机电一体化</div></div>
 </div>
 </section>
 
