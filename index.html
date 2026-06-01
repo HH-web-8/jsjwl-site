@@ -218,6 +218,37 @@ a{text-decoration:none;color:inherit}
 .qz-tips{margin-top:8px;padding:12px 16px;background:#fffbeb;border-radius:8px;font-size:.82rem;color:#92400e;line-height:1.6}
 .qz-tips b{color:#78350f}
 
+
+/* Quiz Practice Styles */
+.qz-quiz{padding:20px}
+.qz-progress{width:100%;height:6px;background:#e8e8e8;border-radius:3px;margin-bottom:16px;overflow:hidden}
+.qz-progress-bar{height:100%;background:linear-gradient(90deg,#4CAF50,#66BB6A);border-radius:3px;transition:width 0.5s}
+.qz-qnum{font-size:13px;color:#888;margin-bottom:12px}
+.qz-qtext{font-size:17px;font-weight:600;color:#1a1a2e;margin-bottom:20px;line-height:1.6;padding:12px 0;border-bottom:1px solid #f0f0f0}
+.qz-qopts{display:flex;flex-direction:column;gap:10px}
+.qz-qopt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;transition:all 0.2s;background:#fff}
+.qz-qopt:hover{border-color:#4CAF50;background:#f8fdf8;transform:translateX(4px)}
+.qz-qopt-label{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#f0f0f0;color:#555;font-weight:bold;font-size:14px;flex-shrink:0}
+.qz-qopt-text{font-size:15px;color:#333}
+.qz-qopt.qz-correct{border-color:#4CAF50;background:#f0fdf4}
+.qz-qopt.qz-correct .qz-qopt-label{background:#4CAF50;color:#fff}
+.qz-qopt.qz-wrong{border-color:#ef4444;background:#fef2f2}
+.qz-qopt.qz-wrong .qz-qopt-label{background:#ef4444;color:#fff}
+.qz-qfeedback{margin-top:16px;padding:14px 16px;border-radius:10px;font-size:14px;line-height:1.7;animation:fadeIn 0.3s}
+.qz-fb-correct{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.qz-fb-wrong{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.qz-qnav{margin-top:16px;display:flex;justify-content:flex-end}
+.qz-nav-btn{padding:10px 24px;border:none;border-radius:8px;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#4CAF50,#45a049);color:#fff;font-weight:600;transition:all 0.2s}
+.qz-nav-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(76,175,80,0.3)}
+.qz-nav-finish{background:linear-gradient(135deg,#1a73e8,#1557b0);padding:12px 32px;font-size:16px}
+.qz-nav-finish:hover{box-shadow:0 4px 12px rgba(26,115,232,0.3)}
+.qz-result{text-align:center;padding:40px 20px}
+.qz-result-score{font-size:64px;font-weight:800;line-height:1;margin-bottom:8px}
+.qz-result-unit{font-size:24px;font-weight:400}
+.qz-result-grade{font-size:24px;font-weight:600;margin-bottom:16px}
+.qz-result-info{font-size:15px;color:#666;margin-bottom:24px}
+.qz-result-btns{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -297,10 +328,11 @@ a{text-decoration:none;color:inherit}
 <div id="page-quiz" class="page quiz-page">
 <header class="qz-hd">
 <h1>📝 智能题库练习</h1>
-<p>山东工业技师学院 · AI智能出题 · 按需生成试卷</p>
+<p>山东工业技师学院 · 在线刷题 · AI智能出题</p>
 </header>
 <div class="qz-ct">
-<div class="qz-side">
+<!-- LEFT: Course & Difficulty Selection -->
+<div class="qz-side" id="qz-practice-area">
 <div class="qz-card">
 <h3>📚 选择课程</h3>
 <div class="qz-opts" id="qz-courses">
@@ -314,16 +346,6 @@ a{text-decoration:none;color:inherit}
 </div>
 </div>
 <div class="qz-card">
-<h3>📋 题型选择</h3>
-<div class="qz-opts" id="qz-types">
-<div class="qz-opt sel" data-v="选择题" onclick="qzSel(this,'qz-types')">选择题</div>
-<div class="qz-opt" data-v="判断题" onclick="qzSel(this,'qz-types')">判断题</div>
-<div class="qz-opt" data-v="填空题" onclick="qzSel(this,'qz-types')">填空题</div>
-<div class="qz-opt" data-v="简答题" onclick="qzSel(this,'qz-types')">简答题</div>
-<div class="qz-opt" data-v="混合题型" onclick="qzSel(this,'qz-types')">混合题型</div>
-</div>
-</div>
-<div class="qz-card">
 <h3>🎯 难度等级</h3>
 <div class="qz-opts" id="qz-diff">
 <div class="qz-opt" data-v="基础" onclick="qzSel(this,'qz-diff')">基础</div>
@@ -331,680 +353,309 @@ a{text-decoration:none;color:inherit}
 <div class="qz-opt" data-v="较难" onclick="qzSel(this,'qz-diff')">较难</div>
 </div>
 </div>
-<button class="qz-go" onclick="qzGen()">🚀 一键生成试卷</button>
+<button class="qz-go" onclick="qzStartPractice()">🎯 开始练习</button>
 <div class="qz-tips">
-<b>💡 使用提示：</b>选择课程、题型和难度后点击"一键生成试卷"，AI助手会自动出题。你也可以直接在右侧聊天框中自定义需求，例如"出20道综合布线的选择题"。
+<b>💡 使用提示：</b>选择课程和难度后点击"开始练习"，即可在线答题。答题完毕自动评分，查看答案解析。需要生成Word试卷请点击右侧AI出题助手。
 </div>
 </div>
+<!-- RIGHT: Practice Area + AI Link -->
 <div class="qz-chat">
-<div class="qz-chat-hd">
-<span class="ava">🤖</span>题库AI助手 · 在线出题
+<div class="qz-chat-hd" id="qz-chat-hd">
+<span class="ava">📝</span>在线练习
 </div>
 <div class="qz-chat-bd" id="qz-chat-bd">
 <div class="qz-welcome" id="qz-welcome">
-<div class="qz-welcome-icon">🤖</div>
-<h3>题库AI助手</h3>
-<p>选择左侧课程、题型和难度，点击"一键生成试卷"，<br>系统将自动为您生成专属题目</p>
-<div class="qz-quick-btns">
-<button class="qz-qbtn" onclick="qzQuick('请出10道综合布线系统的选择题')">📝 综合布线选择题</button>
-<button class="qz-qbtn" onclick="qzQuick('请出10道网络基础的判断题')">✅ 网络基础判断题</button>
-<button class="qz-qbtn" onclick="qzQuick('请出5道网络设备配置的简答题')">✍️ 网络设备简答题</button>
-<button class="qz-qbtn" onclick="qzQuick('请出一份网络安全的混合题型试卷')">📋 网络安全综合卷</button>
-</div>
-<a class="qz-open-btn" href="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v" target="_blank" rel="noopener">
-💬 打开AI助手完整版
+<div class="qz-welcome-icon">📝</div>
+<h3>在线刷题练习</h3>
+<p>选择左侧课程和难度，点击"开始练习"<br>即可在线答题，实时查看成绩和解析</p>
+<div style="margin-top:20px;padding:16px;background:#f0f7ff;border-radius:8px;border:1px solid #d0e3f7">
+<p style="margin:0 0 8px;font-weight:bold;color:#1a73e8">🤖 需要生成新试卷？</p>
+<p style="margin:0;font-size:13px;color:#555">点击下方按钮打开AI出题助手<br>自动生成Word试卷并下载</p>
+<a class="qz-open-btn" href="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v" target="_blank" rel="noopener" style="margin-top:12px;display:inline-block">
+🤖 打开AI出题助手
 </a>
 </div>
 </div>
 </div>
 </div>
-<footer class="footer" style="margin-top:0"><p>© 2026 山东工业技师学院 · AI智能题库练习平台</p></footer>
-</div>
-
-<!-- SIM PAGE -->
-<div id="page-sim" class="page">
-<header class="sim-hd"><h1>综合布线实训室虚拟仿真平台</h1><p class="sub">山东工业技师学院 · 计算机网络应用专业</p></header>
-<main class="sim-ct">
-<section class="sim-g">
-<div class="scard dis"><div class="sico" style="background:#dbeafe;color:#2563eb">🔌</div><span class="snum">1</span><h3>双绞线T568B端接实操</h3><p>🚧 开发中</p></div>
-<div class="scard dis"><div class="sico" style="background:#dbeafe;color:#2563eb">📋</div><span class="snum">2</span><h3>配线架打线实操</h3><p>🚧 开发中</p></div>
-<div class="scard dis"><div class="sico" style="background:#dbeafe;color:#2563eb">📊</div><span class="snum">3</span><h3>链路测试与认证</h3><p>🚧 开发中</p></div>
-<div class="scard" onclick="sp('fiber')"><div class="sico" style="background:#ede9fe;color:#7c3aed">⚡</div><span class="snum">4</span><h3>光纤熔接实操</h3><p>学习光纤熔接完整流程</p></div>
-<div class="scard dis"><div class="sico" style="background:#dbeafe;color:#2563eb">🏢</div><span class="snum">5</span><h3>办公室布线实施</h3><p>🚧 开发中</p></div>
-<div class="scard dis"><div class="sico" style="background:#dbeafe;color:#2563eb">🏫</div><span class="snum">6</span><h3>教学楼布线实施</h3><p>🚧 开发中</p></div>
-</section>
-</main>
-<footer class="footer-light"><p>© 2026 山东工业技师学院 · 综合布线实训虚拟仿真平台</p></footer>
-</div>
-
-<!-- FIBER PAGE -->
-<div id="page-fiber" class="page">
-<header class="fp-header">
-<h1>模块四：光纤熔接实操</h1>
-<p class="sub">学习光纤熔接的完整流程 · 3D虚拟仿真</p>
-</header>
-
-<div class="step-indicator" id="steps-m4">
-<div class="step-dot active" data-step="1">1</div><div class="step-dot" data-step="2">2</div><div class="step-dot" data-step="3">3</div><div class="step-dot" data-step="4">4</div><div class="step-dot" data-step="5">5</div><div class="step-dot" data-step="6">6</div><div class="step-dot" data-step="7">7</div><div class="step-dot" data-step="8">8</div>
-</div>
-
-<div class="video-demo">
-<div class="video-frame">
-<div class="video-label">📹 操作演示</div>
-<canvas id="demo-canvas" class="video-canvas" width="800" height="180"></canvas>
 </div>
 </div>
-
-<div class="op-area">
-<div class="op-workspace">
-
-<!-- Step 1 -->
-<div id="m4-step1" class="step-content">
-<h3 class="op-title">Step 1：开剥光缆</h3>
-<div class="op-instruction">使用工具剥除光缆外护套，露出内部光纤束。</div>
-<div class="op-tip">💡 开剥光缆需使用专用开剥刀，开剥长度一般30-50cm。</div>
-<h4 style="color:#93c5fd;margin:16px 0 10px">① 选择工具</h4>
-<div class="tool-shelf" id="m4-s1-tools">
-<div class="tool-item" onclick="m4Tool('step1','cable_slitter',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><rect x="4" y="18" width="36" height="12" rx="2" fill="#3b82f6"/><rect x="36" y="15" width="8" height="18" rx="2" fill="#1e3a5f"/><circle cx="12" cy="24" r="3" fill="#93c5fd"/></svg>
-开剥刀
-</div>
-<div class="tool-item" onclick="m4Tool('step1','scissors',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><circle cx="16" cy="38" r="6" fill="none" stroke="#94a3b8" stroke-width="2"/><circle cx="32" cy="38" r="6" fill="none" stroke="#94a3b8" stroke-width="2"/><line x1="19" y1="34" x2="29" y2="10" stroke="#94a3b8" stroke-width="2"/><line x1="29" y1="34" x2="19" y2="10" stroke="#94a3b8" stroke-width="2"/></svg>
-剪刀
-</div>
-<div class="tool-item" onclick="m4Tool('step1','wire_stripper',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><rect x="4" y="20" width="40" height="8" rx="2" fill="#f59e0b"/><rect x="2" y="16" width="10" height="16" rx="2" fill="#d97706"/><rect x="36" y="16" width="10" height="16" rx="2" fill="#d97706"/></svg>
-剥线钳
-</div>
-</div>
-<div id="m4-s1-tfb"></div>
-<h4 style="color:#93c5fd;margin:16px 0 10px;display:none" id="m4-s1-len-title">② 选择开剥长度</h4>
-<div class="op-options" id="m4-s1-lens" style="display:none">
-<button class="op-opt" onclick="m4Len('step1','10cm',this)">10cm</button>
-<button class="op-opt" onclick="m4Len('step1','40cm',this)">40cm</button>
-<button class="op-opt" onclick="m4Len('step1','1m',this)">1m</button>
-</div>
-<div id="m4-s1-lfb"></div>
-<div id="m4-s1-res"></div>
-</div>
-
-<!-- Step 2 -->
-<div id="m4-step2" class="step-content hidden">
-<h3 class="op-title">Step 2：剥除涂覆层</h3>
-<div class="op-instruction">使用米勒钳剥除光纤涂覆层，露出裸光纤。</div>
-<div class="op-tip">💡 光纤涂覆层必须使用米勒钳，剥除长度3-5cm。</div>
-<h4 style="color:#93c5fd;margin:16px 0 10px">① 选择工具</h4>
-<div class="tool-shelf" id="m4-s2-tools">
-<div class="tool-item" onclick="m4Tool('step2','miller',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><rect x="4" y="18" width="40" height="12" rx="2" fill="#10b981"/><path d="M4 18 L14 10 L14 18 Z" fill="#059669"/><path d="M4 30 L14 38 L14 30 Z" fill="#059669"/></svg>
-米勒钳
-</div>
-<div class="tool-item" onclick="m4Tool('step2','scissors2',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><circle cx="16" cy="38" r="6" fill="none" stroke="#94a3b8" stroke-width="2"/><circle cx="32" cy="38" r="6" fill="none" stroke="#94a3b8" stroke-width="2"/><line x1="19" y1="34" x2="29" y2="10" stroke="#94a3b8" stroke-width="2"/><line x1="29" y1="34" x2="19" y2="10" stroke="#94a3b8" stroke-width="2"/></svg>
-剪刀
-</div>
-<div class="tool-item" onclick="m4Tool('step2','finger',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><path d="M24 6C20 6 18 12 18 18L18 32C18 32 14 30 12 32C10 34 12 38 16 40L24 44L34 44C38 42 40 38 40 32L40 18C40 12 38 6 34 6Z" fill="#f0c27f" stroke="#d4a574" stroke-width="2"/></svg>
-手指
-</div>
-</div>
-<div id="m4-s2-tfb"></div>
-<h4 style="color:#93c5fd;margin:16px 0 10px;display:none" id="m4-s2-len-title">② 选择剥除长度</h4>
-<div class="op-options" id="m4-s2-lens" style="display:none">
-<button class="op-opt" onclick="m4Len('step2','1cm',this)">1cm</button>
-<button class="op-opt" onclick="m4Len('step2','4cm',this)">4cm</button>
-<button class="op-opt" onclick="m4Len('step2','10cm',this)">10cm</button>
-</div>
-<div id="m4-s2-lfb"></div>
-<div id="m4-s2-res"></div>
-</div>
-
-<!-- Step 3 -->
-<div id="m4-step3" class="step-content hidden">
-<h3 class="op-title">Step 3：清洁光纤</h3>
-<div class="op-instruction">按正确顺序清洁裸光纤，确保端面无污渍。</div>
-<div class="op-tip">💡 清洁顺序：酒精棉擦拭→无尘布擦干→检查端面</div>
-<div class="drag-row">
-<div class="drag-col" style="text-align:center">
-<h4 style="color:#93c5fd;margin-bottom:10px">操作步骤</h4>
-<div id="m4-s3-src">
-<div class="sort-card" draggable="true" data-step="inspect">③ 检查端面</div>
-<div class="sort-card" draggable="true" data-step="alcohol">① 酒精棉擦拭</div>
-<div class="sort-card" draggable="true" data-step="wipe">② 无尘布擦干</div>
-</div>
-</div>
-<div class="drag-col" style="text-align:center">
-<h4 style="color:#93c5fd;margin-bottom:10px">正确顺序</h4>
-<div id="m4-s3-tgt">
-<div class="sort-slot"><div class="slot-content"></div></div>
-<div class="sort-slot"><div class="slot-content"></div></div>
-<div class="sort-slot"><div class="slot-content"></div></div>
-</div>
-</div>
-</div>
-<div style="text-align:center;margin-top:16px">
-<button class="btn btn-primary" onclick="m4CheckSort()">确认排序</button>
-</div>
-<div id="m4-s3-fb"></div>
-</div>
-
-<!-- Step 4 -->
-<div id="m4-step4" class="step-content hidden">
-<h3 class="op-title">Step 4：切割光纤</h3>
-<div class="op-instruction">使用光纤切割刀切割光纤，确保端面平整。</div>
-<div class="op-tip">💡 光纤端面质量直接影响熔接损耗，必须使用专用切割刀。</div>
-<h4 style="color:#93c5fd;margin:16px 0 10px">① 选择工具</h4>
-<div class="tool-shelf" id="m4-s4-tools">
-<div class="tool-item" onclick="m4Tool('step4','fiber_cutter',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><rect x="4" y="10" width="40" height="28" rx="2" fill="#64748b"/><rect x="10" y="16" width="28" height="16" rx="2" fill="#94a3b8"/><circle cx="24" cy="24" r="4" fill="#ef4444"/></svg>
-切割机
-</div>
-<div class="tool-item" onclick="m4Tool('step4','scissors3',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><circle cx="16" cy="38" r="6" fill="none" stroke="#94a3b8" stroke-width="2"/><circle cx="32" cy="38" r="6" fill="none" stroke="#94a3b8" stroke-width="2"/><line x1="19" y1="34" x2="29" y2="10" stroke="#94a3b8" stroke-width="2"/><line x1="29" y1="34" x2="19" y2="10" stroke="#94a3b8" stroke-width="2"/></svg>
-剪刀
-</div>
-<div class="tool-item" onclick="m4Tool('step4','knife',this)">
-<svg viewBox="0 0 48 48" width="40" height="40"><rect x="6" y="20" width="30" height="8" rx="2" fill="#94a3b8"/><path d="M36 22 L44 24 L36 26 Z" fill="#64748b"/></svg>
-小刀
-</div>
-</div>
-<div id="m4-s4-tfb"></div>
-<h4 style="color:#93c5fd;margin:16px 0 10px;display:none" id="m4-s4-len-title">② 选择预留长度</h4>
-<div class="op-options" id="m4-s4-lens" style="display:none">
-<button class="op-opt" onclick="m4Len('step4','5mm',this)">5mm</button>
-<button class="op-opt" onclick="m4Len('step4','16mm',this)">16mm</button>
-<button class="op-opt" onclick="m4Len('step4','30mm',this)">30mm</button>
-</div>
-<div id="m4-s4-lfb"></div>
-<div id="m4-s4-res"></div>
-</div>
-
-<!-- Step 5 -->
-<div id="m4-step5" class="step-content hidden">
-<h3 class="op-title">Step 5：光纤对准</h3>
-<div class="op-instruction">将两根光纤分别放入熔接机的V型槽中。</div>
-<div class="op-tip">💡 光纤A放入左侧V型槽，光纤B放入右侧V型槽，注意端面间距适中。</div>
-<div class="drag-row">
-<div class="drag-col" style="text-align:center">
-<h4 style="color:#93c5fd;margin-bottom:10px">光纤</h4>
-<div style="display:flex;gap:10px;justify-content:center">
-<div class="sort-card" draggable="true" data-fiber="A" id="m4-s5-fA" style="background:rgba(59,130,246,.2);border-color:#3b82f6;padding:10px 20px">光纤 A</div>
-<div class="sort-card" draggable="true" data-fiber="B" id="m4-s5-fB" style="background:rgba(16,185,129,.2);border-color:#10b981;padding:10px 20px">光纤 B</div>
-</div>
-</div>
-<div class="drag-col" style="text-align:center">
-<h4 style="color:#93c5fd;margin-bottom:10px">熔接机 V型槽</h4>
-<svg id="m4-splicer" width="300" height="130" viewBox="0 0 300 130" style="background:#0f172a;border-radius:10px;border:2px solid #2d3748">
-<rect x="8" y="8" width="284" height="114" rx="6" fill="#16213e" stroke="#334155" stroke-width="1.5"/>
-<text x="150" y="24" text-anchor="middle" fill="#64748b" font-size="11">熔接机</text>
-<path d="M55 50 L75 80 L95 50" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
-<text x="75" y="100" text-anchor="middle" fill="#3b82f6" font-size="10">左V型槽</text>
-<path d="M205 50 L225 80 L245 50" fill="none" stroke="#10b981" stroke-width="2.5"/>
-<text x="225" y="100" text-anchor="middle" fill="#10b981" font-size="10">右V型槽</text>
-<line x1="100" y1="65" x2="200" y2="65" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,3"/>
-<text x="150" y="62" text-anchor="middle" fill="#ef4444" font-size="9">端面间距</text>
-<rect id="m4-left-slot" x="50" y="45" width="50" height="40" fill="transparent" class="fiber-drop" data-slot="left"/>
-<rect id="m4-right-slot" x="200" y="45" width="50" height="40" fill="transparent" class="fiber-drop" data-slot="right"/>
-</svg>
-</div>
-</div>
-<div id="m4-s5-fb"></div>
-</div>
-
-<!-- Step 6 -->
-<div id="m4-step6" class="step-content hidden">
-<h3 class="op-title">Step 6：熔接</h3>
-<div class="op-instruction">启动熔接机进行光纤熔接。</div>
-<div class="op-tip">💡 熔接损耗≤0.05dB为合格，>0.1dB需重新操作。</div>
-<div style="text-align:center;padding:20px 0">
-<svg id="m4-splice-anim" class="splice-svg" width="300" height="160" viewBox="0 0 300 160" style="background:#0f172a;border-radius:10px;border:2px solid #2d3748">
-<rect x="8" y="8" width="284" height="144" rx="6" fill="#16213e" stroke="#334155"/>
-<text x="150" y="30" text-anchor="middle" fill="#3b82f6" font-size="13" id="m6-st">准备熔接</text>
-<line id="m6-fl" x1="25" y1="80" x2="135" y2="80" stroke="#3b82f6" stroke-width="3"/>
-<line id="m6-fr" x1="165" y1="80" x2="275" y2="80" stroke="#10b981" stroke-width="3"/>
-<circle id="m6-sp" cx="150" cy="80" r="0" fill="#fff" opacity="0"/>
-<g id="m6-arc" opacity="0" class="splice-arc">
-<line x1="130" y1="58" x2="170" y2="102" stroke="#fbbf24" stroke-width="2"/>
-<line x1="170" y1="58" x2="130" y2="102" stroke="#fbbf24" stroke-width="2"/>
-<line x1="140" y1="52" x2="160" y2="108" stroke="#f97316" stroke-width="1.5"/>
-<line x1="160" y1="52" x2="140" y2="108" stroke="#f97316" stroke-width="1.5"/>
-<circle cx="150" cy="80" r="14" fill="rgba(251,191,36,0.25)"/>
-</g>
-<text x="150" y="140" text-anchor="middle" fill="#3b82f6" font-size="11" id="m6-lt"></text>
-</svg>
-<div style="margin-top:16px">
-<button class="btn btn-primary" id="m6-start" onclick="m4Splice()">开始熔接</button>
-<button class="btn btn-secondary" id="m6-retry" onclick="m4ReSplice()" style="display:none">重新熔接</button>
-</div>
-</div>
-<div id="m4-s6-fb"></div>
-</div>
-
-<!-- Step 7 -->
-<div id="m4-step7" class="step-content hidden">
-<h3 class="op-title">Step 7：热缩保护</h3>
-<div class="op-instruction">将热缩管套在熔接点，放入加热器加热保护。</div>
-<div style="text-align:center;padding:16px 0">
-<p style="color:#93c5fd;margin-bottom:12px;font-weight:500">① 将热缩管拖到熔接点：</p>
-<div style="display:flex;gap:24px;justify-content:center;align-items:center;flex-wrap:wrap">
-<div class="sort-card" draggable="true" id="m4-hs" style="background:rgba(245,158,11,.15);border-color:#f59e0b;padding:10px 20px;color:#fcd34d">热缩管</div>
-<svg width="280" height="70" viewBox="0 0 280 70" style="background:#0f172a;border-radius:10px;border:2px solid #2d3748">
-<line x1="25" y1="35" x2="115" y2="35" stroke="#3b82f6" stroke-width="3"/>
-<circle cx="140" cy="35" r="5" fill="#10b981"/>
-<line x1="165" y1="35" x2="255" y2="35" stroke="#10b981" stroke-width="3"/>
-<text x="140" y="60" text-anchor="middle" fill="#64748b" font-size="10">熔接点</text>
-<rect id="m7-dz" x="110" y="15" width="60" height="40" fill="transparent" style="cursor:pointer" class="hs-drop"/>
-</svg>
-</div>
-<div id="m7-placed" style="display:none;margin:14px 0">
-<p style="color:#10b981;font-weight:500">✓ 热缩管已套在熔接点</p>
-<p style="color:#93c5fd;margin:10px 0;font-weight:500">② 点击开始加热：</p>
-<button class="btn btn-primary" onclick="m4Heat()" id="m7-hbtn">开始加热</button>
-<div class="heat-bar" style="margin-top:12px"><div id="m7-prog" class="heat-fill"></div></div>
-<p id="m7-ptxt" style="margin-top:6px;color:#94a3b8;font-size:.85rem">0%</p>
-</div>
-</div>
-<div id="m4-s7-fb"></div>
-</div>
-
-<!-- Step 8 -->
-<div id="m4-step8" class="step-content hidden">
-<h3 class="op-title">Step 8：盘纤收容</h3>
-<div class="op-instruction">将光纤按规范弯曲半径盘入光纤接续盒。</div>
-<div class="op-tip">💡 光纤弯曲半径不得小于30mm，否则会增加损耗甚至断纤。</div>
-<div style="text-align:center;padding:16px 0">
-<p style="color:#93c5fd;margin-bottom:14px;font-weight:500">选择光纤盘放方式：</p>
-<div class="op-options" style="justify-content:center">
-<div class="op-opt" style="padding:16px;text-align:center" onclick="m4Coil('tight',this)">
-<svg width="110" height="70" viewBox="0 0 110 70"><rect x="5" y="3" width="100" height="64" rx="4" fill="#16213e" stroke="#334155"/><path d="M25 35 Q35 10 55 35 Q75 60 85 35" fill="none" stroke="#ef4444" stroke-width="2.5"/><text x="55" y="62" text-anchor="middle" fill="#ef4444" font-size="8">弯曲半径≈15mm</text></svg>
-<div style="margin-top:4px;font-weight:500;color:#e2e8f0">紧弯盘放</div>
-</div>
-<div class="op-opt" style="padding:16px;text-align:center" onclick="m4Coil('normal',this)">
-<svg width="110" height="70" viewBox="0 0 110 70"><rect x="5" y="3" width="100" height="64" rx="4" fill="#16213e" stroke="#334155"/><path d="M15 35 Q35 5 55 35 Q75 65 95 35" fill="none" stroke="#10b981" stroke-width="2.5"/><text x="55" y="62" text-anchor="middle" fill="#10b981" font-size="8">弯曲半径≈35mm</text></svg>
-<div style="margin-top:4px;font-weight:500;color:#e2e8f0">标准盘放</div>
-</div>
-</div>
-</div>
-<div id="m4-s8-fb"></div>
-</div>
-
-<!-- Score -->
-<div id="m4-complete" class="step-content hidden">
-<h3 class="op-title">操作评分</h3>
-<div class="score-area">
-<div class="score-ring"><span class="score-val" id="m4-ts">0</span><span class="score-lbl">/100分</span></div>
-</div>
-<div class="score-grid" id="m4-sb"></div>
-<div id="m4-ff" class="feedback"></div>
-<div class="op-actions">
-<button class="btn btn-secondary" onclick="initM4()">重新开始</button>
-<button class="btn btn-primary" onclick="sp('sim')">返回仿真平台</button>
-</div>
-</div>
-
-<div class="op-actions" id="m4-nav" style="display:none">
-<button class="btn btn-primary" id="m4-nb" onclick="m4Next()">下一步</button>
-</div>
-
-</div><!-- workspace -->
-</div><!-- op-area -->
-</div><!-- fiber-page -->
-
 
 <script>
-// Page navigation
-function sp(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const el=document.getElementById('page-'+id);
-  if(el){el.classList.add('active');window.scrollTo(0,0);}
-  document.querySelectorAll('.nav-a').forEach(l=>l.classList.remove('active'));
-  if(id==='home')document.querySelector('.nav-a:nth-child(1)').classList.add('active');
-  else document.querySelector('.nav-a:nth-child(2)').classList.add('active');
-  if(id==='fiber')initM4();
+// Question Bank - 7 courses, multiple difficulty levels
+var QBANK={
+"综合布线系统":{
+"基础":[
+{q:"T568B标准中，双绞线第1芯的颜色是？",o:["白橙","白绿","橙","蓝"],a:0,e:"T568B线序：1-白橙 2-橙 3-白绿 4-蓝 5-白蓝 6-绿 7-白棕 8-棕"},
+{q:"综合布线系统中，直接连接用户终端设备的子系统是？",o:["工作区子系统","配线子系统","干线子系统","设备间子系统"],a:0,e:"工作区子系统由信息插座和终端设备跳线组成，直接连接用户终端"},
+{q:"超五类双绞线(CAT5e)支持的最高传输速率是？",o:["100Mbps","1000Mbps","10Gbps","100Mbps"],a:1,e:"CAT5e支持最高1000Mbps（1Gbps），CAT5最高100Mbps"},
+{q:"RJ-45水晶头共有多少个金属触点？",o:["4个","6个","8个","10个"],a:2,e:"RJ-45水晶头有8个金属触点，对应双绞线的8根芯线"},
+{q:"综合布线系统中，配线架的作用是？",o:["信号放大","线路终接和跳线管理","电源分配","网络路由"],a:1,e:"配线架用于终接水平线缆，并通过跳线连接交换机等设备"}
+],
+"中等":[
+{q:"T568A和T568B的主要区别是？",o:["线芯数量不同","第1/2和第3/6对线序互换","屏蔽方式不同","传输速率不同"],a:1,e:"T568A第1-2对是白绿/绿，第3-6对是白橙/蓝；T568B正好互换"},
+{q:"水平布线子系统中，双绞线电缆的最大长度不应超过？",o:["50米","90米","100米","150米"],a:1,e:"水平子系统永久链路最长90米，加上跳线总信道不超过100米"},
+{q:"光纤熔接时，熔接机的放电时间通常为？",o:["1-3秒","5-10秒","15-20秒","30秒以上"],a:1,e:"光纤熔接机放电时间通常5-10秒，具体取决于光纤类型和机器参数"},
+{q:"综合布线系统中，管理间的功能是？",o:["存放网络设备","楼层配线管理","垂直干线连接","电源管理"],a:1,e:"管理间（电信间）用于楼层配线设备安装和线缆管理"},
+{q:"6类双绞线(CAT6)在短距离内可支持的传输速率为？",o:["1Gbps","2.5Gbps","5Gbps","10Gbps"],a:3,e:"CAT6在55米内可支持10Gbps传输速率"}
+],
+"较难":[
+{q:"OTDR测试光纤时，事件点的判断依据是？",o:["信号衰减突然变化","信号完全消失","信号频率变化","信号相位偏移"],a:0,e:"OTDR通过检测瑞利散射和菲涅尔反射来定位事件点（接头、断裂等）"},
+{q:"综合布线系统信道测试中，近端串扰(NEXT)测试不合格最可能的原因是？",o:["线缆过长","端接不规范","温度过高","弯折半径过小"],a:1,e:"端接不规范（如线对解绞过多）会导致NEXT测试不合格"},
+{q:"MPO多芯光纤连接器常见芯数不包括？",o:["12芯","24芯","48芯","64芯"],a:3,e:"MPO常见规格为12、24、48芯，64芯较少使用"},
+{q:"综合布线永久链路测试与信道测试的区别是？",o:["测试仪器不同","永久链路不含跳线，信道包含跳线","测试频率不同","测试标准不同"],a:1,e:"永久链路测试不含设备跳线，信道测试包含两端跳线"},
+{q:"单模光纤的纤芯直径通常为？",o:["8-10μm","50μm","62.5μm","125μm"],a:0,e:"单模光纤纤芯8-10μm（常用9μm），多模常用50μm或62.5μm"}
+]
+},
+"网络基础":{
+"基础":[
+{q:"OSI参考模型共分为几层？",o:["4层","5层","6层","7层"],a:3,e:"OSI七层模型：物理层、数据链路层、网络层、传输层、会话层、表示层、应用层"},
+{q:"IP地址192.168.1.1属于哪类地址？",o:["A类","B类","C类","D类"],a:2,e:"C类地址范围192.0.0.0-223.255.255.255，192.168开头是C类私有地址"},
+{q:"HTTP协议默认使用的端口号是？",o:["21","22","80","443"],a:2,e:"HTTP默认端口80，HTTPS默认443，FTP默认21，SSH默认22"},
+{q:"MAC地址由多少位二进制组成？",o:["16位","32位","48位","64位"],a:2,e:"MAC地址48位（6字节），通常用12位十六进制表示"},
+{q:"TCP和UDP的主要区别是？",o:["TCP面向连接，UDP无连接","TCP更快","UDP更安全","无区别"],a:0,e:"TCP是面向连接的可靠传输协议，UDP是无连接的不可靠传输协议"}
+],
+"中等":[
+{q:"子网掩码255.255.255.0对应的CIDR表示是？",o:["/16","/20","/24","/28"],a:2,e:"255.255.255.0即24位1，CIDR表示为/24"},
+{q:"ARP协议的作用是？",o:["域名解析","IP地址到MAC地址映射","路由选择","流量控制"],a:1,e:"ARP协议将IP地址解析为MAC地址，RARP则相反"},
+{q:"TCP三次握手中，第二次握手发送的标志位是？",o:["SYN","ACK","SYN+ACK","FIN"],a:2,e:"三次握手：SYN → SYN+ACK → ACK，第二次是SYN+ACK"},
+{q:"VLAN的主要作用是？",o:["提高带宽","隔离广播域","加密数据","负载均衡"],a:1,e:"VLAN通过逻辑划分隔离广播域，减少广播风暴"},
+{q:"DNS服务器使用的默认端口是？",o:["25","53","80","110"],a:1,e:"DNS默认使用53端口，SMTP使用25，POP3使用110"}
+],
+"较难":[
+{q:"BGP协议属于哪种路由类型？",o:["内部网关协议","外部网关协议","静态路由","直连路由"],a:1,e:"BGP是边界网关协议，用于自治系统之间的路由，属于EGP"},
+{q:"TCP拥塞控制中，慢启动阶段拥塞窗口的增长方式是？",o:["线性增长","指数增长","不增长","随机增长"],a:1,e:"慢启动阶段cwnd指数增长（每RTT翻倍），拥塞避免阶段线性增长"},
+{q:"OSPF协议中，Area 0的作用是？",o:["普通区域","骨干区域","末梢区域","非纯末梢区域"],a:1,e:"Area 0是OSPF的骨干区域，所有非骨干区域必须与Area 0直接相连"},
+{q:"IPv6地址长度为多少位？",o:["32位","64位","128位","256位"],a:2,e:"IPv6地址128位，是IPv4（32位）的4倍"},
+{q:"STP协议的最终目的是？",o:["提高带宽","防止二层环路","IP路由","VLAN划分"],a:1,e:"STP（生成树协议）通过阻塞冗余链路防止二层环路"}
+]
+},
+"网络设备配置":{
+"基础":[
+{q:"Cisco路由器进入特权模式的命令是？",o:["enable","configure","interface","router"],a:0,e:"enable命令从用户模式进入特权模式，configure进入全局配置模式"},
+{q:"交换机的基本功能是？",o:["路由选择","帧转发和MAC地址学习","NAT转换","DHCP分配"],a:1,e:"交换机基于MAC地址表进行帧转发和学习"},
+{q:"保存Cisco设备配置的命令是？",o:["save","write memory","copy running-config startup-config","commit"],a:2,e:"copy running-config startup-config将当前配置保存到NVRAM"},
+{q:"查看路由表的命令是？",o:["show ip route","show arp","show mac","show vlan"],a:0,e:"show ip route显示路由表，show arp显示ARP表"},
+{q:"路由器的主要功能是？",o:["帧转发","路由选择和网络互联","MAC学习","VLAN划分"],a:1,e:"路由器工作在网络层，主要功能是路由选择和网络互联"}
+],
+"中等":[
+{q:"配置静态路由时，下一跳参数表示？",o:["源地址","目的地址","下一跳路由器接口IP","出接口"],a:2,e:"静态路由下一跳指定数据包转发的下一个路由器接口IP地址"},
+{q:"ACL标准访问控制列表的编号范围是？",o:["1-99","100-199","200-299","1000-1999"],a:0,e:"标准ACL编号1-99，扩展ACL编号100-199"},
+{q:"NAT中，将内部局部地址转换为内部全局地址称为？",o:["静态NAT","动态NAT","PAT","DNAT"],a:1,e:"动态NAT将内部局部地址池转换为内部全局地址池"},
+{q:"SSH和Telnet的主要区别是？",o:["端口不同","SSH加密传输，Telnet明文传输","速度不同","协议不同"],a:1,e:"SSH使用加密传输，安全性高；Telnet明文传输，不安全"},
+{q:"VTP协议的作用是？",o:["路由协议","VLAN信息同步","安全认证","地址分配"],a:1,e:"VTP（VLAN中继协议）用于在交换机之间同步VLAN信息"}
+],
+"较难":[
+{q:"OSPF中DR和BDR选举的优先级默认值是？",o:["0","1","100","255"],a:1,e:"OSPF接口优先级默认1，设为0则不参与DR/BDR选举"},
+{q:"HSRP中，活跃路由器的优先级默认值是？",o:["0","50","100","200"],a:2,e:"HSRP默认优先级100，范围0-255，值越大优先级越高"},
+{q:"BGP的AS-PATH属性的作用是？",o:["路由选择","环路检测","负载均衡","安全认证"],a:1,e:"AS-PATH记录路由经过的自治系统，用于环路检测和路径选择"},
+{q:"策略路由(PBR)与普通路由的区别是？",o:["更快速","基于策略而非仅目的地址","更安全","支持更多协议"],a:1,e:"策略路由根据源地址、协议类型等策略转发，不限于目的地址"},
+{q:"EIGRP的度量值计算默认使用哪些参数？",o:["仅带宽","带宽和延迟","带宽、延迟、可靠性和负载","跳数"],a:1,e:"EIGRP默认使用带宽和延迟计算度量值，可靠性和负载默认关闭"}
+]
+},
+"网络安全":{
+"基础":[
+{q:"防火墙的基本功能是？",o:["加速网络","访问控制","域名解析","地址分配"],a:1,e:"防火墙通过访问控制策略过滤网络流量，保护网络安全"},
+{q:"以下哪种攻击属于DDoS攻击？",o:["SQL注入","XSS","SYN Flood","钓鱼"],a:2,e:"SYN Flood利用TCP三次握手缺陷发起拒绝服务攻击，属于DDoS"},
+{q:"HTTPS相比HTTP增加了什么？",o:["速度","SSL/TLS加密","端口","协议版本"],a:1,e:"HTTPS=HTTP+SSL/TLS，在传输层和应用层之间增加加密层"},
+{q:"计算机病毒的特征不包括？",o:["传染性","隐蔽性","破坏性","合法性"],a:3,e:"病毒具有传染性、隐蔽性、破坏性、潜伏性等，不具合法性"},
+{q:"常见密码安全原则不包括？",o:["定期更换","使用复杂密码","多处使用同一密码","长度足够"],a:2,e:"不应在多个平台使用相同密码，一旦泄露影响所有账户"}
+],
+"中等":[
+{q:"数字签名的主要作用是？",o:["加密数据","验证身份和数据完整性","压缩数据","加速传输"],a:1,e:"数字签名用于验证发送者身份和确保数据未被篡改"},
+{q:"IDS和IPS的主要区别是？",o:["检测方式不同","IDS检测告警，IPS检测并阻断","协议不同","部署位置不同"],a:1,e:"IDS仅检测和告警，IPS在检测后还能自动阻断攻击"},
+{q:"PKI体系中，CA的作用是？",o:["加密数据","签发和管理数字证书","路由选择","防火墙"],a:1,e:"CA（证书颁发机构）负责签发、管理和撤销数字证书"},
+{q:"SQL注入攻击的原理是？",o:["暴力破解密码","在输入中嵌入恶意SQL语句","网络监听","拒绝服务"],a:1,e:"SQL注入通过在用户输入中嵌入SQL语句操控数据库"},
+{q:"VPN使用的核心技术是？",o:["防火墙","加密隧道","负载均衡","NAT"],a:1,e:"VPN通过加密隧道技术在公共网络上建立安全的专用通道"}
+],
+"较难":[
+{q:"零信任安全模型的核心原则是？",o:["信任内部网络","永不信任，始终验证","仅验证外部访问","使用最强加密"],a:1,e:"零信任模型假设任何访问都不可信，需持续验证身份和权限"},
+{q:"APT攻击的特点是？",o:["快速爆发","持续性、针对性、隐蔽性","随机性","仅攻击个人"],a:1,e:"APT（高级持续性威胁）具有长期潜伏、高度针对和隐蔽的特征"},
+{q:"Kerberos协议中，TGS的作用是？",o:["用户认证","签发票据授权票据","签发服务票据","密钥管理"],a:2,e:"TGS（票据授予服务）根据TGT向客户端签发服务票据（ST）"},
+{q:"SSL/TLS握手中，Pre-Master Secret由谁生成？",o:["仅服务器","仅客户端","客户端生成并发送给服务器","CA生成"],a:2,e:"客户端生成Pre-Master Secret，用服务器公钥加密后发送"},
+{q:"等保2.0中，第三级安全要求适用于？",o:["一般系统","重要系统","关键信息基础设施","所有系统"],a:1,e:"等保三级适用于一旦遭到破坏会对社会秩序造成严重损害的重要系统"}
+]
+},
+"服务器管理":{
+"基础":[
+{q:"Linux中查看当前目录的命令是？",o:["ls","pwd","cd","dir"],a:1,e:"pwd显示当前工作目录，ls列出目录内容，cd切换目录"},
+{q:"Linux中重启系统的命令是？",o:["shutdown","reboot","exit","logout"],a:1,e:"reboot重启系统，shutdown可定时关机或重启"},
+{q:"Windows Server中，域控制器的主要作用是？",o:["文件共享","集中管理用户和计算机","Web服务","数据库服务"],a:1,e:"域控制器存储Active Directory数据库，集中管理域内资源"},
+{q:"DHCP服务器的作用是？",o:["域名解析","自动分配IP地址","网页服务","邮件服务"],a:1,e:"DHCP自动为客户端分配IP地址、子网掩码、网关等网络参数"},
+{q:"RAID 1的特点是？",o:["条带化","镜像","校验","压缩"],a:1,e:"RAID 1通过磁盘镜像实现数据冗余，可用容量为总容量的50%"}
+],
+"中等":[
+{q:"Linux中修改文件权限的命令是？",o:["chown","chmod","chgrp","chattr"],a:1,e:"chmod修改文件权限，chown修改文件所有者，chgrp修改所属组"},
+{q:"RAID 5至少需要几块磁盘？",o:["2块","3块","4块","5块"],a:1,e:"RAID 5最少3块磁盘，1块用于校验，允许1块磁盘故障"},
+{q:"Windows中查看IP配置的命令是？",o:["ifconfig","ipconfig","ping","netstat"],a:1,e:"Windows使用ipconfig，Linux使用ifconfig或ip addr"},
+{q:"Linux中，/etc/passwd文件存储的是？",o:["密码哈希","用户账户信息","组信息","网络配置"],a:1,e:"/etc/passwd存储用户账户信息，密码哈希存储在/etc/shadow"},
+{q:"虚拟化技术中，Hypervisor的类型分为？",o:["1型和2型","A型和B型","硬件型和软件型","网络型和存储型"],a:0,e:"1型Hypervisor直接运行在硬件上（如ESXi），2型运行在OS上（如VMware Workstation）"}
+],
+"较难":[
+{q:"LVM中，PV、VG、LV的关系是？",o:["PV包含VG包含LV","PV组成VG，VG划分LV","LV包含VG包含PV","独立关系"],a:1,e:"物理卷(PV)组成卷组(VG)，从VG中划分逻辑卷(LV)"},
+{q:"Kubernetes中Pod的生命周期管理由谁负责？",o:["Service","Deployment","Ingress","PV"],a:1,e:"Deployment管理Pod的副本数、更新策略和滚动升级"},
+{q:"Docker容器与虚拟机的主要区别是？",o:["容器需要独立OS","容器共享宿主内核，更轻量","虚拟机更安全","无区别"],a:1,e:"容器共享宿主机内核，无需完整OS，启动快、资源占用少"},
+{q:"Nginx反向代理与正向代理的区别是？",o:["代理方向不同","正向代理代理客户端，反向代理代理服务端","性能不同","协议不同"],a:1,e:"正向代理代表客户端访问服务器，反向代理代表服务端接收客户端请求"},
+{q:"Zabbix监控系统中，触发器(Trigger)的作用是？",o:["收集数据","定义告警条件","发送通知","展示图表"],a:1,e:"触发器基于监控项数据定义告警条件，满足条件时触发动作"}
+]
+},
+"编程基础":{
+"基础":[
+{q:"HTML中，最大的标题标签是？",o:["<h6>","<h1>","<title>","<head>"],a:1,e:"<h1>是最大标题标签，<h6>是最小，<title>定义网页标题，<head>是文档头部"},
+{q:"CSS中，设置文字颜色的属性是？",o:["font-color","text-color","color","background-color"],a:2,e:"CSS中用color属性设置文字颜色，没有font-color和text-color"},
+{q:"JavaScript中，声明变量的关键字不包括？",o:["var","let","const","define"],a:3,e:"JavaScript声明变量用var、let、const，没有define关键字"},
+{q:"Python中，单行注释使用的符号是？",o:["//","#","/*","--"],a:1,e:"Python单行注释用#，多行注释用三引号；//是JS/Java单行注释"},
+{q:"以下哪个是正确的HTML标签？",o:["<img>","<image>","<pic>","<photo>"],a:0,e:"HTML中插入图片使用<img>标签，没有<image>等标签"}
+],
+"中等":[
+{q:"JavaScript中，===和==的区别是？",o:["没有区别","===不类型转换，==会类型转换","===更慢","==更严格"],a:1,e:"===严格相等（值和类型都相等），==会进行类型转换后比较"},
+{q:"Python中，列表和元组的主要区别是？",o:["长度不同","列表可变，元组不可变","类型不同","语法相同"],a:1,e:"列表(list)可变，用[]；元组(tuple)不可变，用()"},
+{q:"CSS中，position:fixed的特点是？",o:["相对定位","绝对定位","固定定位，不随滚动","默认定位"],a:2,e:"fixed固定定位，相对于浏览器窗口定位，滚动时不移动"},
+{q:"SQL中，用于去重的关键字是？",o:["UNIQUE","DISTINCT","GROUP BY","HAVING"],a:1,e:"DISTINCT用于查询结果去重，UNIQUE是约束关键字"},
+{q:"Git中，将暂存区的修改提交到仓库的命令是？",o:["git add","git commit","git push","git pull"],a:1,e:"git commit将暂存区修改提交到本地仓库，push推送到远程"}
+],
+"较难":[
+{q:"JavaScript中，闭包(Closure)是指？",o:["函数嵌套","函数可以访问其外部作用域变量","私有变量","回调函数"],a:1,e:"闭包是函数与其词法环境的组合，内部函数可访问外部函数变量"},
+{q:"Python中装饰器(decorator)的作用是？",o:["修饰字符串","不修改原函数代码增强其功能","定义类","异常处理"],a:1,e:"装饰器在不修改原函数代码的情况下，动态增加功能（如日志、权限）"},
+{q:"CSS Flexbox中，align-items控制的是？",o:["主轴对齐","交叉轴对齐","换行","排序"],a:1,e:"justify-content控制主轴，align-items控制交叉轴（垂直方向）对齐"},
+{q:"HTTP状态码304表示？",o:["重定向","未修改(缓存有效)","服务器错误","请求成功"],a:1,e:"304 Not Modified表示资源未修改，可使用缓存，无需重新下载"},
+{q:"Redis中，持久化的两种方式是？",o:["SQL和NoSQL","RDB和AOF","内存和磁盘","主从和集群"],a:1,e:"RDB（快照）和AOF（追加日志）是Redis两种持久化方式"}
+]
+},
+"信息安全与法规":{
+"基础":[
+{q:"《网络安全法》施行的时间是？",o:["2016年11月7日","2017年6月1日","2018年1月1日","2019年1月1日"],a:1,e:"《网络安全法》2016年11月7日通过，2017年6月1日起施行"},
+{q:"个人信息保护的基本原则不包括？",o:["合法正当","最小必要","公开出售","安全保障"],a:2,e:"个人信息处理应遵循合法正当、最小必要、安全保障原则，不得公开出售"},
+{q:"网络等级保护共分为几级？",o:["3级","4级","5级","6级"],a:2,e:"网络安全等级保护共5级，第5级最高（涉及国家安全）"},
+{q:"以下哪种行为违反《网络安全法》？",o:["定期更新密码","非法获取他人信息","使用正版软件","安装杀毒软件"],a:1,e:"非法获取、出售他人个人信息违反《网络安全法》第44条"},
+{q:"网络安全事件应急预案应包括？",o:["仅预防措施","预防、监测、处置和恢复","仅处置措施","仅恢复措施"],a:1,e:"应急预案应覆盖预防、监测、预警、处置和恢复等环节"}
+],
+"中等":[
+{q:"《数据安全法》中，数据分类分级的依据是？",o:["数据量大小","数据在经济社会发展中的重要程度","存储时间","格式类型"],a:1,e:"根据数据在经济社会发展中的重要程度及一旦遭到篡改、破坏后的危害程度分类分级"},
+{q:"个人信息处理者处理不满14周岁未成年人信息的特殊要求是？",o:["无需同意","需监护人同意","仅需本人同意","学校同意"],a:1,e:"处理未成年人个人信息需取得监护人同意，并制定专门处理规则"},
+{q:"等保2.0中，安全通用要求分为哪几类？",o:["2类","3类","4类","5类"],a:2,e:"安全通用要求分为技术要求（物理、网络、主机、应用、数据）和管理要求（机构、人员、制度等）"},
+{q:"网络安全审查制度针对的是？",o:["所有企业","关键信息基础设施运营者","个人用户","外国企业"],a:1,e:"网络安全审查针对CIIO采购网络产品和服务可能带来的国家安全风险"},
+{q:"侵犯公民个人信息罪的入罪标准是？",o:["任意数量","达到情节严重","50条以上","必须获利"],a:1,e:"侵犯公民个人信息需达到"情节严重"才构成犯罪，具体标准由司法解释规定"}
+],
+"较难":[
+{q:"《个人信息保护法》中，跨境提供个人信息的条件不包括？",o:["通过安全评估","经专业机构认证","签订标准合同","个人自行决定"],a:3,e:"跨境提供需满足：安全评估/专业认证/标准合同/政府间协定，非个人自行决定"},
+{q:"等保2.0新增的安全要求不包括？",o:["云计算安全","移动互联安全","物联网安全","物理隔离"],a:3,e:"等保2.0新增云、移动、物联网、工控和大数据安全，物理隔离不是新增"},
+{q:"网络安全漏洞披露的法律要求是？",o:["可随意公开","需先向主管部门报告","无需报告","仅通知用户"],a:1,e:"发现漏洞应先向主管部门报告，不得利用漏洞谋利，不得随意公开"},
+{q:"《关键信息基础设施安全保护条例》中CIIO的义务不包括？",o:["安全建设","安全评估","公开所有数据","应急预案"],a:2,e:"CIIO义务包括安全建设、检测评估、应急预案等，不包括公开所有数据"},
+{q:"GDPR和《个人信息保护法》的管辖范围差异是？",o:["完全相同","GDPR适用欧盟，个保法适用中国境内及境外处理中国自然人信息","GDPR全球适用","个保法仅适用境内"],a:1,e:"GDPR适用欧盟境内处理及对欧盟数据主体的处理，个保法适用中国境内及境外处理中国自然人信息"}
+]
 }
+};
 
-// Demo canvas animation
-let demoCtx,demoStep=1,demoFrame;
-function initDemo(step){
-  const cv=document.getElementById('demo-canvas');
-  if(!cv)return;
-  demoCtx=cv.getContext('2d');
-  demoStep=step;
-  cancelAnimationFrame(demoFrame);
-  animateDemo();
-}
-const demoLabels=['开剥光缆','剥除涂覆层','清洁光纤','切割光纤','光纤对准','放电熔接','热缩保护','盘纤收容'];
-function animateDemo(){
-  const ctx=demoCtx,w=800,h=180;
-  if(!ctx)return;
-  ctx.clearRect(0,0,w,h);
-  const t=Date.now()/1000;
-  ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
-  ctx.fillStyle='#93c5fd';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
-  ctx.fillText('步骤'+demoStep+'：'+demoLabels[demoStep-1],w/2,24);
-  ctx.save();
-  switch(demoStep){
-    case 1:{const x=100+((t*40)%600);ctx.fillStyle='#334155';ctx.fillRect(100,80,600,20);ctx.fillStyle='#f59e0b';ctx.fillRect(x-15,65,30,50);ctx.fillStyle='#3b82f6';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('开剥刀',x,62);break;}
-    case 2:{const x=200+((t*30)%400);ctx.strokeStyle='#10b981';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-12,70);ctx.lineTo(x,90);ctx.lineTo(x+12,70);ctx.stroke();ctx.fillStyle='#93c5fd';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('米勒钳',x,62);ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(100,90);ctx.lineTo(700,90);ctx.stroke();break;}
-    case 3:{const x=150+((t*50)%500);ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(100,90);ctx.lineTo(700,90);ctx.stroke();ctx.fillStyle='rgba(59,130,246,0.3)';ctx.fillRect(x-20,80,40,20);ctx.fillStyle='#93c5fd';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('酒精棉',x,75);break;}
-    case 4:{const y=60+Math.abs(Math.sin(t*3))*30;ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(100,90);ctx.lineTo(700,90);ctx.stroke();ctx.fillStyle='#8b5cf6';ctx.fillRect(370,y,60,12);ctx.fillStyle='#93c5fd';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('切割刀',400,y-8);break;}
-    case 5:{const p=(t*0.3)%1;ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(100,90);ctx.lineTo(250+p*50,90);ctx.stroke();ctx.strokeStyle='#10b981';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(700,90);ctx.lineTo(450-p*50,90);ctx.stroke();ctx.fillStyle='#64748b';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('左V型槽',250,120);ctx.fillText('右V型槽',450,120);break;}
-    case 6:{ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(100,90);ctx.lineTo(360,90);ctx.stroke();ctx.beginPath();ctx.moveTo(440,90);ctx.lineTo(700,90);ctx.stroke();if(Math.sin(t*6)>0){ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(370,70);ctx.lineTo(430,110);ctx.stroke();ctx.beginPath();ctx.moveTo(430,70);ctx.lineTo(370,110);ctx.stroke();ctx.fillStyle='rgba(251,191,36,0.2)';ctx.beginPath();ctx.arc(400,90,15,0,Math.PI*2);ctx.fill();}break;}
-    case 7:{ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(100,90);ctx.lineTo(700,90);ctx.stroke();const sw=Math.max(20,80-Math.abs(Math.sin(t*2))*30);ctx.fillStyle='rgba(245,158,11,0.4)';ctx.fillRect(400-sw/2,78,sw,24);ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.strokeRect(400-sw/2,78,sw,24);ctx.fillStyle='#fcd34d';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('热缩管',400,72);break;}
-    case 8:{ctx.strokeStyle='#10b981';ctx.lineWidth=2.5;ctx.beginPath();for(let i=0;i<3;i++){const cx=250+i*120,cy=90;ctx.moveTo(cx-30,cy+20);ctx.quadraticCurveTo(cx-30,cy-30,cx,cy-30);ctx.quadraticCurveTo(cx+30,cy-30,cx+30,cy+20);}ctx.stroke();ctx.fillStyle='#93c5fd';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('光纤接续盒',400,130);break;}
-  }
-  ctx.restore();
-  demoFrame=requestAnimationFrame(animateDemo);
-}
+var qzState={questions:[],idx:0,score:0,answered:0};
 
-// Module 4 state
-let S={step:1,tool:{},len:{},sortOK:false,fiber:{},loss:0,pass:false,heat:false,coil:null};
-let SC={s1:0,s2:0,s3:0,s4:0,s5:0,s6:0,s7:0,s8:0};
-
-function initM4(){
-  S={step:1,tool:{},len:{},sortOK:false,fiber:{},loss:0,pass:false,heat:false,coil:null};
-  SC={s1:0,s2:0,s3:0,s4:0,s5:0,s6:0,s7:0,s8:0};
-  updDots(1);
-  showStep(1);
-  document.getElementById('m4-nav').style.display='none';
-  document.getElementById('m4-nav').innerHTML='<button class="btn btn-primary" id="m4-nb" onclick="m4Next()">下一步</button>';
-  ['s1','s2','s4'].forEach(k=>{
-    const tools=document.getElementById('m4-'+k+'-tools');
-    if(tools)tools.querySelectorAll('.tool-item').forEach(c=>{c.className='tool-item';c.style.pointerEvents='auto'});
-    const tfb=document.getElementById('m4-'+k+'-tfb');if(tfb)tfb.innerHTML='';
-    const lens=document.getElementById('m4-'+k+'-lens');if(lens)lens.style.display='none';
-    const lt=document.getElementById('m4-'+k+'-len-title');if(lt)lt.style.display='none';
-    const lfb=document.getElementById('m4-'+k+'-lfb');if(lfb)lfb.innerHTML='';
-    const res=document.getElementById('m4-'+k+'-res');if(res)res.innerHTML='';
-    if(lens)lens.querySelectorAll('.op-opt').forEach(b=>b.className='op-opt');
-  });
-  initDrag3();
-  const s3fb=document.getElementById('m4-s3-fb');if(s3fb)s3fb.innerHTML='';
-  initDrag5();
-  const s5fb=document.getElementById('m4-s5-fb');if(s5fb)s5fb.innerHTML='';
-  document.getElementById('m6-st').textContent='准备熔接';
-  document.getElementById('m6-arc').setAttribute('opacity','0');
-  document.getElementById('m6-sp').setAttribute('r','0');
-  document.getElementById('m6-lt').textContent='';
-  document.getElementById('m6-start').style.display='inline-block';
-  document.getElementById('m6-retry').style.display='none';
-  const s6fb=document.getElementById('m4-s6-fb');if(s6fb)s6fb.innerHTML='';
-  const hs=document.getElementById('m4-hs');if(hs)hs.style.display='block';
-  const pl=document.getElementById('m7-placed');if(pl)pl.style.display='none';
-  const prog=document.getElementById('m7-prog');if(prog)prog.style.width='0%';
-  const pt=document.getElementById('m7-ptxt');if(pt)pt.textContent='0%';
-  const s7fb=document.getElementById('m4-s7-fb');if(s7fb)s7fb.innerHTML='';
-  document.querySelectorAll('#m4-step8 .op-opt').forEach(b=>b.className='op-opt');
-  const s8fb=document.getElementById('m4-s8-fb');if(s8fb)s8fb.innerHTML='';
-  initDemo(1);
-}
-
-function updDots(step,done){
-  const c=document.getElementById('steps-m4');if(!c)return;
-  c.querySelectorAll('.step-dot').forEach((d,i)=>{
-    d.classList.remove('active','completed');
-    if(done)d.classList.add('completed');
-    else if(i+1===step)d.classList.add('active');
-    else if(i+1<step)d.classList.add('completed');
-  });
-}
-function showStep(n){
-  document.querySelectorAll('[id^="m4-step"],#m4-complete').forEach(e=>{
-    if(e.id.match(/^m4-step\d+$|^m4-complete$/))e.classList.add('hidden');
-  });
-  const el=document.getElementById('m4-step'+n)||document.getElementById('m4-complete');
-  if(el)el.classList.remove('hidden');
-  initDemo(n);
-}
-
-function m4Tool(step,tool,el){
-  const ok={step1:'cable_slitter',step2:'miller',step4:'fiber_cutter'};
-  const bad={step1:'工具选择错误，请重新选择。开剥光缆应使用专用开剥刀',step2:'工具选择错误，请重新选择。光纤涂覆层必须使用米勒钳',step4:'工具选择错误，请重新选择。光纤切割必须使用专用光纤切割刀'};
-  const good={step1:'✓ 正确！开剥刀是开剥光缆的专用工具',step2:'✓ 正确！米勒钳是剥除光纤涂覆层的专用工具',step4:'✓ 正确！光纤切割刀可确保端面平整'};
-  const k=step.replace('step','s');
-  const fb=document.getElementById('m4-'+k+'-tfb');
-  document.querySelectorAll('#m4-'+k+'-tools .tool-item').forEach(c=>c.className='tool-item');
-  if(tool===ok[step]){
-    el.classList.add('correct');fb.innerHTML='<div class="feedback success"><p>'+good[step]+'</p></div>';
-    S.tool[step]=true;
-    const ld=document.getElementById('m4-'+k+'-lens');const lt=document.getElementById('m4-'+k+'-len-title');
-    if(ld){ld.style.display='flex';if(lt)lt.style.display='block';}
-  }else{
-    el.classList.add('incorrect');fb.innerHTML='<div class="feedback error"><p>✗ '+bad[step]+'</p></div>';
-    setTimeout(()=>{el.className='tool-item';fb.innerHTML='';},1500);
-  }
-}
-
-function m4Len(step,val,el){
-  const ok={step1:'40cm',step2:'4cm',step4:'16mm'};
-  const good={step1:'✓ 光缆开剥长度30-50cm，40cm合适',step2:'✓ 涂覆层剥除3-5cm，4cm合适',step4:'✓ 预留长度15-20mm，16mm合适'};
-  const bad={step1:'开剥长度应为30-50cm',step2:'剥除长度应为3-5cm',step4:'预留长度应为15-20mm'};
-  const k=step.replace('step','s');
-  const isOk=val===ok[step];
-  const lfb=document.getElementById('m4-'+k+'-lfb');
-  document.querySelectorAll('#m4-'+k+'-lens .op-opt').forEach(b=>{b.classList.remove('correct','incorrect');if(b.textContent===ok[step])b.classList.add('correct')});
-  el.classList.add(isOk?'correct':'incorrect');
-  if(isOk){
-    S.len[step]=true;
-    lfb.innerHTML='<div class="feedback success"><p>'+good[step]+'</p></div>';
-    SC[k]={step1:15,step2:15,step4:15}[step];
-    setTimeout(()=>{document.getElementById('m4-nav').style.display='flex';},400);
-  }else{
-    lfb.innerHTML='<div class="feedback error"><p>✗ '+bad[step]+'</p></div>';
-  }
-}
-
-let dragCard=null;
-function initDrag3(){
-  const src=document.getElementById('m4-s3-src');const tgt=document.getElementById('m4-s3-tgt');
-  if(!src||!tgt)return;
-  src.querySelectorAll('.sort-card').forEach(c=>{
-    c.addEventListener('dragstart',e=>{dragCard=c;c.style.opacity='.4';e.dataTransfer.effectAllowed='move'});
-    c.addEventListener('dragend',()=>{c.style.opacity='1';tgt.querySelectorAll('.sort-slot').forEach(s=>s.classList.remove('drag-over'))});
-  });
-  tgt.querySelectorAll('.sort-slot').forEach(slot=>{
-    slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('drag-over')});
-    slot.addEventListener('dragleave',()=>slot.classList.remove('drag-over'));
-    slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('drag-over');if(!dragCard)return;const ct=slot.querySelector('.slot-content');if(ct.firstChild)src.appendChild(ct.firstChild);ct.appendChild(dragCard);dragCard.style.opacity='1'});
-  });
-  src.addEventListener('dragover',e=>e.preventDefault());
-  src.addEventListener('drop',e=>{e.preventDefault();if(dragCard)src.appendChild(dragCard);dragCard.style.opacity='1'});
-}
-function m4CheckSort(){
-  const ok=['alcohol','wipe','inspect'];
-  const slots=document.querySelectorAll('#m4-s3-tgt .sort-slot');
-  let c=0,p=0;
-  slots.forEach((s,i)=>{const card=s.querySelector('.sort-card');if(card){p++;if(card.dataset.step===ok[i]){c++;card.style.borderColor='#10b981';card.style.background='rgba(16,185,129,.15)'}else{card.style.borderColor='#ef4444';card.style.background='rgba(239,68,68,.15)'}}});
-  if(p<3){document.getElementById('m4-s3-fb').innerHTML='<div class="feedback warning"><p>请将3个步骤全部放入排序区域</p></div>';return}
-  SC.s3=Math.max(0,Math.round(c/3*10));
-  const msg=c===3?'完美！清洁顺序完全正确':'正确'+c+'/3，正确顺序：酒精棉擦拭→无尘布擦干→检查端面';
-  document.getElementById('m4-s3-fb').innerHTML='<div class="feedback '+(c===3?'success':'warning')+'"><p>'+msg+'</p></div>';
-  setTimeout(()=>{document.getElementById('m4-nav').style.display='flex';},400);
-}
-
-let dragFiber=null;
-function initDrag5(){
-  const fA=document.getElementById('m4-s5-fA');const fB=document.getElementById('m4-s5-fB');
-  [fA,fB].forEach(f=>{if(!f)return;f.draggable=true;
-    f.addEventListener('dragstart',e=>{dragFiber=f;f.style.opacity='.4';e.dataTransfer.effectAllowed='move'});
-    f.addEventListener('dragend',()=>f.style.opacity='1');
-  });
-  document.querySelectorAll('.fiber-drop').forEach(z=>{
-    z.style.cursor='pointer';
-    z.addEventListener('dragover',e=>{e.preventDefault();z.setAttribute('fill','rgba(59,130,246,0.2)')});
-    z.addEventListener('dragleave',()=>z.setAttribute('fill','transparent'));
-    z.addEventListener('drop',e=>{e.preventDefault();z.setAttribute('fill','transparent');if(!dragFiber)return;
-      const fn=dragFiber.dataset.fiber;const slot=z.dataset.slot;S.fiber[slot]=fn;dragFiber.style.display='none';
-      const svg=document.getElementById('m4-splicer');
-      const col=fn==='A'?'#3b82f6':'#10b981';
-      const x1=slot==='left'?25:170,x2=slot==='left'?100:270;
-      const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
-      ln.setAttribute('x1',x1);ln.setAttribute('y1',78);ln.setAttribute('x2',x2);ln.setAttribute('y2',78);
-      ln.setAttribute('stroke',col);ln.setAttribute('stroke-width','4');svg.appendChild(ln);
-      const lb=document.createElementNS('http://www.w3.org/2000/svg','text');
-      lb.setAttribute('x',(x1+x2)/2);lb.setAttribute('y',72);lb.setAttribute('text-anchor','middle');
-      lb.setAttribute('fill',col);lb.setAttribute('font-size','10');lb.textContent='光纤'+fn;svg.appendChild(lb);
-      if(S.fiber.left&&S.fiber.right){
-        const isOk=S.fiber.left==='A'&&S.fiber.right==='B';
-        SC.s5=isOk?10:5;
-        document.getElementById('m4-s5-fb').innerHTML='<div class="feedback '+(isOk?'success':'warning')+'"><p>'+(isOk?'✓ 光纤对准完成！':'⚠️ 建议A放左侧，B放右侧')+'</p></div>';
-        setTimeout(()=>{document.getElementById('m4-nav').style.display='flex';},400);
-      }
-    });
-  });
-}
-
-function m4Splice(){
-  document.getElementById('m6-start').style.display='none';
-  document.getElementById('m6-st').textContent='对准中...';
-  setTimeout(()=>{
-    document.getElementById('m6-st').textContent='放电熔接中...';
-    document.getElementById('m6-arc').setAttribute('opacity','1');
-    setTimeout(()=>{
-      document.getElementById('m6-arc').setAttribute('opacity','0');
-      document.getElementById('m6-sp').setAttribute('r','4');document.getElementById('m6-sp').setAttribute('opacity','1');
-      S.loss=Math.random()<.7?(Math.random()*.04+.01):(Math.random()*.1+.06);
-      S.loss=Math.round(S.loss*1000)/1000;S.pass=S.loss<=.05;
-      document.getElementById('m6-st').textContent='熔接完成';
-      document.getElementById('m6-lt').textContent='熔接损耗: '+S.loss+'dB';
-      document.getElementById('m6-lt').setAttribute('fill',S.pass?'#10b981':'#ef4444');
-      if(S.pass){SC.s6=15;document.getElementById('m4-s6-fb').innerHTML='<div class="feedback success"><p>🎉 熔接成功！损耗'+S.loss+'dB ≤0.05dB</p></div>';setTimeout(()=>{document.getElementById('m4-nav').style.display='flex'},400)}
-      else{SC.s6=5;document.getElementById('m4-s6-fb').innerHTML='<div class="feedback error"><p>✗ 熔接损耗过高（'+S.loss+'dB），需重新操作</p></div>';document.getElementById('m6-retry').style.display='inline-block'}
-    },1500);
-  },1000);
-}
-function m4ReSplice(){
-  document.getElementById('m6-retry').style.display='none';
-  document.getElementById('m6-arc').setAttribute('opacity','0');
-  document.getElementById('m6-sp').setAttribute('r','0');
-  document.getElementById('m6-lt').textContent='';
-  document.getElementById('m4-s6-fb').innerHTML='';
-  m4Splice();
-}
-
-(function(){
-  document.addEventListener('DOMContentLoaded',()=>{
-    const hs=document.getElementById('m4-hs');
-    if(hs)hs.addEventListener('dragstart',e=>e.dataTransfer.effectAllowed='move');
-    const z=document.querySelector('.hs-drop');
-    if(z){
-      z.addEventListener('dragover',e=>{e.preventDefault();z.setAttribute('fill','rgba(245,158,11,0.3)')});
-      z.addEventListener('dragleave',()=>z.setAttribute('fill','transparent'));
-      z.addEventListener('drop',e=>{e.preventDefault();z.setAttribute('fill','transparent');
-        document.getElementById('m4-hs').style.display='none';document.getElementById('m7-placed').style.display='block'});
-    }
-  });
-})();
-function m4Heat(){
-  document.getElementById('m7-hbtn').disabled=true;
-  document.getElementById('m7-prog').style.width='100%';
-  let p=0;const tm=setInterval(()=>{p+=2;if(p>100)p=100;
-    document.getElementById('m7-ptxt').textContent=p+'%';
-    if(p>=100){clearInterval(tm);SC.s7=10;S.heat=true;
-      document.getElementById('m4-s7-fb').innerHTML='<div class="feedback success"><p>✓ 热缩保护完成！</p></div>';
-      setTimeout(()=>{document.getElementById('m4-nav').style.display='flex'},400)}
-  },40);
-}
-
-function m4Coil(type,el){
-  document.querySelectorAll('#m4-step8 .op-opt').forEach(b=>b.className='op-opt');
-  S.coil=type;
-  if(type==='normal'){el.classList.add('correct');SC.s8=10;document.getElementById('m4-s8-fb').innerHTML='<div class="feedback success"><p>✓ 弯曲半径≈35mm，符合规范（≥30mm）</p></div>'}
-  else{el.classList.add('incorrect');SC.s8=3;document.getElementById('m4-s8-fb').innerHTML='<div class="feedback error"><p>✗ 弯曲半径不足30mm！会增加损耗甚至断纤</p></div>'}
-  setTimeout(()=>{document.getElementById('m4-nav').innerHTML='<button class="btn btn-primary" onclick="m4Score()">查看评分</button>';document.getElementById('m4-nav').style.display='flex'},400);
-}
-
-function m4Next(){
-  S.step++;updDots(S.step);showStep(S.step);
-  document.getElementById('m4-nav').style.display='none';
-  document.getElementById('m4-nav').innerHTML='<button class="btn btn-primary" id="m4-nb" onclick="m4Next()">下一步</button>';
-  if(S.step===3)initDrag3();
-  if(S.step===5)initDrag5();
-}
-
-function m4Score(){
-  updDots(9,true);showStep(9);
-  const total=Object.values(SC).reduce((a,b)=>a+b,0);
-  document.getElementById('m4-ts').textContent=total;
-  const names=['开剥光缆','剥除涂覆层','清洁光纤','切割光纤','光纤对准','熔接','热缩保护','盘纤收容'];
-  const maxs=[15,15,10,15,10,15,10,10];
-  let h='';
-  for(let i=0;i<8;i++){const k='s'+(i+1);const pass=SC[k]>=maxs[i]*.6;
-    h+='<div class="score-item"><span class="score-item-name">Step'+(i+1)+' '+names[i]+' ('+maxs[i]+'分)</span><span class="'+(pass?'pass':'fail')+'">'+SC[k]+'分</span></div>'}
-  document.getElementById('m4-sb').innerHTML=h;
-  const ff=document.getElementById('m4-ff');
-  if(total>=90){ff.className='feedback success';ff.innerHTML='<p>🏆 优秀！您已掌握光纤熔接技术！</p>'}
-  else if(total>=70){ff.className='feedback warning';ff.innerHTML='<p>👍 良好！部分步骤需要加强练习</p>'}
-  else{ff.className='feedback error';ff.innerHTML='<p>📚 建议重新练习，重点掌握工具选择和操作规范</p>'}
-}
-
-</script>
-<script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/latest/libs/cn/index.js"></script>
-<script>
-var COZE_PAT='pat_kR4x26DUlLkRFUPwucU3Np84nEgdE3rdf6P0J68HnzKVcDU8N7Oantx3dIwgAokd';
-var COZE_BOT='7645540020057423908';
-var cozeSDK=null;
-function initCozeSDK(){
-  var container=document.getElementById('qz-chat-bd');
-  try{
-    cozeSDK=new CozeWebSDK.WebChatClient({
-      config:{bot_id:COZE_BOT},
-      auth:{type:'token',token:COZE_PAT,onRefreshToken:async()=>COZE_PAT},
-      ui:{
-        asstBtn:{isNeed:false},
-        chatBot:{
-          title:'题库AI助手',
-          uploadable:true,
-          width:'100%',
-          el:container
-        }
-      }
-    });
-  }catch(e){console.log('Coze SDK init error:',e)}
-}
 function qzSel(el,gid){var g=document.getElementById(gid);var opts=g.querySelectorAll(".qz-opt");opts.forEach(function(o){o.classList.remove("sel")});el.classList.add("sel")}
-function qzGen(){
+
+function qzStartPractice(){
   var c=document.querySelector("#qz-courses .qz-opt.sel");
-  var t=document.querySelector("#qz-types .qz-opt.sel");
   var d=document.querySelector("#qz-diff .qz-opt.sel");
   var cn=c?c.getAttribute("data-v"):"综合布线系统";
-  var tn=t?t.getAttribute("data-v"):"选择题";
   var dn=d?d.getAttribute("data-v"):"中等";
-  var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";
-  qzSendToChat(msg);
+  var course=QBANK[cn];
+  if(!course){qzToast("暂无该课程题目");return}
+  var qs=course[dn];
+  if(!qs||qs.length===0){qzToast("暂无该难度题目");return}
+  // Shuffle and pick up to 5 questions
+  qs=qs.slice().sort(function(){return Math.random()-0.5});
+  qs=qs.slice(0,5);
+  qzState={questions:qs,idx:0,score:0,answered:0};
+  qzShowQuestion();
 }
-function qzQuick(msg){qzSendToChat(msg)}
-function qzSendToChat(msg){
-  // Copy prompt and focus on the embedded chat input
-  navigator.clipboard.writeText(msg).then(function(){
-    qzToast("✅ 提示词已复制！请在右侧聊天框粘贴(Ctrl+V)并发送");
-    // Try to find and focus the chat input
-    setTimeout(function(){
-      var chatInput=document.querySelector('#qz-chat-bd textarea, #qz-chat-bd input[type="text"], #qz-chat-bd [contenteditable="true"]');
-      if(chatInput){chatInput.focus()}
-      // Also try clicking into the chat area to activate it
-      var chatArea=document.querySelector('#qz-chat-bd');
-      if(chatArea){chatArea.click()}
-    },500);
-  }).catch(function(){
-    qzToast("📋 提示词: "+msg);
-  });
+
+function qzShowQuestion(){
+  var bd=document.getElementById('qz-chat-bd');
+  var hd=document.getElementById('qz-chat-hd');
+  var q=qzState.questions[qzState.idx];
+  var total=qzState.questions.length;
+  var num=qzState.idx+1;
+  hd.innerHTML='<span class="ava">📝</span>第'+num+'/'+total+'题 · 当前得分：'+qzState.score;
+  var optsHtml='';
+  var labels=['A','B','C','D'];
+  for(var i=0;i<q.o.length;i++){
+    optsHtml+='<div class="qz-qopt" data-i="'+i+'" onclick="qzAnswer(this,'+i+')">'
+      +'<span class="qz-qopt-label">'+labels[i]+'</span>'
+      +'<span class="qz-qopt-text">'+q.o[i]+'</span></div>';
+  }
+  bd.innerHTML='<div class="qz-quiz">'
+    +'<div class="qz-progress"><div class="qz-progress-bar" style="width:'+(num/total*100)+'%"></div></div>'
+    +'<div class="qz-qnum">第 '+num+' 题 / 共 '+total+' 题</div>'
+    +'<div class="qz-qtext">'+q.q+'</div>'
+    +'<div class="qz-qopts" id="qz-qopts">'+optsHtml+'</div>'
+    +'<div class="qz-qfeedback" id="qz-qfeedback" style="display:none"></div>'
+    +'<div class="qz-qnav" id="qz-qnav" style="display:none">'
+    +'<button class="qz-nav-btn" onclick="qzNext()">下一题 →</button>'
+    +'</div></div>';
 }
-function qzCopyText(btn){
-  var msg=btn.getAttribute('data-msg');
-  navigator.clipboard.writeText(msg).then(function(){qzToast("✅ 已复制！")}).catch(function(){qzToast("📋 "+msg)});
+
+function qzAnswer(el,idx){
+  if(qzState.answered>qzState.idx)return;
+  var q=qzState.questions[qzState.idx];
+  var correct=q.a;
+  var opts=document.querySelectorAll('#qz-qopts .qz-qopt');
+  // Disable further clicking
+  opts.forEach(function(o){o.style.pointerEvents='none'});
+  // Mark correct/wrong
+  opts[correct].classList.add('qz-correct');
+  if(idx!==correct){
+    opts[idx].classList.add('qz-wrong');
+  }else{
+    qzState.score+=20;
+  }
+  qzState.answered=qzState.idx+1;
+  // Show feedback
+  var fb=document.getElementById('qz-qfeedback');
+  var labels=['A','B','C','D'];
+  if(idx===correct){
+    fb.className='qz-qfeedback qz-fb-correct';
+    fb.innerHTML='<b>✅ 回答正确！</b><br>'+q.e;
+  }else{
+    fb.className='qz-qfeedback qz-fb-wrong';
+    fb.innerHTML='<b>❌ 回答错误</b>，正确答案是 '+labels[correct]+'：'+q.o[correct]+'<br>'+q.e;
+  }
+  fb.style.display='block';
+  // Show next button or result
+  var nav=document.getElementById('qz-qnav');
+  nav.style.display='flex';
+  if(qzState.idx>=qzState.questions.length-1){
+    nav.innerHTML='<button class="qz-nav-btn qz-nav-finish" onclick="qzFinish()">查看成绩 📊</button>';
+  }
+  // Update header score
+  var hd=document.getElementById('qz-chat-hd');
+  hd.innerHTML='<span class="ava">📝</span>第'+(qzState.idx+1)+'/'+qzState.questions.length+'题 · 当前得分：'+qzState.score;
 }
-function qzFallback(msg){
-  navigator.clipboard.writeText(msg).then(function(){
-    qzToast("✅ 已复制提示词，粘贴到AI助手中发送即可");
-  }).catch(function(){
-    qzToast("📋 请复制: "+msg);
-  });
-  window.open("https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v","_blank");
+
+function qzNext(){
+  qzState.idx++;
+  qzShowQuestion();
 }
-function qzToast(s){var t=document.getElementById("qz-toast");t.textContent=s;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},3000)}
-initCozeSDK()
+
+function qzFinish(){
+  var bd=document.getElementById('qz-chat-bd');
+  var hd=document.getElementById('qz-chat-hd');
+  var total=qzState.questions.length;
+  var score=qzState.score;
+  var pct=Math.round(score/(total*20)*100);
+  hd.innerHTML='<span class="ava">📊</span>练习完成';
+  var grade='',gradeColor='';
+  if(pct>=80){grade='🎉 优秀！';gradeColor='#16a34a'}
+  else if(pct>=60){grade='👍 良好';gradeColor='#2563eb'}
+  else{grade='💪 继续加油';gradeColor='#ea580c'}
+  bd.innerHTML='<div class="qz-result">'
+    +'<div class="qz-result-score" style="color:'+gradeColor+'">'+score+'<span class="qz-result-unit">分</span></div>'
+    +'<div class="qz-result-grade" style="color:'+gradeColor+'">'+grade+'</div>'
+    +'<div class="qz-result-info">共 '+total+' 题，满分 '+total*20+' 分，正确率 '+pct+'%</div>'
+    +'<div class="qz-result-btns">'
+    +'<button class="qz-nav-btn" onclick="qzStartPractice()">🔄 再练一次</button>'
+    +'<a class="qz-open-btn" href="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v" target="_blank" rel="noopener" style="display:inline-block;margin-left:8px">🤖 AI出题助手</a>'
+    +'</div></div>';
+}
+
+function qzToast(s){var t=document.getElementById("qz-toast");if(t){t.textContent=s;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},3000)}}
 </script>
 </body>
 </html>
