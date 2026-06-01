@@ -967,43 +967,26 @@ function qzGen(){
 }
 function qzQuick(msg){qzSendMsg(msg)}
 function qzSendMsg(msg){
-  var uid='web_'+Date.now();
-  fetch('https://api.coze.cn/v3/chat',{
-    method:'POST',
-    headers:{'Authorization':'Bearer '+COZE_PAT,'Content-Type':'application/json'},
-    body:JSON.stringify({
-      bot_id:COZE_BOT,
-      user_id:uid,
-      stream:false,
-      auto_save_history:true,
-      additional_messages:[{role:'user',content:msg,content_type:'text'}]
-    })
-  }).then(function(r){return r.json()}).then(function(data){
-    if(data.code===0||data.data){
-      qzShowGenerating(msg);
-    }else{
-      qzFallback(msg);
-    }
-  }).catch(function(e){
-    console.log('API error, fallback:',e);
+  // Copy prompt to clipboard and open bot page - no API needed
+  var botUrl='https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v';
+  navigator.clipboard.writeText(msg).then(function(){
+    window.open(botUrl,'_blank');
+    var bd=document.getElementById('qz-chat-bd');
+    bd.innerHTML='<div class="qz-generating">'
+      +'<div class="qz-gen-icon">✅</div>'
+      +'<h3>提示词已复制！</h3>'
+      +'<p class="qz-gen-desc">请在打开的AI助手窗口中：<br><b>① 点击输入框 ② 粘贴(Ctrl+V) ③ 发送</b><br>AI将自动生成试卷和Word文档</p>'
+      +'<div class="qz-gen-prompt"><b>您的需求：</b>'+msg+'</div>'
+      +'<div class="qz-prompt-btns">'
+      +'<a class="qz-copy-btn" href="'+botUrl+'" target="_blank" rel="noopener" style="text-decoration:none">📄 重新打开AI助手</a>'
+      +'<button class="qz-open-btn2" onclick="qzCopyText(this)" data-msg="'+msg.replace(/"/g,'&quot;')+'">📋 再次复制提示词</button>'
+      +'</div></div>';
+    qzToast("✅ 提示词已复制，请在AI助手中粘贴发送");
+  }).catch(function(){
     qzFallback(msg);
   });
 }
-function qzShowGenerating(msg){
-  // Auto-open bot page so user can see the generation process
-  var botUrl='https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v';
-  window.open(botUrl,'_blank');
-  var bd=document.getElementById('qz-chat-bd');
-  bd.innerHTML='<div class="qz-generating">'
-    +'<div class="qz-gen-icon">✅</div>'
-    +'<h3>出题需求已发送！</h3>'
-    +'<p class="qz-gen-desc">AI助手正在为您生成试卷和Word文档<br>已在新窗口打开AI助手，请在该窗口查看和下载</p>'
-    +'<div class="qz-gen-prompt"><b>您的需求：</b>'+msg+'</div>'
-    +'<div class="qz-prompt-btns">'
-    +'<a class="qz-copy-btn" href="'+botUrl+'" target="_blank" rel="noopener" style="text-decoration:none">📄 再次打开AI助手</a>'
-    +'<button class="qz-open-btn2" onclick="qzCopyText(this)" data-msg="'+msg.replace(/"/g,'&quot;')+'">📋 复制提示词</button>'
-    +'</div></div>';
-}
+function qzShowGenerating(msg){qzSendMsg(msg)}
 function qzCopyText(btn){
   var msg=btn.getAttribute('data-msg');
   navigator.clipboard.writeText(msg).then(function(){qzToast("✅ 已复制！")}).catch(function(){qzToast("📋 "+msg)});
