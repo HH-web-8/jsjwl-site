@@ -946,11 +946,20 @@ var COZE_PAT='pat_kR4x26DUlLkRFUPwucU3Np84nEgdE3rdf6P0J68HnzKVcDU8N7Oantx3dIwgAo
 var COZE_BOT='7645540020057423908';
 var cozeSDK=null;
 function initCozeSDK(){
+  var container=document.getElementById('qz-chat-bd');
   try{
     cozeSDK=new CozeWebSDK.WebChatClient({
       config:{bot_id:COZE_BOT},
       auth:{type:'token',token:COZE_PAT,onRefreshToken:async()=>COZE_PAT},
-      ui:{asstBtn:{isNeed:false},chatBot:{title:'题库AI助手',uploadable:true,width:'100%'}}
+      ui:{
+        asstBtn:{isNeed:false},
+        chatBot:{
+          title:'题库AI助手',
+          uploadable:true,
+          width:'100%',
+          el:container
+        }
+      }
     });
   }catch(e){console.log('Coze SDK init error:',e)}
 }
@@ -963,112 +972,25 @@ function qzGen(){
   var tn=t?t.getAttribute("data-v"):"选择题";
   var dn=d?d.getAttribute("data-v"):"中等";
   var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";
-  qzSendMsg(msg);
+  qzSendToChat(msg);
 }
-function qzQuick(msg){qzSendMsg(msg)}
-function qzSendMsg(msg){
-  var uid='web_'+Date.now();
-  var bd=document.getElementById('qz-chat-bd');
-  bd.innerHTML='<div class="qz-generating">'
-    +'<div class="qz-gen-icon">🤖</div>'
-    +'<h3>AI正在出题中<span class="qz-dots"></span></h3>'
-    +'<p class="qz-gen-desc">正在生成试卷和Word文档，预计30-60秒</p>'
-    +'<div class="qz-gen-prompt"><b>您的需求：</b>'+msg+'</div>'
-    +'<div id="qz-progress" style="margin-top:12px;width:100%;height:4px;background:#e8e8e8;border-radius:2px;overflow:hidden">'
-    +'<div id="qz-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#4CAF50,#66BB6A);border-radius:2px;transition:width 2s"></div>'
-    +'</div></div>';
-  setTimeout(function(){var b=document.getElementById('qz-bar');if(b)b.style.width='30%'},500);
-  setTimeout(function(){var b=document.getElementById('qz-bar');if(b)b.style.width='55%'},10000);
-  setTimeout(function(){var b=document.getElementById('qz-bar');if(b)b.style.width='75%'},25000);
-  fetch('https://api.coze.cn/v3/chat',{
-    method:'POST',
-    headers:{'Authorization':'Bearer '+COZE_PAT,'Content-Type':'application/json'},
-    body:JSON.stringify({
-      bot_id:COZE_BOT,
-      user_id:uid,
-      stream:false,
-      auto_save_history:true,
-      additional_messages:[{role:'user',content:msg,content_type:'text'}]
-    })
-  }).then(function(r){return r.json()}).then(function(data){
-    if(data.code===0&&data.data){
-      var chatId=data.data.id;
-      var convId=data.data.conversation_id;
-      qzPollResult(chatId,convId,msg);
-    }else{
-      qzFallback(msg);
-    }
-  }).catch(function(e){
-    console.log('API send error:',e);
-    qzFallback(msg);
+function qzQuick(msg){qzSendToChat(msg)}
+function qzSendToChat(msg){
+  // Copy prompt and focus on the embedded chat input
+  navigator.clipboard.writeText(msg).then(function(){
+    qzToast("✅ 提示词已复制！请在右侧聊天框粘贴(Ctrl+V)并发送");
+    // Try to find and focus the chat input
+    setTimeout(function(){
+      var chatInput=document.querySelector('#qz-chat-bd textarea, #qz-chat-bd input[type="text"], #qz-chat-bd [contenteditable="true"]');
+      if(chatInput){chatInput.focus()}
+      // Also try clicking into the chat area to activate it
+      var chatArea=document.querySelector('#qz-chat-bd');
+      if(chatArea){chatArea.click()}
+    },500);
+  }).catch(function(){
+    qzToast("📋 提示词: "+msg);
   });
 }
-function qzPollResult(chatId,convId,msg){
-  var tries=0;var maxTries=24;var interval=3000;
-  function poll(){
-    tries++;
-    if(tries>maxTries){qzFallback(msg);return}
-    fetch('https://api.coze.cn/v3/chat/retrieve?chat_id='+chatId+'&conversation_id='+convId,{
-      headers:{'Authorization':'Bearer '+COZE_PAT}
-    }).then(function(r){return r.json()}).then(function(data){
-      if(data.code===0&&data.data&&data.data.status==='completed'){
-        var b=document.getElementById('qz-bar');if(b)b.style.width='100%';
-        qzFetchMessages(chatId,convId,msg);
-      }else if(data.data&&data.data.status==='failed'){
-        qzFallback(msg);
-      }else{
-        setTimeout(poll,interval);
-      }
-    }).catch(function(e){
-      console.log('Poll CORS error, fallback:',e);
-      qzFallback(msg);
-    });
-  }
-  poll();
-}
-function qzFetchMessages(chatId,convId,msg){
-  fetch('https://api.coze.cn/v3/chat/message/list?chat_id='+chatId+'&conversation_id='+convId,{
-    headers:{'Authorization':'Bearer '+COZE_PAT}
-  }).then(function(r){return r.json()}).then(function(data){
-    if(data.code===0&&data.data){
-      var answer='';var docUrl='';
-      for(var i=0;i<data.data.length;i++){
-        var m=data.data[i];
-        if(m.type==='answer'){answer=m.content}
-        if(m.type==='tool_response'){
-          try{var tr=JSON.parse(m.content);if(tr.data&&typeof tr.data==='string'&&tr.data.indexOf('.docx')>0){docUrl=tr.data}}catch(e){}
-        }
-      }
-      if(answer||docUrl){qzShowResult(answer,docUrl,msg)}
-      else{qzFallback(msg)}
-    }else{qzFallback(msg)}
-  }).catch(function(e){console.log('Msg fetch error:',e);qzFallback(msg)});
-}
-function qzShowResult(answer,docUrl,msg){
-  var bd=document.getElementById('qz-chat-bd');
-  var html=answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  html=html.replace(/^### (.+)$/gm,'<h4>$1</h4>');
-  html=html.replace(/^## (.+)$/gm,'<h3>$1</h3>');
-  html=html.replace(/^---$/gm,'<hr>');
-  html=html.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
-  html=html.replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank">$1</a>');
-  html=html.replace(/\n/g,'<br>');
-  var docBtn='';
-  if(docUrl){
-    docBtn='<a class="qz-copy-btn" href="'+docUrl+'" target="_blank" rel="noopener" style="text-decoration:none;font-size:16px;padding:12px 28px;margin-bottom:16px;display:inline-block">📥 下载Word试卷</a>';
-  }
-  bd.innerHTML='<div class="qz-generating" style="text-align:left">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">'
-    +'<span style="font-size:24px">✅</span><h3 style="margin:0">试卷生成完成！</h3></div>'
-    +docBtn
-    +'<div style="margin-top:8px;padding:16px;background:#f8f9fa;border-radius:8px;font-size:14px;line-height:1.8;max-height:400px;overflow-y:auto">'+html+'</div>'
-    +'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'
-    +'<button class="qz-open-btn2" onclick="qzCopyText(this)" data-msg="'+msg.replace(/"/g,'&quot;')+'">📋 复制提示词</button>'
-    +'<a class="qz-copy-btn" href="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v" target="_blank" rel="noopener" style="text-decoration:none">💬 打开AI助手继续出题</a>'
-    +'</div></div>';
-  qzToast("✅ 试卷生成完成！");
-}
-function qzShowGenerating(msg){qzSendMsg(msg)}
 function qzCopyText(btn){
   var msg=btn.getAttribute('data-msg');
   navigator.clipboard.writeText(msg).then(function(){qzToast("✅ 已复制！")}).catch(function(){qzToast("📋 "+msg)});
@@ -1082,7 +1004,7 @@ function qzFallback(msg){
   window.open("https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v","_blank");
 }
 function qzToast(s){var t=document.getElementById("qz-toast");t.textContent=s;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},3000)}
-initCozeSDK();
+initCozeSDK()
 </script>
 </body>
 </html>
