@@ -187,11 +187,15 @@ a{text-decoration:none;color:inherit}
 .qz-chat-hd{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem}
 .qz-chat-hd span.ava{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem}
 .qz-chat-bd{flex:1;position:relative;background:#f8fafc}
-.qz-chat-bd iframe{width:100%;height:100%;min-height:460px;border:none}
-.qz-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 20px;color:#64748b;text-align:center}
-.qz-fallback p{font-size:.9rem;line-height:1.6}
-.qz-fallback a{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-radius:10px;font-weight:700;font-size:.95rem;text-decoration:none;transition:all .3s}
-.qz-fallback a:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.3)}
+.qz-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 20px;min-height:460px;text-align:center}
+.qz-welcome-icon{font-size:3rem;margin-bottom:8px}
+.qz-welcome h3{font-size:1.2rem;color:var(--pri);margin:0}
+.qz-welcome p{font-size:.9rem;color:#64748b;line-height:1.6;margin:0}
+.qz-quick-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;width:100%;max-width:400px}
+.qz-qbtn{padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:.82rem;cursor:pointer;transition:all .2s;text-align:left;color:var(--txt)}
+.qz-qbtn:hover{border-color:var(--acc);color:var(--acc);background:rgba(37,99,235,.04)}
+.qz-open-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-radius:12px;font-weight:700;font-size:1rem;text-decoration:none;transition:all .3s;margin-top:8px}
+.qz-open-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.3)}
 .qz-tips{margin-top:8px;padding:12px 16px;background:#fffbeb;border-radius:8px;font-size:.82rem;color:#92400e;line-height:1.6}
 .qz-tips b{color:#78350f}
 
@@ -317,12 +321,19 @@ a{text-decoration:none;color:inherit}
 <span class="ava">🤖</span>题库AI助手 · 在线出题
 </div>
 <div class="qz-chat-bd" id="qz-chat-bd">
-<iframe id="qz-iframe" src="https://www.coze.cn/chat/7645540020057423908" 
-  onload="document.getElementById('qz-fallback').style.display='none'"
-  onerror="document.getElementById('qz-fallback').style.display='flex'"></iframe>
-<div class="qz-fallback" id="qz-fallback" style="display:none">
-<p>如果聊天窗口未正常加载，<br>请点击下方按钮在新窗口中打开</p>
-<a href="https://www.coze.cn/chat/7645540020057423908" target="_blank" rel="noopener">📝 新窗口打开题库助手</a>
+<div class="qz-welcome" id="qz-welcome">
+<div class="qz-welcome-icon">🤖</div>
+<h3>题库AI助手</h3>
+<p>选择左侧课程、题型和难度，点击"一键生成试卷"，<br>系统将自动为您生成专属题目</p>
+<div class="qz-quick-btns">
+<button class="qz-qbtn" onclick="qzQuick('请出10道综合布线系统的选择题')">📝 综合布线选择题</button>
+<button class="qz-qbtn" onclick="qzQuick('请出10道网络基础的判断题')">✅ 网络基础判断题</button>
+<button class="qz-qbtn" onclick="qzQuick('请出5道网络设备配置的简答题')">✍️ 网络设备简答题</button>
+<button class="qz-qbtn" onclick="qzQuick('请出一份网络安全的混合题型试卷')">📋 网络安全综合卷</button>
+</div>
+<a class="qz-open-btn" href="https://www.coze.cn/chat/7645540020057423908" target="_blank" rel="noopener">
+💬 打开AI助手完整版
+</a>
 </div>
 </div>
 </div>
