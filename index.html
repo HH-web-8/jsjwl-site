@@ -2,127 +2,696 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>山东工业技师学院线上课堂</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山东工业技师学院计算机网络应用专业——线上学习平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--pri:#0e7490;--sec:#0891b2;--acc:#0ea5e9;--grn:#059669;--org:#d97706;--pur:#7c3aed;--lt:#f0f9ff;--wh:#fff;--txt:#1e293b;--txl:#64748b;--sh:0 4px 24px rgba(0,0,0,.08);--rd:16px}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#fff;color:var(--txt);line-height:1.6;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+/* ===== NAV ===== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo img{height:34px}
+.nav-logo span{color:#1e3a5f;font-size:1.3rem;font-weight:800;letter-spacing:3px}
+.nav-links{display:flex;gap:6px}
+.nav-a{color:var(--txl);padding:7px 20px;border-radius:8px;font-size:1rem;font-weight:500;transition:all .3s;cursor:pointer}
+.nav-a:hover,.nav-a.active{color:var(--pri);background:#f0f9ff}
+
+/* ===== PAGES ===== */
+.page{display:none;min-height:100vh;padding-top:56px}
+.page.active{display:block;animation:fi .4s}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== HOME ===== */
+.hero{position:relative;height:480px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;background-repeat:no-repeat;background-image:url('campus-panorama.jpg');filter:contrast(1.08) saturate(1.1) brightness(1.05)}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(240,249,255,.15) 35%,rgba(255,255,255,.1) 100%)}
+.hero-content{position:relative;z-index:2;text-align:center;padding-top:56px;width:100%}
+.hero-logo{display:none}
+.hero-title{font-family:'STKaiti','KaiTi','楷体','FangSong','SimSun',serif;font-size:3.8rem;font-weight:900;color:#0c4a6e;letter-spacing:20px;margin:0;text-shadow:0 2px 8px rgba(255,255,255,.9),0 0 30px rgba(255,255,255,.7);white-space:nowrap;overflow:visible}
+.hero-sub{font-size:1rem;color:rgba(12,74,110,.65);letter-spacing:3px;margin:0;font-weight:500;text-shadow:0 1px 4px rgba(255,255,255,.7);white-space:nowrap;display:none}
+.hero-arrow{display:none}
+
+/* ===== MODULES ===== */
+.modules{background:#f0f9ff;padding:56px 32px 44px}
+.modules-title{font-size:2.6rem;font-weight:700;text-align:center;margin-bottom:8px;color:var(--txt)}
+.modules-sub{text-align:center;color:var(--txl);margin-bottom:36px;font-size:1.25rem}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%}
+.mcard{background:#fff;border-radius:16px;padding:36px 28px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;position:relative;overflow:hidden;text-align:center;text-decoration:none;color:inherit;display:block}
+.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0;transition:height .35s}
+.mcard:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.1);border-color:transparent}
+.mcard:hover::before{height:6px}
+.mc-b::before{background:linear-gradient(90deg,#2563eb,#3b82f6)}
+.mc-g::before{background:linear-gradient(90deg,#059669,#10b981)}
+.mc-o::before{background:linear-gradient(90deg,#d97706,#f59e0b)}
+.mc-p::before{background:linear-gradient(90deg,#7c3aed,#8b5cf6)}
+.micon{font-size:3.6rem;margin-bottom:16px}
+.minfo h3{font-size:1.5rem;font-weight:700;margin-bottom:12px;color:var(--txt)}
+.minfo p{color:var(--txl);font-size:1.08rem;line-height:1.6;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.mbtn{display:inline-block;font-size:1.05rem;font-weight:600;transition:all .3s}
+.mc-b .mbtn{color:#2563eb}.mc-g .mbtn{color:#059669}.mc-o .mbtn{color:#d97706}.mc-p .mbtn{color:#7c3aed}
+
+/* ===== FOOTER ===== */
+.footer-light{background:#f0f9ff;color:var(--txl);text-align:center;padding:32px 48px;font-size:.88rem;line-height:1.8;border-top:1px solid #e0f2fe}
+.footer-light .footer-logo{height:32px;margin-bottom:8px;opacity:.7}
+.footer-light p{margin:0}
+
+/* ===== SKILLS ===== */
+.skills{background:#fff;padding:56px 32px 64px}
+.skills-title{font-size:2.6rem;font-weight:700;text-align:center;margin-bottom:8px;color:var(--txt)}
+.skills-sub{text-align:center;color:var(--txl);margin-bottom:36px;font-size:1.15rem}
+.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%}
+.skill-card{border-radius:16px;overflow:hidden;position:relative;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;aspect-ratio:16/10}
+.skill-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.skill-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.12);border-color:transparent}
+.skill-card:hover img{transform:scale(1.06)}
+.skill-label{position:absolute;bottom:0;left:0;right:0;padding:18px 18px 14px;background:linear-gradient(0deg,rgba(14,116,144,.88) 0%,rgba(14,116,144,.3) 70%,transparent 100%);color:#fff;font-size:1.35rem;font-weight:600;letter-spacing:3px}
+
+/* ===== SIM PAGE ===== */
+.sim-hd{text-align:center;padding:48px 24px 24px;background:linear-gradient(135deg,#164e63,#1e3a5f);color:#fff}
+.sim-hd h1{font-size:2.4rem;font-weight:700;margin-bottom:8px}
+.sim-hd .sub{color:rgba(255,255,255,.7);font-size:1.1rem}
+.sim-ct{width:100%;padding:40px 32px}
+.sim-g{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.scard{background:#fff;border-radius:var(--rd);padding:28px 24px;cursor:pointer;transition:all .3s;border:1px solid #e2e8f0;text-align:center;position:relative}
+.scard:hover:not(.dis){transform:translateY(-4px);box-shadow:var(--sh);border-color:var(--acc)}
+.scard.dis{opacity:.6;cursor:default}
+.sico{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 14px}
+.snum{position:absolute;top:12px;right:16px;font-size:.75rem;color:var(--txl);font-weight:600;background:#f1f5f9;padding:2px 10px;border-radius:20px}
+.scard h3{font-size:1.2rem;font-weight:600;margin-bottom:6px;color:var(--txt)}
+.scard p{color:var(--txl);font-size:.95rem}
+
+/* ===== FIBER PAGE ===== */
+.fp-header{text-align:center;padding:48px 24px 20px;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff}
+.fp-header h1{font-size:1.6rem;font-weight:700;margin-bottom:6px}
+.fp-header .sub{color:rgba(255,255,255,.6);font-size:.9rem}
+.step-indicator{display:flex;justify-content:center;gap:6px;padding:20px 24px;background:#0f172a}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:600;background:#1e293b;color:#64748b;border:2px solid #334155;transition:all .3s}
+.step-dot.active{background:#2563eb;color:#fff;border-color:#2563eb}
+.step-dot.completed{background:#059669;color:#fff;border-color:#059669}
+.video-demo{padding:16px 24px;background:#0f172a}
+.video-frame{max-width:860px;margin:0 auto;background:#16213e;border-radius:12px;overflow:hidden;border:1px solid #334155}
+.video-label{padding:8px 16px;color:#94a3b8;font-size:.82rem;border-bottom:1px solid #334155}
+.video-canvas{display:block;width:100%;height:auto}
+.op-area{background:#0f172a;padding:0 24px 32px}
+.op-workspace{max-width:860px;margin:0 auto;background:#16213e;border-radius:12px;padding:28px 24px;border:1px solid #334155}
+.step-content{animation:fi .3s}
+.step-content.hidden{display:none}
+.op-title{color:#93c5fd;font-size:1.2rem;font-weight:700;margin-bottom:12px}
+.op-instruction{color:#e2e8f0;margin-bottom:10px;line-height:1.7}
+.op-tip{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px 16px;color:#93c5fd;font-size:.88rem;margin:14px 0}
+.tool-shelf{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}
+.tool-item{background:#1e293b;border:2px solid #334155;border-radius:12px;padding:14px 18px;cursor:pointer;transition:all .3s;text-align:center;color:#94a3b8;font-size:.85rem;min-width:100px}
+.tool-item:hover{border-color:#64748b;background:#253349}
+.tool-item.correct{border-color:#10b981;background:rgba(16,185,129,.1);color:#6ee7b7}
+.tool-item.incorrect{border-color:#ef4444;background:rgba(239,68,68,.1);color:#fca5a5;animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.op-options{display:flex;gap:10px;flex-wrap:wrap}
+.op-opt{background:#1e293b;border:2px solid #334155;border-radius:10px;padding:10px 22px;cursor:pointer;transition:all .3s;color:#94a3b8;font-size:.88rem;font-weight:500}
+.op-opt:hover{border-color:#64748b}
+.op-opt.correct{border-color:#10b981;background:rgba(16,185,129,.1);color:#6ee7b7}
+.op-opt.incorrect{border-color:#ef4444;background:rgba(239,68,68,.1);color:#fca5a5}
+.drag-row{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:flex-start;margin:16px 0}
+.drag-col{min-width:200px}
+.sort-card{background:rgba(59,130,246,.15);border:2px solid #3b82f6;border-radius:10px;padding:12px 20px;cursor:grab;font-size:.9rem;color:#93c5fd;font-weight:500;transition:all .2s;margin:6px 0;user-select:none}
+.sort-card:active{cursor:grabbing}
+.sort-slot{background:rgba(255,255,255,.03);border:2px dashed #334155;border-radius:10px;min-height:52px;padding:10px 16px;margin:6px 0;transition:all .3s}
+.sort-slot.drag-over{border-color:#3b82f6;background:rgba(59,130,246,.08)}
+.slot-content{min-height:20px}
+.feedback{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:.88rem;line-height:1.6}
+.feedback.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#6ee7b7}
+.feedback.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.feedback.warning{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#fcd34d}
+.btn{display:inline-block;padding:10px 24px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s;border:none}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{background:#334155;color:#e2e8f0}.btn-secondary:hover{background:#475569}
+.op-actions{display:flex;gap:12px;margin-top:18px;justify-content:center}
+.splice-arc{animation:arc-flicker .15s infinite alternate}
+@keyframes arc-flicker{from{opacity:.7}to{opacity:1}}
+.heat-bar{height:8px;background:#1e293b;border-radius:4px;overflow:hidden;max-width:300px;margin:0 auto}
+.heat-fill{height:100%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:4px;transition:width .04s linear;width:0%}
+.score-area{text-align:center;padding:20px 0}
+.score-ring{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:140px;height:140px;border-radius:50%;border:4px solid #2563eb;background:rgba(37,99,235,.1)}
+.score-val{font-size:2.8rem;font-weight:900;color:#3b82f6;line-height:1}
+.score-lbl{font-size:.82rem;color:#93c5fd}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0}
+.score-item{display:flex;justify-content:space-between;padding:8px 14px;background:#1e293b;border-radius:8px;font-size:.82rem}
+.score-item-name{color:#94a3b8}
+.pass{color:#10b981;font-weight:600}
+.fail{color:#ef4444;font-weight:600}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .nav{padding:0 16px;height:48px}
+  .nav-logo span{font-size:.88rem;letter-spacing:0}
+  .nav-logo img{height:28px}
+  .nav-a{padding:5px 12px;font-size:.82rem}
+  .hero{height:300px}
+  .hero-title{font-size:1.6rem;letter-spacing:4px;white-space:normal}
+  .hero-content{padding-top:28px}
+  .modules{padding:36px 16px 28px}
+  .modules-title{font-size:1.6rem}
+  .mgrid{grid-template-columns:repeat(2,1fr)!important;gap:14px}
+  .mcard{padding:24px 16px}
+  .skills{padding:36px 16px 44px}
+  .skills-title{font-size:1.6rem}
+  .skills-grid{grid-template-columns:repeat(2,1fr)!important;gap:14px}
+  .page{padding-top:48px}
+  .drag-row{flex-direction:column;align-items:center}
+  .score-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .mgrid{grid-template-columns:1fr!important}
+  .skills-grid{grid-template-columns:1fr!important}
+  .sim-g{grid-template-columns:1fr!important}
+  .hero{height:220px}
+  .hero-title{font-size:1.2rem;letter-spacing:2px}
+}
+
+/* Quiz Page */
+.quiz-page{background:#f0f4f8}
+).qz-hd{background:linear-gradient(135deg,#1a365d 0%,#2d4a7a 100%);color:#fff;padding:24px 32px;text-align:center}
+.qz-hd h1{font-size:1.8rem;font-weight:800;margin-bottom:4px}
+.qz-hd p{opacity:.8;font-size:.95rem}
+.qz-ct{width:100%;padding:0;display:grid;grid-template-columns:2fr 3fr;min-height:calc(100vh - 120px)}
+@media(max-width:768px){.qz-ct{grid-template-columns:1fr}}
+.qz-side{background:#fff;padding:28px;display:flex;flex-direction:column;gap:20px;border-right:1px solid #e5e7eb;overflow-y:auto}
+.qz-card{background:#fff;border-radius:12px;padding:0}
+.qz-card h3{font-size:1.05rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.qz-opts{display:flex;flex-wrap:wrap;gap:8px;background:#f0f7ff;border-radius:10px;padding:12px}
+.qz-opt{padding:8px 16px;border:none;border-radius:8px;font-size:.88rem;cursor:pointer;transition:all .2s;background:#fff;color:#475569}
+.qz-opt:hover{background:#dbeafe;color:#2563eb}
+.qz-opt.sel{background:#2563eb;color:#fff;font-weight:600}
+.qz-go{width:100%;padding:14px;background:linear-gradient(135deg,#1e40af,#1e3a8a);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:4px}
+.qz-go:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(30,64,175,.3)}
+.qz-chat{background:#f8fafc;display:flex;flex-direction:column;min-height:100%}
+.qz-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 28px;border-radius:10px;font-size:.95rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.qz-toast.show{opacity:1}
+.qz-prompt-box{background:#f0f4ff;border:2px dashed #2563eb;border-radius:12px;padding:20px;margin:16px 0;text-align:center}
+.qz-prompt-text{font-size:1.05rem;color:#1e293b;line-height:1.6;margin-bottom:16px;word-break:break-all}
+.qz-prompt-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.qz-copy-btn{padding:10px 24px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer}
+.qz-copy-btn:hover{opacity:.9}
+.qz-open-btn2{padding:10px 24px;background:#fff;color:#2563eb;border:2px solid #2563eb;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.qz-open-btn2:hover{background:#f0f4ff}
+.qz-msgs{padding:16px;overflow-y:auto;max-height:460px}
+.qz-msg-ai{background:#f0f4ff;border-radius:12px;padding:14px;margin-bottom:12px}
+.qz-msg-ai-hd{font-size:.9rem;color:#64748b;margin-bottom:6px;font-weight:600}
+.qz-msg-ai-bd{font-size:1.1rem;color:#1e293b;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.qz-msg-ai-bd a{color:#2563eb;text-decoration:underline}
+.qz-generating{text-align:center;padding:30px 20px}
+.qz-gen-icon{font-size:3rem;margin-bottom:12px;animation:spin 2s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.qz-gen-desc{color:#64748b;font-size:.9rem;line-height:1.6;margin:8px 0 20px}
+.qz-gen-prompt{background:#f1f5f9;border-radius:8px;padding:12px 16px;font-size:.85rem;color:#475569;margin-bottom:20px;text-align:left;line-height:1.5}
+.qz-chat-hd{background:linear-gradient(135deg,#6d28d9,#4c1d95);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem}
+.qz-chat-hd span.ava{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.qz-chat-bd{flex:1;position:relative;background:#f8fafc}
+.qz-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 32px;min-height:460px;text-align:center}
+.qz-welcome-icon{font-size:4rem;margin-bottom:8px}
+.qz-welcome h3{font-size:1.4rem;color:#1e293b;margin:0;font-weight:700}
+.qz-welcome p{font-size:1rem;color:#64748b;line-height:1.8;margin:0}
+.qz-welcome-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.qz-welcome-tag{background:#fef3c7;color:#92400e;padding:6px 14px;border-radius:20px;font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:4px}
+.qz-quick-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;width:100%;max-width:400px}
+.qz-qbtn{padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:.95rem;cursor:pointer;transition:all .2s;text-align:left;color:var(--txt)}
+.qz-qbtn:hover{border-color:var(--acc);color:var(--acc);background:rgba(37,99,235,.04)}
+.qz-open-btn{display:inline-flex;align-items:center;gap:8px;padding:16px 40px;background:linear-gradient(135deg,#1e40af,#1e3a8a);color:#fff;border-radius:12px;font-weight:700;font-size:1.1rem;text-decoration:none;transition:all .3s;margin-top:12px;box-shadow:0 4px 16px rgba(30,64,175,.25)}
+.qz-open-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(30,64,175,.35)}
+.qz-tips{margin-top:8px;padding:12px 16px;background:#fffbeb;border-radius:8px;font-size:.82rem;color:#92400e;line-height:1.6}
+.qz-tips b{color:#78350f}
+
+
+/* Quiz Practice Styles */
+.qz-quiz{padding:20px}
+.qz-progress{width:100%;height:6px;background:#e8e8e8;border-radius:3px;margin-bottom:16px;overflow:hidden}
+.qz-progress-bar{height:100%;background:linear-gradient(90deg,#4CAF50,#66BB6A);border-radius:3px;transition:width 0.5s}
+.qz-qnum{font-size:13px;color:#888;margin-bottom:12px}
+.qz-qtext{font-size:17px;font-weight:600;color:#1a1a2e;margin-bottom:20px;line-height:1.6;padding:12px 0;border-bottom:1px solid #f0f0f0}
+.qz-qopts{display:flex;flex-direction:column;gap:10px}
+.qz-qopt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;transition:all 0.2s;background:#fff}
+.qz-qopt:hover{border-color:#4CAF50;background:#f8fdf8;transform:translateX(4px)}
+.qz-qopt-label{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#f0f0f0;color:#555;font-weight:bold;font-size:14px;flex-shrink:0}
+.qz-qopt-text{font-size:15px;color:#333}
+.qz-qopt.qz-correct{border-color:#4CAF50;background:#f0fdf4}
+.qz-qopt.qz-correct .qz-qopt-label{background:#4CAF50;color:#fff}
+.qz-qopt.qz-wrong{border-color:#ef4444;background:#fef2f2}
+.qz-qopt.qz-wrong .qz-qopt-label{background:#ef4444;color:#fff}
+.qz-qfeedback{margin-top:16px;padding:14px 16px;border-radius:10px;font-size:14px;line-height:1.7;animation:fadeIn 0.3s}
+.qz-fb-correct{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.qz-fb-wrong{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.qz-qnav{margin-top:16px;display:flex;justify-content:flex-end}
+.qz-nav-btn{padding:10px 24px;border:none;border-radius:8px;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#4CAF50,#45a049);color:#fff;font-weight:600;transition:all 0.2s}
+.qz-nav-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(76,175,80,0.3)}
+.qz-nav-finish{background:linear-gradient(135deg,#1a73e8,#1557b0);padding:12px 32px;font-size:16px}
+.qz-nav-finish:hover{box-shadow:0 4px 12px rgba(26,115,232,0.3)}
+.qz-result{text-align:center;padding:40px 20px}
+.qz-result-score{font-size:64px;font-weight:800;line-height:1;margin-bottom:8px}
+.qz-result-unit{font-size:24px;font-weight:400}
+.qz-result-grade{font-size:24px;font-weight:600;margin-bottom:16px}
+.qz-result-info{font-size:15px;color:#666;margin-bottom:24px}
+.qz-result-btns{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
 </head>
 <body>
-<!-- NAV -->
-<nav>
-  <div class="nav-in">
-    <div class="nav-logo">
-      <img src="logo.png" alt="校徽">
-      <span>山东工业技师学院线上课堂</span>
-    </div>
-    <div class="nav-links">
-      <a class="nav-a act" href="javascript:void(0)" onclick="sp('home')">首页</a>
-      <a class="nav-a" href="javascript:void(0)" onclick="sp('quiz')">题库练习</a>
-      <a class="nav-a" href="javascript:void(0)" onclick="sp('sim')">虚拟仿真</a>
-    </div>
-  </div>
+<div class="qz-toast" id="qz-toast"></div>
+
+<!-- Nav -->
+<nav class="nav">
+<div class="nav-logo">
+<img src="logo.png" alt="校徽">
+<span>山东工业技师学院线上课堂</span>
+</div>
+<div class="nav-links">
+<a class="nav-a active" href="javascript:void(0)" onclick="sp('home')">首页</a>
+<a class="nav-a" href="javascript:void(0)" onclick="sp('quiz')">题库练习</a>
+<a class="nav-a" href="javascript:void(0)" onclick="sp('sim')">虚拟仿真</a>
+</div>
 </nav>
 
 <!-- HOME -->
-<div class="page active" id="page-home">
-  <section class="hero">
-    <h1 class="hero-title">计算机网络应用专业线上学习平台</h1>
-  </section>
-  <section class="mod-sec">
-    <div class="sec-head"><h2 class="sec-t">四大AI教学模块</h2><p class="sec-sub">覆盖教学全场景的AI教学辅助工具</p></div>
-    <div class="mgrid">
-      <a class="mcard mc-b" href="https://www.coze.cn/chat/7645541370291699731" target="_blank" rel="noopener">
-        <div class="micon">📖</div><div class="minfo"><h3>教师AI备课</h3><p>输入课程主题，AI按工学一体化标准自动生成教案和PPT，一键导出Word</p></div>
-      </a>
-      <a class="mcard mc-g" href="https://www.coze.cn/chat/7645540020057374756" target="_blank" rel="noopener">
-        <div class="micon">🎓</div><div class="minfo"><h3>学生AI答疑</h3><p>随时提问专业问题，AI即时解答，问题自动存档方便教师分析教学重难点</p></div>
-      </a>
-      <a class="mcard mc-o" href="javascript:void(0)" onclick="sp('quiz')">
-        <div class="micon">📝</div><div class="minfo"><h3>题库练习AI助手</h3><p>按课程、题型、难度智能出题，生成试卷和答案解析，辅助教学测评</p></div>
-      </a>
-      <a class="mcard mc-p" href="javascript:void(0)" onclick="sp('sim')">
-        <div class="micon">🔬</div><div class="minfo"><h3>虚拟仿真实训</h3><p>综合布线实训室虚拟仿真，3D沉浸式交互，步骤化训练与智能评分</p></div>
-      </a>
-    </div>
-  </section>
-  <section class="skill-sec">
-    <div class="sec-head"><h2 class="sec-t">技能展示</h2><p class="sec-sub">展示专业实力与竞赛风采</p></div>
-    <div class="skills-grid">
-      <div class="skill-card"><img src="skill-competition.jpg" alt="技能竞赛"><div class="skill-label">技能竞赛</div></div>
-      <div class="skill-card"><img src="skill-electrical.jpg" alt="电气安装与维修"><div class="skill-label">电气安装与维修</div></div>
-      <div class="skill-card"><img src="skill-computer.jpg" alt="信息网络搭建"><div class="skill-label">信息网络搭建</div></div>
-      <div class="skill-card"><img src="skill-automation.jpg" alt="机电一体化"><div class="skill-label">机电一体化</div></div>
-    </div>
-  </section>
-  <footer>
-    <div class="ft-in">
-      <img src="footer_logo.png" alt="校标" class="ft-logo">
-      <p>&copy; 2025 山东工业技师学院 计算机网络应用专业线上学习平台</p>
-      <p>地址：山东省济南市经十东路2号</p>
-    </div>
-  </footer>
+<div id="page-home" class="page active">
+<section class="hero">
+<div class="hero-bg"></div>
+<div class="hero-overlay"></div>
+<div class="hero-content">
+<h1 class="hero-title">计算机网络应用专业线上学习平台</h1>
+<p class="hero-sub">计算机网络应用专业——线上学习平台</p>
+</div>
+<div class="hero-arrow">&#x25BC;</div>
+</section>
+
+<!-- 4 Modules -->
+<section class="modules">
+<h2 class="modules-title">四大AI教学模块</h2>
+<p class="modules-sub">覆盖教学全场景，让AI成为您的得力助手</p>
+<div class="mgrid">
+<a class="mcard mc-b" href="https://www.coze.cn/chat/7645541370291699731" target="_blank" rel="noopener">
+<div class="micon">📚</div>
+<div class="minfo"><h3>教师AI备课</h3><p>输入课程主题，AI按工学一体化标准自动生成教案和PPT，一键导出Word。涵盖17门专业课程。</p><span class="mbtn">开始备课 →</span></div>
+</a>
+<a class="mcard mc-g" href="https://www.coze.cn/chat/7645540020057374756" target="_blank" rel="noopener">
+<div class="micon">🎓</div>
+<div class="minfo"><h3>学生AI答疑</h3><p>随时提问专业问题，AI即时解答。问题自动存档至飞书表格，供教师分析教学重难点。</p><span class="mbtn">立即提问 →</span></div>
+</a>
+<a class="mcard mc-o" href="javascript:void(0)" onclick="sp('quiz')">
+<div class="micon">📝</div>
+<div class="minfo"><h3>题库练习AI助手</h3><p>按课程、题型、难度智能出题，生成Word试卷+答案解析。还能出课后作业和阶段测验。</p><span class="mbtn">开始出题 →</span></div>
+</a>
+<a class="mcard mc-p" href="javascript:void(0)" onclick="sp('sim')">
+<div class="micon">🔬</div>
+<div class="minfo"><h3>虚拟仿真实训平台</h3><p>综合布线实训室虚拟仿真，光纤熔接等全真模拟操作。3D沉浸式交互，步骤化训练+智能评分。</p><span class="mbtn">进入实训 →</span></div>
+</a>
+</div>
+</section>
+
+<!-- Skills Showcase -->
+<section class="skills">
+<h2 class="skills-title">技能展示</h2>
+<p class="skills-sub">以赛促学，以技立业——展现专业风采</p>
+<div class="skills-grid">
+<div class="skill-card"><img src="skill-competition.jpg" alt="技能竞赛"><div class="skill-label">技能竞赛</div></div>
+<div class="skill-card"><img src="skill-electrical.jpg" alt="电气安装与维修"><div class="skill-label">电气安装与维修</div></div>
+<div class="skill-card"><img src="skill-computer.jpg" alt="信息网络搭建"><div class="skill-label">信息网络搭建</div></div>
+<div class="skill-card"><img src="skill-automation.jpg" alt="机电一体化"><div class="skill-label">机电一体化</div></div>
+</div>
+</section>
+
+<!-- Footer -->
+<footer class="footer-light">
+<img src="logo.png" alt="校徽" class="footer-logo">
+<p>© 2026 山东工业技师学院 · 计算机网络应用专业 · 线上学习平台</p>
+<p>地址：山东省潍坊市潍城区西外环路6789号</p>
+</footer>
 </div>
 
-<!-- QUIZ -->
-<div class="page" id="page-quiz">
-<div class="qz-ct">
-  <div class="qz-side">
-    <div class="qz-card">
-      <h3>📚 选择课程</h3>
-      <div class="qz-opts" id="qz-course"></div>
-    </div>
-    <div class="qz-card">
-      <h3>📝 题型选择</h3>
-      <div class="qz-opts" id="qz-type"></div>
-    </div>
-    <div class="qz-card">
-      <h3>🎯 难度等级</h3>
-      <div class="qz-opts" id="qz-diff"></div>
-    </div>
-    <button class="qz-go" onclick="genQuiz()">📝 生成试卷</button>
-    <div class="qz-tips"><b>💡 使用提示：</b>选择课程、题型和难度后点击"生成试卷"，AI自动出题并生成Word试卷下载。</div>
-  </div>
-  <div class="qz-chat">
-    <div class="qz-chat-hd" id="qz-chat-hd">
-      <span class="ava">🤖</span> 题库AI助手 · 在线出题
-    </div>
-    <div class="qz-chat-bd" id="qz-chat-bd">
-      <div class="qz-welcome" id="qz-welcome">
-        <div class="qz-welcome-icon">🤖</div>
-        <h3>题库AI助手</h3>
-        <p>选择左侧课程和难度，点击"生成试卷"<br>AI自动为您生成专属题库和Word试卷</p>
-        <div class="qz-welcome-tags" id="qz-welcome-tags">
-          <span class="qz-welcome-tag">📘 综合布线系统</span>
-          <span class="qz-welcome-tag">📘 网络设备配置</span>
-          <span class="qz-welcome-tag">📘 网络安全</span>
-          <span class="qz-welcome-tag">📘 服务器搭建</span>
-        </div>
-        <a class="qz-open-btn" href="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v" target="_blank" rel="noopener">🚀 打开AI助手完整版</a>
-      </div>
-    </div>
-  </div>
-</div>
+
+<!-- QUIZ PAGE -->
+tml lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山东工业技师学院计算机网络应用专业——线上学习平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--pri:#0e7490;--sec:#0891b2;--acc:#0ea5e9;--grn:#059669;--org:#d97706;--pur:#7c3aed;--lt:#f0f9ff;--wh:#fff;--txt:#1e293b;--txl:#64748b;--sh:0 4px 24px rgba(0,0,0,.08);--rd:16px}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#fff;color:var(--txt);line-height:1.6;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+/* ===== NAV ===== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo img{height:34px}
+.nav-logo span{color:#1e3a5f;font-size:1.3rem;font-weight:800;letter-spacing:3px}
+.nav-links{display:flex;gap:6px}
+.nav-a{color:var(--txl);padding:7px 20px;border-radius:8px;font-size:1rem;font-weight:500;transition:all .3s;cursor:pointer}
+.nav-a:hover,.nav-a.active{color:var(--pri);background:#f0f9ff}
+
+/* ===== PAGES ===== */
+.page{display:none;min-height:100vh;padding-top:56px}
+.page.active{display:block;animation:fi .4s}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== HOME ===== */
+.hero{position:relative;height:480px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;background-repeat:no-repeat;background-image:url('campus-panorama.jpg');filter:contrast(1.08) saturate(1.1) brightness(1.05)}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(240,249,255,.15) 35%,rgba(255,255,255,.1) 100%)}
+.hero-content{position:relative;z-index:2;text-align:center;padding-top:56px;width:100%}
+.hero-logo{display:none}
+.hero-title{font-family:'STKaiti','KaiTi','楷体','FangSong','SimSun',serif;font-size:3.8rem;font-weight:900;color:#0c4a6e;letter-spacing:20px;margin:0;text-shadow:0 2px 8px rgba(255,255,255,.9),0 0 30px rgba(255,255,255,.7);white-space:nowrap;overflow:visible}
+.hero-sub{font-size:1rem;color:rgba(12,74,110,.65);letter-spacing:3px;margin:0;font-weight:500;text-shadow:0 1px 4px rgba(255,255,255,.7);white-space:nowrap;display:none}
+.hero-arrow{display:none}
+
+/* ===== MODULES ===== */
+.modules{background:#f0f9ff;padding:56px 32px 44px}
+.modules-title{font-size:2.6rem;font-weight:700;text-align:center;margin-bottom:8px;color:var(--txt)}
+.modules-sub{text-align:center;color:var(--txl);margin-bottom:36px;font-size:1.25rem}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%}
+.mcard{background:#fff;border-radius:16px;padding:36px 28px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;position:relative;overflow:hidden;text-align:center;text-decoration:none;color:inherit;display:block}
+.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0;transition:height .35s}
+.mcard:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.1);border-color:transparent}
+.mcard:hover::before{height:6px}
+.mc-b::before{background:linear-gradient(90deg,#2563eb,#3b82f6)}
+.mc-g::before{background:linear-gradient(90deg,#059669,#10b981)}
+.mc-o::before{background:linear-gradient(90deg,#d97706,#f59e0b)}
+.mc-p::before{background:linear-gradient(90deg,#7c3aed,#8b5cf6)}
+.micon{font-size:3.6rem;margin-bottom:16px}
+.minfo h3{font-size:1.5rem;font-weight:700;margin-bottom:12px;color:var(--txt)}
+.minfo p{color:var(--txl);font-size:1.08rem;line-height:1.6;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.mbtn{display:inline-block;font-size:1.05rem;font-weight:600;transition:all .3s}
+.mc-b .mbtn{color:#2563eb}.mc-g .mbtn{color:#059669}.mc-o .mbtn{color:#d97706}.mc-p .mbtn{color:#7c3aed}
+
+/* ===== FOOTER ===== */
+.footer-light{background:#f0f9ff;color:var(--txl);text-align:center;padding:32px 48px;font-size:.88rem;line-height:1.8;border-top:1px solid #e0f2fe}
+.footer-light .footer-logo{height:32px;margin-bottom:8px;opacity:.7}
+.footer-light p{margin:0}
+
+/* ===== SKILLS ===== */
+.skills{background:#fff;padding:56px 32px 64px}
+.skills-title{font-size:2.6rem;font-weight:700;text-align:center;margin-bottom:8px;color:var(--txt)}
+.skills-sub{text-align:center;color:var(--txl);margin-bottom:36px;font-size:1.15rem}
+.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%}
+.skill-card{border-radius:16px;overflow:hidden;position:relative;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;aspect-ratio:16/10}
+.skill-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.skill-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.12);border-color:transparent}
+.skill-card:hover img{transform:scale(1.06)}
+.skill-label{position:absolute;bottom:0;left:0;right:0;padding:18px 18px 14px;background:linear-gradient(0deg,rgba(14,116,144,.88) 0%,rgba(14,116,144,.3) 70%,transparent 100%);color:#fff;font-size:1.35rem;font-weight:600;letter-spacing:3px}
+
+/* ===== SIM PAGE ===== */
+.sim-hd{text-align:center;padding:48px 24px 24px;background:linear-gradient(135deg,#164e63,#1e3a5f);color:#fff}
+.sim-hd h1{font-size:2.4rem;font-weight:700;margin-bottom:8px}
+.sim-hd .sub{color:rgba(255,255,255,.7);font-size:1.1rem}
+.sim-ct{width:100%;padding:40px 32px}
+.sim-g{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.scard{background:#fff;border-radius:var(--rd);padding:28px 24px;cursor:pointer;transition:all .3s;border:1px solid #e2e8f0;text-align:center;position:relative}
+.scard:hover:not(.dis){transform:translateY(-4px);box-shadow:var(--sh);border-color:var(--acc)}
+.scard.dis{opacity:.6;cursor:default}
+.sico{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 14px}
+.snum{position:absolute;top:12px;right:16px;font-size:.75rem;color:var(--txl);font-weight:600;background:#f1f5f9;padding:2px 10px;border-radius:20px}
+.scard h3{font-size:1.2rem;font-weight:600;margin-bottom:6px;color:var(--txt)}
+.scard p{color:var(--txl);font-size:.95rem}
+
+/* ===== FIBER PAGE ===== */
+.fp-header{text-align:center;padding:48px 24px 20px;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff}
+.fp-header h1{font-size:1.6rem;font-weight:700;margin-bottom:6px}
+.fp-header .sub{color:rgba(255,255,255,.6);font-size:.9rem}
+.step-indicator{display:flex;justify-content:center;gap:6px;padding:20px 24px;background:#0f172a}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:600;background:#1e293b;color:#64748b;border:2px solid #334155;transition:all .3s}
+.step-dot.active{background:#2563eb;color:#fff;border-color:#2563eb}
+.step-dot.completed{background:#059669;color:#fff;border-color:#059669}
+.video-demo{padding:16px 24px;background:#0f172a}
+.video-frame{max-width:860px;margin:0 auto;background:#16213e;border-radius:12px;overflow:hidden;border:1px solid #334155}
+.video-label{padding:8px 16px;color:#94a3b8;font-size:.82rem;border-bottom:1px solid #334155}
+.video-canvas{display:block;width:100%;height:auto}
+.op-area{background:#0f172a;padding:0 24px 32px}
+.op-workspace{max-width:860px;margin:0 auto;background:#16213e;border-radius:12px;padding:28px 24px;border:1px solid #334155}
+.step-content{animation:fi .3s}
+.step-content.hidden{display:none}
+.op-title{color:#93c5fd;font-size:1.2rem;font-weight:700;margin-bottom:12px}
+.op-instruction{color:#e2e8f0;margin-bottom:10px;line-height:1.7}
+.op-tip{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px 16px;color:#93c5fd;font-size:.88rem;margin:14px 0}
+.tool-shelf{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}
+.tool-item{background:#1e293b;border:2px solid #334155;border-radius:12px;padding:14px 18px;cursor:pointer;transition:all .3s;text-align:center;color:#94a3b8;font-size:.85rem;min-width:100px}
+.tool-item:hover{border-color:#64748b;background:#253349}
+.tool-item.correct{border-color:#10b981;background:rgba(16,185,129,.1);color:#6ee7b7}
+.tool-item.incorrect{border-color:#ef4444;background:rgba(239,68,68,.1);color:#fca5a5;animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.op-options{display:flex;gap:10px;flex-wrap:wrap}
+.op-opt{background:#1e293b;border:2px solid #334155;border-radius:10px;padding:10px 22px;cursor:pointer;transition:all .3s;color:#94a3b8;font-size:.88rem;font-weight:500}
+.op-opt:hover{border-color:#64748b}
+.op-opt.correct{border-color:#10b981;background:rgba(16,185,129,.1);color:#6ee7b7}
+.op-opt.incorrect{border-color:#ef4444;background:rgba(239,68,68,.1);color:#fca5a5}
+.drag-row{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:flex-start;margin:16px 0}
+.drag-col{min-width:200px}
+.sort-card{background:rgba(59,130,246,.15);border:2px solid #3b82f6;border-radius:10px;padding:12px 20px;cursor:grab;font-size:.9rem;color:#93c5fd;font-weight:500;transition:all .2s;margin:6px 0;user-select:none}
+.sort-card:active{cursor:grabbing}
+.sort-slot{background:rgba(255,255,255,.03);border:2px dashed #334155;border-radius:10px;min-height:52px;padding:10px 16px;margin:6px 0;transition:all .3s}
+.sort-slot.drag-over{border-color:#3b82f6;background:rgba(59,130,246,.08)}
+.slot-content{min-height:20px}
+.feedback{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:.88rem;line-height:1.6}
+.feedback.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#6ee7b7}
+.feedback.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.feedback.warning{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#fcd34d}
+.btn{display:inline-block;padding:10px 24px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s;border:none}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{background:#334155;color:#e2e8f0}.btn-secondary:hover{background:#475569}
+.op-actions{display:flex;gap:12px;margin-top:18px;justify-content:center}
+.splice-arc{animation:arc-flicker .15s infinite alternate}
+@keyframes arc-flicker{from{opacity:.7}to{opacity:1}}
+.heat-bar{height:8px;background:#1e293b;border-radius:4px;overflow:hidden;max-width:300px;margin:0 auto}
+.heat-fill{height:100%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:4px;transition:width .04s linear;width:0%}
+.score-area{text-align:center;padding:20px 0}
+.score-ring{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:140px;height:140px;border-radius:50%;border:4px solid #2563eb;background:rgba(37,99,235,.1)}
+.score-val{font-size:2.8rem;font-weight:900;color:#3b82f6;line-height:1}
+.score-lbl{font-size:.82rem;color:#93c5fd}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0}
+.score-item{display:flex;justify-content:space-between;padding:8px 14px;background:#1e293b;border-radius:8px;font-size:.82rem}
+.score-item-name{color:#94a3b8}
+.pass{color:#10b981;font-weight:600}
+.fail{color:#ef4444;font-weight:600}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .nav{padding:0 16px;height:48px}
+  .nav-logo span{font-size:.88rem;letter-spacing:0}
+  .nav-logo img{height:28px}
+  .nav-a{padding:5px 12px;font-size:.82rem}
+  .hero{height:300px}
+  .hero-title{font-size:1.6rem;letter-spacing:4px;white-space:normal}
+  .hero-content{padding-top:28px}
+  .modules{padding:36px 16px 28px}
+  .modules-title{font-size:1.6rem}
+  .mgrid{grid-template-columns:repeat(2,1fr)!important;gap:14px}
+  .mcard{padding:24px 16px}
+  .skills{padding:36px 16px 44px}
+  .skills-title{font-size:1.6rem}
+  .skills-grid{grid-template-columns:repeat(2,1fr)!important;gap:14px}
+  .page{padding-top:48px}
+  .drag-row{flex-direction:column;align-items:center}
+  .score-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .mgrid{grid-template-columns:1fr!important}
+  .skills-grid{grid-template-columns:1fr!important}
+  .sim-g{grid-template-columns:1fr!important}
+  .hero{height:220px}
+  .hero-title{font-size:1.2rem;letter-spacing:2px}
+}
+
+/* Quiz Page */
+.quiz-page{background:#f0f4f8}
+).qz-hd{background:linear-gradient(135deg,#1a365d 0%,#2d4a7a 100%);color:#fff;padding:24px 32px;text-align:center}
+.qz-hd h1{font-size:1.8rem;font-weight:800;margin-bottom:4px}
+.qz-hd p{opacity:.8;font-size:.95rem}
+.qz-ct{width:100%;padding:0;display:grid;grid-template-columns:2fr 3fr;min-height:calc(100vh - 120px)}
+@media(max-width:768px){.qz-ct{grid-template-columns:1fr}}
+.qz-side{background:#fff;padding:28px;display:flex;flex-direction:column;gap:20px;border-right:1px solid #e5e7eb;overflow-y:auto}
+.qz-card{background:#fff;border-radius:12px;padding:0}
+.qz-card h3{font-size:1.05rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.qz-opts{display:flex;flex-wrap:wrap;gap:8px;background:#f0f7ff;border-radius:10px;padding:12px}
+.qz-opt{padding:8px 16px;border:none;border-radius:8px;font-size:.88rem;cursor:pointer;transition:all .2s;background:#fff;color:#475569}
+.qz-opt:hover{background:#dbeafe;color:#2563eb}
+.qz-opt.sel{background:#2563eb;color:#fff;font-weight:600}
+.qz-go{width:100%;padding:14px;background:linear-gradient(135deg,#1e40af,#1e3a8a);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:4px}
+.qz-go:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(30,64,175,.3)}
+.qz-chat{background:#f8fafc;display:flex;flex-direction:column;min-height:100%}
+.qz-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 28px;border-radius:10px;font-size:.95rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.qz-toast.show{opacity:1}
+.qz-prompt-box{background:#f0f4ff;border:2px dashed #2563eb;border-radius:12px;padding:20px;margin:16px 0;text-align:center}
+.qz-prompt-text{font-size:1.05rem;color:#1e293b;line-height:1.6;margin-bottom:16px;word-break:break-all}
+.qz-prompt-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.qz-copy-btn{padding:10px 24px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer}
+.qz-copy-btn:hover{opacity:.9}
+.qz-open-btn2{padding:10px 24px;background:#fff;color:#2563eb;border:2px solid #2563eb;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.qz-open-btn2:hover{background:#f0f4ff}
+.qz-msgs{padding:16px;overflow-y:auto;max-height:460px}
+.qz-msg-ai{background:#f0f4ff;border-radius:12px;padding:14px;margin-bottom:12px}
+.qz-msg-ai-hd{font-size:.9rem;color:#64748b;margin-bottom:6px;font-weight:600}
+.qz-msg-ai-bd{font-size:1.1rem;color:#1e293b;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.qz-msg-ai-bd a{color:#2563eb;text-decoration:underline}
+.qz-generating{text-align:center;padding:30px 20px}
+.qz-gen-icon{font-size:3rem;margin-bottom:12px;animation:spin 2s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.qz-gen-desc{color:#64748b;font-size:.9rem;line-height:1.6;margin:8px 0 20px}
+.qz-gen-prompt{background:#f1f5f9;border-radius:8px;padding:12px 16px;font-size:.85rem;color:#475569;margin-bottom:20px;text-align:left;line-height:1.5}
+.qz-chat-hd{background:linear-gradient(135deg,#6d28d9,#4c1d95);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem}
+.qz-chat-hd span.ava{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.qz-chat-bd{flex:1;position:relative;background:#f8fafc}
+.qz-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 32px;min-height:460px;text-align:center}
+.qz-welcome-icon{font-size:4rem;margin-bottom:8px}
+.qz-welcome h3{font-size:1.4rem;color:#1e293b;margin:0;font-weight:700}
+.qz-welcome p{font-size:1rem;color:#64748b;line-height:1.8;margin:0}
+.qz-welcome-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.qz-welcome-tag{background:#fef3c7;color:#92400e;padding:6px 14px;border-radius:20px;font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:4px}
+.qz-quick-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;width:100%;max-width:400px}
+.qz-qbtn{padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:.95rem;cursor:pointer;transition:all .2s;text-align:left;color:var(--txt)}
+.qz-qbtn:hover{border-color:var(--acc);color:var(--acc);background:rgba(37,99,235,.04)}
+.qz-open-btn{display:inline-flex;align-items:center;gap:8px;padding:16px 40px;background:linear-gradient(135deg,#1e40af,#1e3a8a);color:#fff;border-radius:12px;font-weight:700;font-size:1.1rem;text-decoration:none;transition:all .3s;margin-top:12px;box-shadow:0 4px 16px rgba(30,64,175,.25)}
+.qz-open-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(30,64,175,.35)}
+.qz-tips{margin-top:8px;padding:12px 16px;background:#fffbeb;border-radius:8px;font-size:.82rem;color:#92400e;line-height:1.6}
+.qz-tips b{color:#78350f}
+
+
+/* Quiz Practice Styles */
+.qz-quiz{padding:20px}
+.qz-progress{width:100%;height:6px;background:#e8e8e8;border-radius:3px;margin-bottom:16px;overflow:hidden}
+.qz-progress-bar{height:100%;background:linear-gradient(90deg,#4CAF50,#66BB6A);border-radius:3px;transition:width 0.5s}
+.qz-qnum{font-size:13px;color:#888;margin-bottom:12px}
+.qz-qtext{font-size:17px;font-weight:600;color:#1a1a2e;margin-bottom:20px;line-height:1.6;padding:12px 0;border-bottom:1px solid #f0f0f0}
+.qz-qopts{display:flex;flex-direction:column;gap:10px}
+.qz-qopt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;transition:all 0.2s;background:#fff}
+.qz-qopt:hover{border-color:#4CAF50;background:#f8fdf8;transform:translateX(4px)}
+.qz-qopt-label{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#f0f0f0;color:#555;font-weight:bold;font-size:14px;flex-shrink:0}
+.qz-qopt-text{font-size:15px;color:#333}
+.qz-qopt.qz-correct{border-color:#4CAF50;background:#f0fdf4}
+.qz-qopt.qz-correct .qz-qopt-label{background:#4CAF50;color:#fff}
+.qz-qopt.qz-wrong{border-color:#ef4444;background:#fef2f2}
+.qz-qopt.qz-wrong .qz-qopt-label{background:#ef4444;color:#fff}
+.qz-qfeedback{margin-top:16px;padding:14px 16px;border-radius:10px;font-size:14px;line-height:1.7;animation:fadeIn 0.3s}
+.qz-fb-correct{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.qz-fb-wrong{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.qz-qnav{margin-top:16px;display:flex;justify-content:flex-end}
+.qz-nav-btn{padding:10px 24px;border:none;border-radius:8px;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#4CAF50,#45a049);color:#fff;font-weight:600;transition:all 0.2s}
+.qz-nav-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(76,175,80,0.3)}
+.qz-nav-finish{background:linear-gradient(135deg,#1a73e8,#1557b0);padding:12px 32px;font-size:16px}
+.qz-nav-finish:hover{box-shadow:0 4px 12px rgba(26,115,232,0.3)}
+.qz-result{text-align:center;padding:40px 20px}
+.qz-result-score{font-size:64px;font-weight:800;line-height:1;margin-bottom:8px}
+.qz-result-unit{font-size:24px;font-weight:400}
+.qz-result-grade{font-size:24px;font-weight:600;margin-bottom:16px}
+.qz-result-info{font-size:15px;color:#666;margin-bottom:24px}
+.qz-result-btns{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
 <div class="qz-toast" id="qz-toast"></div>
+
+<!-- Nav -->
+<!-- HOME -->
+<div id="page-quiz" class="page quiz-page">
+<header class="qz-hd">
+<h1>📝 智能题库练习</h1>
+<p>山东工业技师学院 · 在线刷题 · AI智能出题</p>
+</header>
+<div class="qz-ct">
+<!-- LEFT: Course & Difficulty Selection -->
+<div class="qz-side" id="qz-practice-area">
+<div class="qz-card">
+<h3>📚 选择课程</h3>
+<div class="qz-opts" id="qz-courses">
+<div class="qz-opt sel" data-v="综合布线系统" onclick="qzSel(this,'qz-courses')">综合布线系统</div>
+<div class="qz-opt" data-v="网络基础" onclick="qzSel(this,'qz-courses')">网络基础</div>
+<div class="qz-opt" data-v="网络设备配置" onclick="qzSel(this,'qz-courses')">网络设备配置</div>
+<div class="qz-opt" data-v="网络安全" onclick="qzSel(this,'qz-courses')">网络安全</div>
+<div class="qz-opt" data-v="服务器管理" onclick="qzSel(this,'qz-courses')">服务器管理</div>
+<div class="qz-opt" data-v="编程基础" onclick="qzSel(this,'qz-courses')">编程基础</div>
+<div class="qz-opt" data-v="信息安全与法规" onclick="qzSel(this,'qz-courses')">信息安全与法规</div>
+</div>
+</div>
+<div class="qz-card">
+<h3>🎯 难度等级</h3>
+<div class="qz-opts" id="qz-diff">
+<div class="qz-opt" data-v="基础" onclick="qzSel(this,'qz-diff')">基础</div>
+<div class="qz-opt sel" data-v="中等" onclick="qzSel(this,'qz-diff')">中等</div>
+<div class="qz-opt" data-v="较难" onclick="qzSel(this,'qz-diff')">较难</div>
+</div>
+</div>
+<button class="qz-go" onclick="qzStartPractice()">🎯 开始练习</button>
+<div class="qz-tips">
+<b>💡 使用提示：</b>选择课程和难度后点击"开始练习"，即可在线答题。答题完毕自动评分，查看答案解析。需要生成Word试卷请点击右侧AI出题助手。
+</div>
+</div>
+<!-- RIGHT: Practice Area + AI Link -->
+<div class="qz-chat">
+<div class="qz-chat-hd" id="qz-chat-hd">
+<span class="ava">📝</span>在线练习
+</div>
+<div class="qz-chat-bd" id="qz-chat-bd">
+<div class="qz-welcome" id="qz-welcome">
+<div class="qz-welcome-icon">📝</div>
+<h3>在线刷题练习</h3>
+<p>选择左侧课程和难度，点击"开始练习"<br>即可在线答题，实时查看成绩和解析</p>
+<div style="margin-top:20px;padding:16px;background:#f0f7ff;border-radius:8px;border:1px solid #d0e3f7">
+<p style="margin:0 0 8px;font-weight:bold;color:#1a73e8">🤖 需要生成新试卷？</p>
+<p style="margin:0;font-size:13px;color:#555">点击下方按钮打开AI出题助手<br>自动生成Word试卷并下载</p>
+<a class="qz-open-btn" href="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v" target="_blank" rel="noopener" style="margin-top:12px;display:inline-block">
+🤖 打开AI出题助手
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 
-<!-- SIM -->
+<!-- ===== SIM PAGE ===== -->
 <div id="page-sim" class="page sim-page">
 <div class="sim-hd">
-<h1>综合布线实训室虚拟仿真平台</h1>
-<p class="sub">山东工业技师学院 · 计算机网络应用专业</p>
+<h1>虚拟仿真实训平台</h1>
+<p class="sub">计算机网络应用专业 · 沉浸式3D交互实训</p>
 </div>
 <div class="sim-ct" style="max-width:100%;padding:40px 32px">
 <div class="sim-g">
-<div class="scard" onclick="alert('双绞线T568B端接仿真实训即将上线，敬请期待！')">
-<div class="snum">模块一</div><h3>双绞线T568B端接实操</h3><p>学习双绞线的标准端接方法，掌握T568B线序排列与压接技术</p></div>
-<div class="scard" onclick="alert('配线架打线仿真实训即将上线，敬请期待！')">
-<div class="snum">模块二</div><h3>配线架打线实操</h3><p>掌握配线架的安装与线缆端接，规范跳线管理</p></div>
-<div class="scard" onclick="alert('链路测试与认证仿真实训即将上线，敬请期待！')">
-<div class="snum">模块三</div><h3>链路测试与认证</h3><p>使用专业测试仪器进行链路验证，确保符合标准</p></div>
-<div class="scard" onclick="alert('光纤熔接仿真实训即将上线，敬请期待！')">
-<div class="snum">模块四</div><h3>光纤熔接实操</h3><p>学习光纤熔接完整流程，掌握8步标准操作规范</p></div>
-<div class="scard" onclick="alert('办公室布线仿真实训即将上线，敬请期待！')">
-<div class="snum">模块五</div><h3>办公室布线实施</h3><p>学习办公环境综合布线的规划与实施</p></div>
-<div class="scard" onclick="alert('教学楼布线仿真实训即将上线，敬请期待！')">
-<div class="snum">模块六</div><h3>教学楼布线实施</h3><p>学习教学楼宇综合布线的规划与实施</p></div>
+<div class="scard" onclick="location.href='https://www.coze.cn/store/agent/7645540020057423908'">
+<div class="sico" style="background:#eff6ff;color:#2563eb">🔌</div>
+<span class="snum">模块1</span>
+<h3>综合布线实训室</h3>
+<p>网络布线规划、线缆端接、配线架安装等全真模拟操作</p>
+</div>
+<div class="scard" onclick="alert('光纤熔接实训即将上线，敬请期待！')">
+<div class="sico" style="background:#f0fdf4;color:#059669">💡</div>
+<span class="snum">模块2</span>
+<h3>光纤熔接实训</h3>
+<p>光纤剥覆、清洁、切割、对准、熔接全流程3D仿真操作</p>
+</div>
+<div class="scard dis">
+<div class="sico" style="background:#fef3c7;color:#d97706">🖥️</div>
+<span class="snum">模块3</span>
+<h3>网络设备配置</h3>
+<p>路由器、交换机配置与管理仿真（开发中）</p>
+</div>
+<div class="scard dis">
+<div class="sico" style="background:#fce7f3;color:#db2777">🔒</div>
+<span class="snum">模块4</span>
+<h3>网络安全实训</h3>
+<p>防火墙配置、入侵检测等安全实操（开发中）</p>
+</div>
+<div class="scard dis">
+<div class="sico" style="background:#ede9fe;color:#7c3aed">📡</div>
+<span class="snum">模块5</span>
+<h3>服务器管理</h3>
+<p>Linux/Windows服务器搭建与运维仿真（开发中）</p>
+</div>
+<div class="scard dis">
+<div class="sico" style="background:#f1f5f9;color:#64748b">🛠️</div>
+<span class="snum">模块6</span>
+<h3>编程基础实训</h3>
+<p>Python/Java编程环境与在线练习（开发中）</p>
+</div>
 </div>
 </div>
 </div>
