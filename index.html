@@ -289,22 +289,22 @@ a{text-decoration:none;color:inherit}
 <h2 class="modules-title">四大AI教学模块</h2>
 <p class="modules-sub">覆盖教学全场景，让AI成为您的得力助手</p>
 <div class="mgrid">
-<a class="mcard mc-b" href="https://www.coze.cn/s/xqfU3sWIPLI/" target="_blank" rel="noopener">
+<div class="mcard mc-b" onclick="window.open('https://www.coze.cn/s/xqfU3sWIPLI/','_blank')">
 <div class="micon">📚</div>
 <div class="minfo"><h3>教师AI备课</h3><p>输入课程主题，AI按工学一体化标准自动生成教案和PPT，一键导出Word。涵盖17门专业课程。</p><span class="mbtn">开始备课 →</span></div>
-</a>
-<a class="mcard mc-g" href="https://www.coze.cn/s/jgZXDhiIMho/" target="_blank" rel="noopener">
+</div>
+<div class="mcard mc-g" onclick="window.open('https://www.coze.cn/s/jgZXDhiIMho/','_blank')">
 <div class="micon">🎓</div>
 <div class="minfo"><h3>学生AI答疑</h3><p>随时提问专业问题，AI即时解答。问题自动存档至飞书表格，供教师分析教学重难点。</p><span class="mbtn">立即提问 →</span></div>
-</a>
-<a class="mcard mc-o" href="javascript:void(0)" onclick="sp('quiz')">
+</div>
+<div class="mcard mc-o" href="javascript:void(0)" onclick="sp('quiz')">
 <div class="micon">📝</div>
 <div class="minfo"><h3>题库练习AI助手</h3><p>按课程、题型、难度智能出题，生成Word试卷+答案解析。还能出课后作业和阶段测验。</p><span class="mbtn">开始出题 →</span></div>
-</a>
-<a class="mcard mc-p" href="javascript:void(0)" onclick="sp('sim')">
+</div>
+<div class="mcard mc-p" href="javascript:void(0)" onclick="sp('sim')">
 <div class="micon">🔬</div>
 <div class="minfo"><h3>虚拟仿真实训平台</h3><p>综合布线实训室虚拟仿真，光纤熔接等全真模拟操作。3D沉浸式交互，步骤化训练+智能评分。</p><span class="mbtn">进入实训 →</span></div>
-</a>
+</div>
 </div>
 </section>
 
@@ -404,41 +404,29 @@ tml lang="zh-CN">
 </div>
 <div class="sim-ct" style="max-width:100%;padding:40px 32px">
 <div class="sim-g">
-<div class="scard" onclick="location.href='https://www.coze.cn/s/iqhvcTg_ZoU/'">
-<div class="sico" style="background:#eff6ff;color:#2563eb">🔌</div>
-<span class="snum">模块1</span>
-<h3>综合布线实训室</h3>
-<p>网络布线规划、线缆端接、配线架安装等全真模拟操作</p>
+<div class="scard" onclick="sp('twisted-pair')">
+<div class="sico" style="background:#dbeafe;color:#2563eb">🔌</div>
+<span class="snum">1</span>
+<h3>双绞线T568B端接实操</h3>
+<p>学习T568B标准线序，完成双绞线端接操作</p>
 </div>
-<div class="scard" onclick="alert('光纤熔接实训即将上线，敬请期待！')">
-<div class="sico" style="background:#f0fdf4;color:#059669">💡</div>
-<span class="snum">模块2</span>
-<h3>光纤熔接实训</h3>
-<p>光纤剥覆、清洁、切割、对准、熔接全流程3D仿真操作</p>
+<div class="scard" onclick="sp('patch-panel')">
+<div class="sico" style="background:#dbeafe;color:#2563eb">📋</div>
+<span class="snum">2</span>
+<h3>配线架打线实操</h3>
+<p>学习配线架打线规范，完成线缆终接操作</p>
 </div>
-<div class="scard dis">
-<div class="sico" style="background:#fef3c7;color:#d97706">🖥️</div>
-<span class="snum">模块3</span>
-<h3>网络设备配置</h3>
-<p>路由器、交换机配置与管理仿真（开发中）</p>
+<div class="scard" onclick="sp('link-test')">
+<div class="sico" style="background:#dbeafe;color:#2563eb">📊</div>
+<span class="snum">3</span>
+<h3>链路测试与认证</h3>
+<p>学习使用测试仪进行链路测试和认证</p>
 </div>
-<div class="scard dis">
-<div class="sico" style="background:#fce7f3;color:#db2777">🔒</div>
-<span class="snum">模块4</span>
-<h3>网络安全实训</h3>
-<p>防火墙配置、入侵检测等安全实操（开发中）</p>
-</div>
-<div class="scard dis">
-<div class="sico" style="background:#ede9fe;color:#7c3aed">📡</div>
-<span class="snum">模块5</span>
-<h3>服务器管理</h3>
-<p>Linux/Windows服务器搭建与运维仿真（开发中）</p>
-</div>
-<div class="scard dis">
-<div class="sico" style="background:#f1f5f9;color:#64748b">🛠️</div>
-<span class="snum">模块6</span>
-<h3>编程基础实训</h3>
-<p>Python/Java编程环境与在线练习（开发中）</p>
+<div class="scard" onclick="sp('fiber')">
+<div class="sico" style="background:#ede9fe;color:#7c3aed">⚡</div>
+<span class="snum">4</span>
+<h3>光纤熔接实操</h3>
+<p>学习光纤熔接完整流程</p>
 </div>
 </div>
 </div>
