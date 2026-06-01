@@ -193,6 +193,11 @@ a{text-decoration:none;color:inherit}
 .qz-copy-btn:hover{opacity:.9}
 .qz-open-btn2{padding:10px 24px;background:#fff;color:#2563eb;border:2px solid #2563eb;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
 .qz-open-btn2:hover{background:#f0f4ff}
+.qz-msgs{padding:16px;overflow-y:auto;max-height:460px}
+.qz-msg-ai{background:#f0f4ff;border-radius:12px;padding:14px;margin-bottom:12px}
+.qz-msg-ai-hd{font-size:.8rem;color:#64748b;margin-bottom:6px;font-weight:600}
+.qz-msg-ai-bd{font-size:.9rem;color:#1e293b;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.qz-msg-ai-bd a{color:#2563eb;text-decoration:underline}
 .qz-chat-hd{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem}
 .qz-chat-hd span.ava{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem}
 .qz-chat-bd{flex:1;position:relative;background:#f8fafc}
@@ -928,13 +933,102 @@ function m4Score(){
   else if(total>=70){ff.className='feedback warning';ff.innerHTML='<p>👍 良好！部分步骤需要加强练习</p>'}
   else{ff.className='feedback error';ff.innerHTML='<p>📚 建议重新练习，重点掌握工具选择和操作规范</p>'}
 }
-var BOT_URL="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v";
-function qzToast(s){var t=document.getElementById("qz-toast");t.textContent=s;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},2500)}
-function qzShowPrompt(msg){var w=document.getElementById("qz-welcome");w.innerHTML='<div class="qz-welcome-icon">📋</div><h3>提示词已生成</h3><div class="qz-prompt-box"><div class="qz-prompt-text">'+msg+'</div><div class="qz-prompt-btns"><button class="qz-copy-btn" onclick="qzCopyPrompt(\'qz-prompt-val\')">📋 复制提示词</button><a class="qz-open-btn2" href="'+BOT_URL+'" target="_blank" rel="noopener">💬 打开AI助手</a></div></div><input type="hidden" id="qz-prompt-val" value="">';document.getElementById("qz-prompt-val").value=msg}
-function qzCopyPrompt(id){var v=document.getElementById(id).value;navigator.clipboard.writeText(v).then(function(){qzToast("✅ 已复制！在AI助手中粘贴发送即可")}).catch(function(){var inp=document.createElement("textarea");inp.value=v;document.body.appendChild(inp);inp.select();document.execCommand("copy");document.body.removeChild(inp);qzToast("✅ 已复制！在AI助手中粘贴发送即可")})}
+
+</script>
+<script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/latest/libs/cn/index.js"></script>
+<script>
+var COZE_PAT='pat_kR4x26DUlLkRFUPwucU3Np84nEgdE3rdf6P0J68HnzKVcDU8N7Oantx3dIwgAokd';
+var COZE_BOT='7645540020057423908';
+var cozeSDK=null;
+function initCozeSDK(){
+  try{
+    cozeSDK=new CozeWebSDK.WebChatClient({
+      config:{bot_id:COZE_BOT},
+      auth:{type:'token',token:COZE_PAT,onRefreshToken:async()=>COZE_PAT},
+      ui:{asstBtn:{isNeed:false},chatBot:{title:'题库AI助手',uploadable:true,width:'100%'}}
+    });
+  }catch(e){console.log('Coze SDK init error:',e)}
+}
 function qzSel(el,gid){var g=document.getElementById(gid);var opts=g.querySelectorAll(".qz-opt");opts.forEach(function(o){o.classList.remove("sel")});el.classList.add("sel")}
-function qzGen(){var c=document.querySelector("#qz-courses .qz-opt.sel");var t=document.querySelector("#qz-types .qz-opt.sel");var d=document.querySelector("#qz-diff .qz-opt.sel");var cn=c?c.getAttribute("data-v"):"综合布线系统";var tn=t?t.getAttribute("data-v"):"选择题";var dn=d?d.getAttribute("data-v"):"中等";var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";qzShowPrompt(msg)}
-function qzQuick(msg){qzShowPrompt(msg)}
+function qzGen(){
+  var c=document.querySelector("#qz-courses .qz-opt.sel");
+  var t=document.querySelector("#qz-types .qz-opt.sel");
+  var d=document.querySelector("#qz-diff .qz-opt.sel");
+  var cn=c?c.getAttribute("data-v"):"综合布线系统";
+  var tn=t?t.getAttribute("data-v"):"选择题";
+  var dn=d?d.getAttribute("data-v"):"中等";
+  var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";
+  qzSendMsg(msg);
+}
+function qzQuick(msg){qzSendMsg(msg)}
+function qzSendMsg(msg){
+  // Try Coze API first
+  var uid='web_'+Date.now();
+  fetch('https://api.coze.cn/v3/chat',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+COZE_PAT,'Content-Type':'application/json'},
+    body:JSON.stringify({
+      bot_id:COZE_BOT,
+      user_id:uid,
+      stream:false,
+      auto_save_history:true,
+      additional_messages:[{role:'user',content:msg,content_type:'text'}]
+    })
+  }).then(function(r){return r.json()}).then(function(data){
+    if(data.code===0||data.data){
+      qzToast("✅ 已发送！正在生成试卷，请稍候...");
+      qzPollChat(data.data.id,data.data.conversation_id,uid);
+    }else{
+      qzFallback(msg);
+    }
+  }).catch(function(e){
+    console.log('API error, fallback:',e);
+    qzFallback(msg);
+  });
+}
+function qzPollChat(chatId,convId,uid){
+  var tries=0;var maxTries=60;
+  var timer=setInterval(function(){
+    tries++;
+    if(tries>maxTries){clearInterval(timer);qzToast("⏳ 生成中，请稍后在扣子查看");return}
+    fetch('https://api.coze.cn/v3/chat/retrieve?chat_id='+chatId+'&conversation_id='+convId,{
+      headers:{'Authorization':'Bearer '+COZE_PAT,'Content-Type':'application/json'}
+    }).then(function(r){return r.json()}).then(function(data){
+      if(data.data&&data.data.status==='completed'){
+        clearInterval(timer);
+        qzShowResult(convId,uid);
+      }
+    }).catch(function(){});
+  },3000);
+}
+function qzShowResult(convId,uid){
+  fetch('https://api.coze.cn/v3/chat/message/list?chat_id=&conversation_id='+convId,{
+    headers:{'Authorization':'Bearer '+COZE_PAT,'Content-Type':'application/json'}
+  }).then(function(r){return r.json()}).then(function(data){
+    var msgs=data.data||[];
+    var html='';
+    msgs.forEach(function(m){
+      if(m.role==='assistant'&&m.type==='answer'){
+        html+='<div class="qz-msg-ai"><div class="qz-msg-ai-hd">🤖 题库AI助手</div><div class="qz-msg-ai-bd">'+m.content+'</div></div>';
+      }
+    });
+    if(html){
+      document.getElementById('qz-chat-bd').innerHTML='<div class="qz-msgs">'+html+'</div>';
+    }else{
+      qzToast("✅ 试卷已生成，请打开扣子查看下载");
+    }
+  }).catch(function(){qzToast("✅ 试卷已生成，请打开扣子查看下载")});
+}
+function qzFallback(msg){
+  navigator.clipboard.writeText(msg).then(function(){
+    qzToast("✅ 已复制提示词，粘贴到AI助手中发送即可");
+  }).catch(function(){
+    qzToast("📋 请复制: "+msg);
+  });
+  window.open("https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v","_blank");
+}
+function qzToast(s){var t=document.getElementById("qz-toast");t.textContent=s;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},3000)}
+initCozeSDK();
 </script>
 </body>
 </html>
