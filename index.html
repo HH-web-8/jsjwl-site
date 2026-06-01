@@ -198,6 +198,11 @@ a{text-decoration:none;color:inherit}
 .qz-msg-ai-hd{font-size:.8rem;color:#64748b;margin-bottom:6px;font-weight:600}
 .qz-msg-ai-bd{font-size:.9rem;color:#1e293b;line-height:1.7;white-space:pre-wrap;word-break:break-word}
 .qz-msg-ai-bd a{color:#2563eb;text-decoration:underline}
+.qz-generating{text-align:center;padding:30px 20px}
+.qz-gen-icon{font-size:3rem;margin-bottom:12px;animation:spin 2s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.qz-gen-desc{color:#64748b;font-size:.9rem;line-height:1.6;margin:8px 0 20px}
+.qz-gen-prompt{background:#f1f5f9;border-radius:8px;padding:12px 16px;font-size:.85rem;color:#475569;margin-bottom:20px;text-align:left;line-height:1.5}
 .qz-chat-hd{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem}
 .qz-chat-hd span.ava{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem}
 .qz-chat-bd{flex:1;position:relative;background:#f8fafc}
@@ -962,7 +967,6 @@ function qzGen(){
 }
 function qzQuick(msg){qzSendMsg(msg)}
 function qzSendMsg(msg){
-  // Try Coze API first
   var uid='web_'+Date.now();
   fetch('https://api.coze.cn/v3/chat',{
     method:'POST',
@@ -976,8 +980,7 @@ function qzSendMsg(msg){
     })
   }).then(function(r){return r.json()}).then(function(data){
     if(data.code===0||data.data){
-      qzToast("✅ 已发送！正在生成试卷，请稍候...");
-      qzPollChat(data.data.id,data.data.conversation_id,uid);
+      qzShowGenerating(msg);
     }else{
       qzFallback(msg);
     }
@@ -986,38 +989,21 @@ function qzSendMsg(msg){
     qzFallback(msg);
   });
 }
-function qzPollChat(chatId,convId,uid){
-  var tries=0;var maxTries=60;
-  var timer=setInterval(function(){
-    tries++;
-    if(tries>maxTries){clearInterval(timer);qzToast("⏳ 生成中，请稍后在扣子查看");return}
-    fetch('https://api.coze.cn/v3/chat/retrieve?chat_id='+chatId+'&conversation_id='+convId,{
-      headers:{'Authorization':'Bearer '+COZE_PAT,'Content-Type':'application/json'}
-    }).then(function(r){return r.json()}).then(function(data){
-      if(data.data&&data.data.status==='completed'){
-        clearInterval(timer);
-        qzShowResult(convId,uid);
-      }
-    }).catch(function(){});
-  },3000);
+function qzShowGenerating(msg){
+  var bd=document.getElementById('qz-chat-bd');
+  bd.innerHTML='<div class="qz-generating">'
+    +'<div class="qz-gen-icon">⏳</div>'
+    +'<h3>试卷生成中...</h3>'
+    +'<p class="qz-gen-desc">AI助手已收到您的出题需求，正在生成试卷和Word文档<br>预计需要30-60秒</p>'
+    +'<div class="qz-gen-prompt"><b>您的需求：</b>'+msg+'</div>'
+    +'<div class="qz-prompt-btns">'
+    +'<a class="qz-copy-btn" href="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v" target="_blank" rel="noopener" style="text-decoration:none">📄 查看试卷 & 下载Word</a>'
+    +'<button class="qz-open-btn2" onclick="qzCopyText(this)" data-msg="'+msg.replace(/"/g,'&quot;')+'">📋 复制提示词</button>'
+    +'</div></div>';
 }
-function qzShowResult(convId,uid){
-  fetch('https://api.coze.cn/v3/chat/message/list?chat_id=&conversation_id='+convId,{
-    headers:{'Authorization':'Bearer '+COZE_PAT,'Content-Type':'application/json'}
-  }).then(function(r){return r.json()}).then(function(data){
-    var msgs=data.data||[];
-    var html='';
-    msgs.forEach(function(m){
-      if(m.role==='assistant'&&m.type==='answer'){
-        html+='<div class="qz-msg-ai"><div class="qz-msg-ai-hd">🤖 题库AI助手</div><div class="qz-msg-ai-bd">'+m.content+'</div></div>';
-      }
-    });
-    if(html){
-      document.getElementById('qz-chat-bd').innerHTML='<div class="qz-msgs">'+html+'</div>';
-    }else{
-      qzToast("✅ 试卷已生成，请打开扣子查看下载");
-    }
-  }).catch(function(){qzToast("✅ 试卷已生成，请打开扣子查看下载")});
+function qzCopyText(btn){
+  var msg=btn.getAttribute('data-msg');
+  navigator.clipboard.writeText(msg).then(function(){qzToast("✅ 已复制！")}).catch(function(){qzToast("📋 "+msg)});
 }
 function qzFallback(msg){
   navigator.clipboard.writeText(msg).then(function(){
