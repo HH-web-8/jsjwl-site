@@ -184,6 +184,8 @@ a{text-decoration:none;color:inherit}
 .qz-go{width:100%;padding:14px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:8px}
 .qz-go:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.3)}
 .qz-chat{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;flex-direction:column;min-height:500px}
+.qz-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 28px;border-radius:10px;font-size:.95rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.qz-toast.show{opacity:1}
 .qz-chat-hd{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem}
 .qz-chat-hd span.ava{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem}
 .qz-chat-bd{flex:1;position:relative;background:#f8fafc}
@@ -202,6 +204,7 @@ a{text-decoration:none;color:inherit}
 </style>
 </head>
 <body>
+<div class="qz-toast" id="qz-toast"></div>
 
 <!-- Nav -->
 <nav class="nav">
@@ -918,9 +921,12 @@ function m4Score(){
   else if(total>=70){ff.className='feedback warning';ff.innerHTML='<p>👍 良好！部分步骤需要加强练习</p>'}
   else{ff.className='feedback error';ff.innerHTML='<p>📚 建议重新练习，重点掌握工具选择和操作规范</p>'}
 }
+var BOT_URL="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v";
+function qzToast(s){var t=document.getElementById("qz-toast");t.textContent=s;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},2500)}
+function qzCopy(msg){navigator.clipboard.writeText(msg).then(function(){qzToast("✅ 已复制，请在AI助手中粘贴发送")}).catch(function(){qzToast("📋 请手动复制: "+msg)})}
 function qzSel(el,gid){var g=document.getElementById(gid);var opts=g.querySelectorAll(".qz-opt");opts.forEach(function(o){o.classList.remove("sel")});el.classList.add("sel")}
-function qzGen(){var c=document.querySelector("#qz-courses .qz-opt.sel");var t=document.querySelector("#qz-types .qz-opt.sel");var d=document.querySelector("#qz-diff .qz-opt.sel");var cn=c?c.getAttribute("data-v"):"综合布线系统";var tn=t?t.getAttribute("data-v"):"选择题";var dn=d?d.getAttribute("data-v"):"中等";var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";var url="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v";window.open(url,"_blank")}
-function qzQuick(msg){var url="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v";window.open(url,"_blank")}
+function qzGen(){var c=document.querySelector("#qz-courses .qz-opt.sel");var t=document.querySelector("#qz-types .qz-opt.sel");var d=document.querySelector("#qz-diff .qz-opt.sel");var cn=c?c.getAttribute("data-v"):"综合布线系统";var tn=t?t.getAttribute("data-v"):"选择题";var dn=d?d.getAttribute("data-v"):"中等";var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";qzCopy(msg);window.open(BOT_URL,"_blank")}
+function qzQuick(msg){qzCopy(msg);window.open(BOT_URL,"_blank")}
 </script>
 </body>
 </html>
