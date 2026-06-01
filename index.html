@@ -186,6 +186,13 @@ a{text-decoration:none;color:inherit}
 .qz-chat{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;flex-direction:column;min-height:500px}
 .qz-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 28px;border-radius:10px;font-size:.95rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
 .qz-toast.show{opacity:1}
+.qz-prompt-box{background:#f0f4ff;border:2px dashed #2563eb;border-radius:12px;padding:20px;margin:16px 0;text-align:center}
+.qz-prompt-text{font-size:1rem;color:#1e293b;line-height:1.6;margin-bottom:16px;word-break:break-all}
+.qz-prompt-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.qz-copy-btn{padding:10px 24px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer}
+.qz-copy-btn:hover{opacity:.9}
+.qz-open-btn2{padding:10px 24px;background:#fff;color:#2563eb;border:2px solid #2563eb;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.qz-open-btn2:hover{background:#f0f4ff}
 .qz-chat-hd{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem}
 .qz-chat-hd span.ava{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem}
 .qz-chat-bd{flex:1;position:relative;background:#f8fafc}
@@ -923,10 +930,11 @@ function m4Score(){
 }
 var BOT_URL="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v";
 function qzToast(s){var t=document.getElementById("qz-toast");t.textContent=s;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},2500)}
-function qzCopy(msg){navigator.clipboard.writeText(msg).then(function(){qzToast("✅ 已复制，请在AI助手中粘贴发送")}).catch(function(){qzToast("📋 请手动复制: "+msg)})}
+function qzShowPrompt(msg){var w=document.getElementById("qz-welcome");w.innerHTML='<div class="qz-welcome-icon">📋</div><h3>提示词已生成</h3><div class="qz-prompt-box"><div class="qz-prompt-text">'+msg+'</div><div class="qz-prompt-btns"><button class="qz-copy-btn" onclick="qzCopyPrompt(\'qz-prompt-val\')">📋 复制提示词</button><a class="qz-open-btn2" href="'+BOT_URL+'" target="_blank" rel="noopener">💬 打开AI助手</a></div></div><input type="hidden" id="qz-prompt-val" value="">';document.getElementById("qz-prompt-val").value=msg}
+function qzCopyPrompt(id){var v=document.getElementById(id).value;navigator.clipboard.writeText(v).then(function(){qzToast("✅ 已复制！在AI助手中粘贴发送即可")}).catch(function(){var inp=document.createElement("textarea");inp.value=v;document.body.appendChild(inp);inp.select();document.execCommand("copy");document.body.removeChild(inp);qzToast("✅ 已复制！在AI助手中粘贴发送即可")})}
 function qzSel(el,gid){var g=document.getElementById(gid);var opts=g.querySelectorAll(".qz-opt");opts.forEach(function(o){o.classList.remove("sel")});el.classList.add("sel")}
-function qzGen(){var c=document.querySelector("#qz-courses .qz-opt.sel");var t=document.querySelector("#qz-types .qz-opt.sel");var d=document.querySelector("#qz-diff .qz-opt.sel");var cn=c?c.getAttribute("data-v"):"综合布线系统";var tn=t?t.getAttribute("data-v"):"选择题";var dn=d?d.getAttribute("data-v"):"中等";var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";qzCopy(msg);window.open(BOT_URL,"_blank")}
-function qzQuick(msg){qzCopy(msg);window.open(BOT_URL,"_blank")}
+function qzGen(){var c=document.querySelector("#qz-courses .qz-opt.sel");var t=document.querySelector("#qz-types .qz-opt.sel");var d=document.querySelector("#qz-diff .qz-opt.sel");var cn=c?c.getAttribute("data-v"):"综合布线系统";var tn=t?t.getAttribute("data-v"):"选择题";var dn=d?d.getAttribute("data-v"):"中等";var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";qzShowPrompt(msg)}
+function qzQuick(msg){qzShowPrompt(msg)}
 </script>
 </body>
 </html>
