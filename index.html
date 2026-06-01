@@ -28,17 +28,17 @@ a{text-decoration:none;color:inherit}
 .hero{position:relative;height:480px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
 .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;background-repeat:no-repeat;background-image:url('campus-panorama.jpg');filter:contrast(1.08) saturate(1.1) brightness(1.05)}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(240,249,255,.15) 35%,rgba(255,255,255,.1) 100%)}
-.hero-content{position:relative;z-index:2;text-align:center;padding-top:56px;max-width:1400px;width:100%}
+.hero-content{position:relative;z-index:2;text-align:center;padding-top:56px;width:100%}
 .hero-logo{display:none}
 .hero-title{font-family:'STKaiti','KaiTi','楷体','FangSong','SimSun',serif;font-size:3.2rem;font-weight:900;color:#0c4a6e;letter-spacing:18px;margin:0;text-shadow:0 2px 8px rgba(255,255,255,.9),0 0 30px rgba(255,255,255,.7);white-space:nowrap;overflow:visible}
 .hero-sub{font-size:1rem;color:rgba(12,74,110,.65);letter-spacing:3px;margin:0;font-weight:500;text-shadow:0 1px 4px rgba(255,255,255,.7);white-space:nowrap;display:none}
 .hero-arrow{display:none}
 
 /* ===== MODULES ===== */
-.modules{background:#f0f9ff;padding:56px 48px 44px}
+.modules{background:#f0f9ff;padding:56px 32px 44px}
 .modules-title{font-size:1.8rem;font-weight:700;text-align:center;margin-bottom:6px;color:var(--txt)}
 .modules-sub{text-align:center;color:var(--txl);margin-bottom:36px;font-size:1rem}
-.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%;max-width:1400px;margin:0 auto}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%}
 .mcard{background:#fff;border-radius:16px;padding:36px 28px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;position:relative;overflow:hidden;text-align:center;text-decoration:none;color:inherit;display:block}
 .mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0;transition:height .35s}
 .mcard:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.1);border-color:transparent}
@@ -59,10 +59,10 @@ a{text-decoration:none;color:inherit}
 .footer-light p{margin:0}
 
 /* ===== SKILLS ===== */
-.skills{background:#fff;padding:56px 48px 64px}
+.skills{background:#fff;padding:56px 32px 64px}
 .skills-title{font-size:1.8rem;font-weight:700;text-align:center;margin-bottom:6px;color:var(--txt)}
 .skills-sub{text-align:center;color:var(--txl);margin-bottom:36px;font-size:1rem}
-.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%;max-width:1400px;margin:0 auto}
+.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%}
 .skill-card{border-radius:16px;overflow:hidden;position:relative;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);border:1px solid #e2e8f0;aspect-ratio:16/10}
 .skill-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.4,0,.2,1)}
 .skill-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.12);border-color:transparent}
@@ -153,18 +153,18 @@ a{text-decoration:none;color:inherit}
   .hero-content{padding-top:28px}
   .modules{padding:36px 16px 28px}
   .modules-title{font-size:1.4rem}
-  .mgrid{grid-template-columns:repeat(2,1fr)!important;gap:14px;max-width:100%}
+  .mgrid{grid-template-columns:repeat(2,1fr)!important;gap:14px}
   .mcard{padding:24px 16px}
   .skills{padding:36px 16px 44px}
   .skills-title{font-size:1.4rem}
-  .skills-grid{grid-template-columns:repeat(2,1fr)!important;gap:14px;max-width:100%}
+  .skills-grid{grid-template-columns:repeat(2,1fr)!important;gap:14px}
   .page{padding-top:48px}
   .drag-row{flex-direction:column;align-items:center}
   .score-grid{grid-template-columns:1fr}
 }
 @media(max-width:640px){
-  .mgrid{grid-template-columns:1fr!important;max-width:100%}
-  .skills-grid{grid-template-columns:1fr!important;max-width:100%}
+  .mgrid{grid-template-columns:1fr!important}
+  .skills-grid{grid-template-columns:1fr!important}
   .sim-g{grid-template-columns:1fr!important}
   .hero{height:220px}
   .hero-title{font-size:1.2rem;letter-spacing:2px}
