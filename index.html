@@ -382,6 +382,7 @@ a{text-decoration:none;color:inherit}
 </div>
 
 <script>
+function sp(p){var pages=document.querySelectorAll(".page");pages.forEach(function(pg){pg.style.display="none"});var target=document.getElementById("page-"+p);if(target)target.style.display="block";var navLinks=document.querySelectorAll(".nav-a");navLinks.forEach(function(n){n.classList.remove("active")});var map={home:0,quiz:1,simulate:2};if(map[p]!==undefined&&navLinks[map[p]])navLinks[map[p]].classList.add("active");window.scrollTo(0,0)}
 // Question Bank - 7 courses, multiple difficulty levels
 var QBANK={
 "综合布线系统":{
