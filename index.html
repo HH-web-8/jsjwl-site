@@ -918,6 +918,9 @@ function m4Score(){
   else if(total>=70){ff.className='feedback warning';ff.innerHTML='<p>👍 良好！部分步骤需要加强练习</p>'}
   else{ff.className='feedback error';ff.innerHTML='<p>📚 建议重新练习，重点掌握工具选择和操作规范</p>'}
 }
+function qzSel(el,gid){var g=document.getElementById(gid);var opts=g.querySelectorAll(".qz-opt");opts.forEach(function(o){o.classList.remove("sel")});el.classList.add("sel")}
+function qzGen(){var c=document.querySelector("#qz-courses .qz-opt.sel");var t=document.querySelector("#qz-types .qz-opt.sel");var d=document.querySelector("#qz-diff .qz-opt.sel");var cn=c?c.getAttribute("data-v"):"综合布线系统";var tn=t?t.getAttribute("data-v"):"选择题";var dn=d?d.getAttribute("data-v"):"中等";var msg="请出10道"+cn+"的"+tn+"，难度为"+dn+"，生成Word文档";var url="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v";window.open(url,"_blank")}
+function qzQuick(msg){var url="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v";window.open(url,"_blank")}
 </script>
 </body>
 </html>
