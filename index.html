@@ -990,14 +990,17 @@ function qzSendMsg(msg){
   });
 }
 function qzShowGenerating(msg){
+  // Auto-open bot page so user can see the generation process
+  var botUrl='https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v';
+  window.open(botUrl,'_blank');
   var bd=document.getElementById('qz-chat-bd');
   bd.innerHTML='<div class="qz-generating">'
-    +'<div class="qz-gen-icon">⏳</div>'
-    +'<h3>试卷生成中...</h3>'
-    +'<p class="qz-gen-desc">AI助手已收到您的出题需求，正在生成试卷和Word文档<br>预计需要30-60秒</p>'
+    +'<div class="qz-gen-icon">✅</div>'
+    +'<h3>出题需求已发送！</h3>'
+    +'<p class="qz-gen-desc">AI助手正在为您生成试卷和Word文档<br>已在新窗口打开AI助手，请在该窗口查看和下载</p>'
     +'<div class="qz-gen-prompt"><b>您的需求：</b>'+msg+'</div>'
     +'<div class="qz-prompt-btns">'
-    +'<a class="qz-copy-btn" href="https://www.coze.cn/store/agent/7645540020057423908?bot_id=true&bid=6k773o3k02g1v" target="_blank" rel="noopener" style="text-decoration:none">📄 查看试卷 & 下载Word</a>'
+    +'<a class="qz-copy-btn" href="'+botUrl+'" target="_blank" rel="noopener" style="text-decoration:none">📄 再次打开AI助手</a>'
     +'<button class="qz-open-btn2" onclick="qzCopyText(this)" data-msg="'+msg.replace(/"/g,'&quot;')+'">📋 复制提示词</button>'
     +'</div></div>';
 }
