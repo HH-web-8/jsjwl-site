@@ -93,6 +93,21 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 /* 错题弹窗 */
 .wrong-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
 .wrong-modal.show{display:flex}
+/* 飞书同步弹窗 */
+.feishu-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;display:none;align-items:center;justify-content:center}
+.feishu-modal.show{display:flex}
+.feishu-box{background:#fff;border-radius:16px;padding:28px 24px;width:90%;max-width:460px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.feishu-box h3{margin:0 0 6px;font-size:18px;color:#1a1a2e}
+.feishu-box .subtitle{color:#888;font-size:13px;margin-bottom:18px}
+.feishu-label{font-size:13px;color:#555;margin:12px 0 4px;font-weight:600}
+.feishu-select{width:100%;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;color:#333}
+.feishu-preview{background:#f7f8fa;border-radius:8px;padding:12px;font-size:12px;color:#666;white-space:pre-wrap;max-height:120px;overflow-y:auto;margin:14px 0}
+.feishu-actions{display:flex;gap:10px;margin-top:18px}
+.feishu-actions button{flex:1;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
+.feishu-cancel{background:#f1f5f9;color:#64748b}
+.feishu-confirm{background:linear-gradient(135deg,#3370ff,#5b8def);color:#fff}
+.feishu-confirm:hover{opacity:.9}
+.feishu-success{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;z-index:1200;box-shadow:0 4px 20px rgba(16,185,129,.3);display:none}
 .wrong-panel{background:#fff;border-radius:16px;width:90%;max-width:600px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.2)}
 .wrong-panel-header{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center}
 .wrong-panel-header h3{flex:1;font-size:16px;color:#e53e3e}
@@ -102,6 +117,27 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 .wrong-item .wrong-q{font-size:14px;font-weight:500;color:#2d3748;margin-bottom:6px}
 .wrong-item .wrong-info{font-size:12px;color:#9b2c2c}
 .wrong-empty{text-align:center;padding:40px;color:#a0aec0}
+/* 飞书同步 */
+.feishu-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;background:linear-gradient(135deg,#3370ff,#245bdb);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;transition:all .2s;margin-top:6px}
+.feishu-btn:hover{box-shadow:0 2px 8px rgba(51,112,255,.3);transform:translateY(-1px)}
+.feishu-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.feishu-modal.show{display:flex}
+.feishu-panel{background:#fff;border-radius:16px;width:90%;max-width:440px;box-shadow:0 10px 40px rgba(0,0,0,.2);animation:fadeIn .2s}
+.feishu-panel h3{padding:18px 22px 0;font-size:16px;color:#1a202c}
+.feishu-panel-body{padding:16px 22px}
+.feishu-select-group{margin-bottom:14px}
+.feishu-select-group label{display:block;font-size:13px;color:#4a5568;font-weight:600;margin-bottom:6px}
+.feishu-select-group select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;color:#2d3748;outline:none;background:#f7fafc}
+.feishu-select-group select:focus{border-color:#3370ff}
+.feishu-preview{background:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:12px;color:#718096;max-height:120px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;margin-bottom:14px}
+.feishu-panel-footer{padding:12px 22px 18px;display:flex;gap:10px;justify-content:flex-end}
+.feishu-panel-footer button{padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;border:none}
+.feishu-cancel{background:#edf2f7;color:#4a5568}
+.feishu-cancel:hover{background:#e2e8f0}
+.feishu-confirm{background:linear-gradient(135deg,#3370ff,#245bdb);color:#fff}
+.feishu-confirm:hover{box-shadow:0 2px 6px rgba(51,112,255,.3)}
+.feishu-success{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#48bb78;color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;z-index:300;display:none;animation:fadeIn .2s}
+.feishu-wrong-btns{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #fed7d7;justify-content:flex-end}
 /* 响应式 */
 @media(max-width:768px){
   .main{flex-direction:column}
@@ -168,8 +204,67 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
       <button onclick="closeWrong()">&times;</button>
     </div>
     <div class="wrong-panel-body" id="wrongBody"></div>
+    <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+      <button class="feishu-btn" onclick="openFeishuSync()">📤 同步错题到飞书</button>
+      <button style="background:none;border:1px solid #e2e8f0;color:#718096;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer" onclick="clearWrong()">清空错题</button>
+    </div>
   </div>
 </div>
+
+<!-- 飞书同步弹窗 -->
+<div class="feishu-modal" id="feishuModal">
+  <div class="feishu-panel">
+    <h3>📤 同步到飞书</h3>
+    <div class="feishu-panel-body">
+      <div class="feishu-select-group">
+        <label>分类标签</label>
+        <select id="feishuTag">
+          <option value="错题">错题</option>
+          <option value="易错题">易错题</option>
+          <option value="重点题">重点题</option>
+        </select>
+      </div>
+      <div class="feishu-select-group">
+        <label>错误原因</label>
+        <select id="feishuReason">
+          <option value="概念混淆">概念混淆</option>
+          <option value="记忆不牢">记忆不牢</option>
+          <option value="审题不清">审题不清</option>
+          <option value="计算错误">计算错误</option>
+          <option value="知识盲区">知识盲区</option>
+        </select>
+      </div>
+      <div class="feishu-select-group">
+        <label>知识点分类</label>
+        <select id="feishuCategory">
+          <option value="综合布线系统">综合布线系统</option>
+          <option value="网络基础">网络基础</option>
+          <option value="OSI模型">OSI模型</option>
+          <option value="TCP/IP协议">TCP/IP协议</option>
+          <option value="IP地址与子网">IP地址与子网</option>
+          <option value="网络安全">网络安全</option>
+          <option value="光纤技术">光纤技术</option>
+        </select>
+      </div>
+      <div class="feishu-select-group">
+        <label>同步目标</label>
+        <select id="feishuBot">
+          <option value="quiz">题库练习AI助手（错题记录）</option>
+          <option value="student">学生答疑小助手（问题记录）</option>
+        </select>
+      </div>
+      <label style="font-size:13px;color:#4a5568;font-weight:600;display:block;margin-bottom:6px">预览内容</label>
+      <div class="feishu-preview" id="feishuPreview"></div>
+    </div>
+    <div class="feishu-panel-footer">
+      <button class="feishu-cancel" onclick="closeFeishu()">取消</button>
+      <button class="feishu-confirm" onclick="confirmFeishu()">复制并打开</button>
+    </div>
+  </div>
+</div>
+
+<!-- 飞书同步成功提示 -->
+<div class="feishu-success" id="feishuSuccess">✅ 已复制到剪贴板，请在Bot窗口中粘贴发送</div>
 
 <script>
 /* ========== 题库逻辑 ========== */
@@ -359,6 +454,55 @@ function showWrong(){
 }
 function closeWrong(){document.getElementById('wrongModal').classList.remove('show')}
 function clearWrong(){wrongList=[];localStorage.setItem('wrongList','[]');updateWrongBadge();closeWrong()}
+
+/* ========== 飞书同步功能 ========== */
+let feishuSyncData=null;
+function openFeishuSync(){
+  if(!wrongList.length){alert('暂无错题需要同步');return}
+  feishuSyncData=wrongList;
+  const preview=wrongList.slice(0,3).map(w=>`【${w.q.slice(0,30)}...】→ 你的答案:${w.userAns||'未答'} / 正确:${w.ans}`).join('\n');
+  document.getElementById('feishuPreview').textContent=preview+(wrongList.length>3?'\n...共'+wrongList.length+'道错题':'');
+  document.getElementById('feishuModal').classList.add('show');
+}
+function closeFeishu(){document.getElementById('feishuModal').classList.remove('show')}
+
+function buildFeishuMessage(){
+  const tag=document.getElementById('feishuTag').value;
+  const reason=document.getElementById('feishuReason').value;
+  const category=document.getElementById('feishuCategory').value;
+  const now=new Date().toLocaleString('zh-CN');
+  let msg=`📋【${tag}同步】${now}\n📌 分类：${category}\n❌ 原因：${reason}\n━━━━━━━━━━━━━\n`;
+  feishuSyncData.forEach((w,i)=>{
+    msg+=`\n${i+1}. ${w.q}\n`;
+    if(w.opts)Object.entries(w.opts).forEach(([k,v])=>{msg+=`  ${k}. ${v}\n`});
+    msg+=`  ⭕ 正确答案：${w.ans}\n`;
+    msg+=`  ❌ 你的答案：${w.userAns||'未答'}\n`;
+    if(w.exp)msg+=`  💡 解析：${w.exp}\n`;
+  });
+  msg+=`\n━━━━━━━━━━━━━\n请将以上错题记录到飞书多维表格中。`;
+  return msg;
+}
+
+function confirmFeishu(){
+  const msg=buildFeishuMessage();
+  navigator.clipboard.writeText(msg).then(()=>{
+    closeFeishu();
+    const successEl=document.getElementById('feishuSuccess');
+    successEl.style.display='block';
+    setTimeout(()=>{successEl.style.display='none'},3000);
+    const botChoice=document.getElementById('feishuBot').value;
+    const urls={quiz:'https://www.coze.cn/s/iqhvcTg_ZoU/',student:'https://www.coze.cn/s/jgZXDhiIMho/'};
+    const names={quiz:'题库练习AI助手',student:'学生答疑小助手'};
+    window.open(urls[botChoice],'_blank');
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    closeFeishu();
+    alert('已复制到剪贴板！请打开Bot窗口粘贴发送。');
+    const botChoice=document.getElementById('feishuBot').value;
+    const urls={quiz:'https://www.coze.cn/s/iqhvcTg_ZoU/',student:'https://www.coze.cn/s/jgZXDhiIMho/'};
+    window.open(urls[botChoice],'_blank');
+  });
+}
 function wrongToQuiz(){
   closeWrong();
   if(!wrongList.length)return;
@@ -472,5 +616,37 @@ function formatMsg(text){
   return html;
 }
 </script>
+
+<!-- 飞书同步弹窗 -->
+<div class="feishu-modal" id="feishuModal">
+  <div class="feishu-box">
+    <h3>📤 同步错题到飞书</h3>
+    <div class="subtitle">选择分类后，内容将复制到剪贴板，然后打开飞书助手完成写入</div>
+    <div class="feishu-label">错误原因</div>
+    <select class="feishu-select" id="feishuReason">
+      <option value="概念混淆">概念混淆</option>
+      <option value="计算错误">计算错误</option>
+      <option value="记忆遗漏">记忆遗漏</option>
+      <option value="审题不清">审题不清</option>
+      <option value="逻辑错误">逻辑错误</option>
+    </select>
+    <div class="feishu-label">知识点分类</div>
+    <select class="feishu-select" id="feishuCategory">
+      <option value="综合布线系统">综合布线系统</option>
+      <option value="网络基础">网络基础</option>
+      <option value="网络设备">网络设备</option>
+      <option value="网络安全">网络安全</option>
+      <option value="服务器配置">服务器配置</option>
+      <option value="光纤技术">光纤技术</option>
+    </select>
+    <div class="feishu-label">预览消息内容</div>
+    <div class="feishu-preview" id="feishuPreview"></div>
+    <div class="feishu-actions">
+      <button class="feishu-cancel" onclick="closeFeishu()">取消</button>
+      <button class="feishu-confirm" onclick="doSyncFeishu()">复制并打开飞书助手</button>
+    </div>
+  </div>
+</div>
+<div class="feishu-success" id="feishuSuccess">✅ 已复制到剪贴板，请在飞书助手中粘贴发送</div>
 </body>
 </html>

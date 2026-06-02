@@ -62,6 +62,22 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0fdf4;h
   .msg-thinking-body{margin-top:6px;font-size:13px;color:#555;line-height:1.6;white-space:pre-wrap;max-height:0;overflow:hidden;transition:max-height .3s}
   .msg-thinking-wrap.expanded .msg-thinking-body{max-height:2000px}
   .msg-thinking-wrap:not(.expanded) .msg-thinking-body{max-height:0}
+  .sync-feishu-btn{display:inline-block;margin-top:8px;padding:4px 12px;border:1px solid #48bb78;border-radius:16px;background:#f0fff4;color:#276749;font-size:12px;cursor:pointer;transition:all .2s}
+  .sync-feishu-btn:hover{background:#c6f6d5}
+  .feishu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+  .feishu-overlay.show{display:flex}
+  .feishu-modal{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:420px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+  .feishu-modal h3{margin:0 0 16px;font-size:18px;color:#1a4731}
+  .feishu-modal label{display:block;font-size:13px;color:#555;margin:12px 0 4px;font-weight:600}
+  .feishu-modal select,.feishu-modal textarea{width:100%;padding:8px 12px;border:1px solid #c6f6d5;border-radius:8px;font-size:13px;box-sizing:border-box}
+  .feishu-modal textarea{min-height:60px;resize:vertical}
+  .feishu-btns{display:flex;gap:10px;margin-top:18px}
+  .feishu-btns button{flex:1;padding:10px;border-radius:8px;font-size:14px;cursor:pointer;border:none}
+  .feishu-btns .btn-cancel{background:#edf2f7;color:#4a5568}
+  .feishu-btns .btn-confirm{background:#48bb78;color:#fff}
+  .feishu-btns .btn-confirm:hover{background:#38a169}
+  .sync-toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#276749;color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:1001;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .sync-toast.show{display:block}
 </style>
 </head>
 <body>
@@ -97,6 +113,7 @@ const TOKEN='sat_5fSxGjaYFMpx9nSlIhXwt9mCAxKUKtJbaEwfyCIW9lSewRnHKSa4Qs5QEg5Zr0R
 let userId='u_'+Math.random().toString(36).substr(2,8);
 let conversationId=null;
 let isStreaming=false;
+let msgIdCounter=0;
 
 function addMsg(role,html){
   const d=document.createElement('div');
@@ -155,17 +172,20 @@ async function send(){
             if(obj.type==='answer'&&obj.content){answerText=obj.content;hasAnswer=true;}
           }
           let html='';
-          if(thinkingText)html+=`<div class="msg-thinking-wrap expanded" id="thinking-${msgId}"><div class="msg-thinking-header" onclick="toggleThinking('thinking-${msgId}')"><span class="arrow">▼</span>💭 思考过程</div><div class="msg-thinking-body">${escHtml(thinkingText)}</div></div>`;
+          const curMsgId='st_'+(msgIdCounter++);
+          if(thinkingText)html+=`<div class="msg-thinking-wrap expanded" id="${curMsgId}"><div class="msg-thinking-header" onclick="toggleThinking('${curMsgId}')"><span class="arrow">▼</span>💭 思考中...</div><div class="msg-thinking-body">${escHtml(thinkingText)}</div></div>`;
           if(answerText)html+=formatMsg(answerText);
-          else if(!hasAnswer)html+=thinkingText?'':'<span class="typing-cursor">思考中...</span>';
+          else if(!hasAnswer&&!thinkingText)html+='<span class="typing-cursor">思考中...</span>';
           bubble.innerHTML=html;
           scrollBottom();
         }catch(e){}
       }
     }
+    const fMsgId='stf_'+(msgIdCounter++);
     let finalHtml='';
-    if(thinkingText)finalHtml+=`<div class="msg-thinking-summary">💭 思考完成</div>`;
+    if(thinkingText)finalHtml+=`<div class="msg-thinking-wrap" id="${fMsgId}"><div class="msg-thinking-header" onclick="toggleThinking('${fMsgId}')"><span class="arrow">▶</span>💭 思考完成</div><div class="msg-thinking-body">${escHtml(thinkingText)}</div></div>`;
     finalHtml+=answerText?formatMsg(answerText):'抱歉，未获取到回复，请重试。';
+    if(answerText)finalHtml+=`<button class="sync-feishu-btn" onclick="openFeishuModal(this)">📤 同步到飞书</button>`;
     bubble.innerHTML=finalHtml;
     scrollBottom();
   }catch(e){
@@ -194,6 +214,51 @@ function toggleThinking(id){
   const el=document.getElementById(id);
   if(el){el.classList.toggle('expanded');const arrow=el.querySelector('.arrow');if(arrow)arrow.textContent=el.classList.contains('expanded')?'▼':'▶';}
 }
+const COURSE_MAP={cable:'综合布线系统',net:'网络基础',route:'路由交换技术',security:'网络安全',server:'服务器配置',wireless:'无线网络',program:'网络编程'};
+const REASON_TYPES=['概念理解错误','计算错误','配置步骤遗漏','协议理解偏差','实操流程不熟','其他'];
+let feishuContent='';
+
+function openFeishuModal(btn){
+  const bubble=btn.closest('.msg-bubble');
+  feishuContent=bubble.querySelector('.msg-text')?bubble.querySelector('.msg-text').textContent:btn.previousSibling.textContent||'';
+  const s=document.getElementById('feishuOverlay');
+  s.classList.add('show');
+  document.getElementById('fsReason').value=REASON_TYPES[0];
+  document.getElementById('fsNote').value='';
+}
+function closeFeishu(){document.getElementById('feishuOverlay').classList.remove('show');}
+
+function doSyncFeishu(){
+  const reason=document.getElementById('fsReason').value;
+  const course=document.getElementById('fsCourse').value;
+  const note=document.getElementById('fsNote').value.trim();
+  const courseName=COURSE_MAP[course]||course;
+  const now=new Date().toLocaleString('zh-CN');
+  const msg=`【咨询记录同步】\n时间：${now}\n来源：学生AI答疑助手\n课程：${courseName}\n问题类型：${reason}\n咨询内容：\n${feishuContent.slice(0,800)}${note?'\n补充说明：'+note:''}\n\n请将此记录写入飞书多维表格。`;
+  navigator.clipboard.writeText(msg).then(()=>{
+    closeFeishu();
+    const t=document.getElementById('syncToast');t.classList.add('show');
+    setTimeout(()=>{t.classList.remove('show');window.open('https://www.coze.cn/s/jgZXDhiIMho/','_blank');},1500);
+  }).catch(()=>{closeFeishu();alert('复制失败，请手动复制');});
+}
 </script>
+
+<div class="feishu-overlay" id="feishuOverlay">
+  <div class="feishu-modal">
+    <h3>📤 同步咨询记录到飞书</h3>
+    <label>问题分类</label>
+    <select id="fsReason"><option>概念理解错误</option><option>计算错误</option><option>配置步骤遗漏</option><option>协议理解偏差</option><option>实操流程不熟</option><option>其他</option></select>
+    <label>课程</label>
+    <select id="fsCourse"><option value="cable">综合布线系统</option><option value="net">网络基础</option><option value="route">路由交换技术</option><option value="security">网络安全</option><option value="server">服务器配置</option><option value="wireless">无线网络</option><option value="program">网络编程</option></select>
+    <label>补充说明（可选）</label>
+    <textarea id="fsNote" placeholder="补充说明..."></textarea>
+    <div class="feishu-btns">
+      <button class="btn-cancel" onclick="closeFeishu()">取消</button>
+      <button class="btn-confirm" onclick="doSyncFeishu()">确认同步</button>
+    </div>
+  </div>
+</div>
+<div class="sync-toast" id="syncToast">✅ 已复制到剪贴板，即将打开飞书Bot窗口...</div>
+
 </body>
 </html>
