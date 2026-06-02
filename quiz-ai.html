@@ -485,23 +485,26 @@ function buildFeishuMessage(){
 
 function confirmFeishu(){
   const msg=buildFeishuMessage();
-  navigator.clipboard.writeText(msg).then(()=>{
-    closeFeishu();
-    const successEl=document.getElementById('feishuSuccess');
-    successEl.style.display='block';
-    setTimeout(()=>{successEl.style.display='none'},3000);
-    const botChoice=document.getElementById('feishuBot').value;
-    const urls={quiz:'https://www.coze.cn/s/iqhvcTg_ZoU/',student:'https://www.coze.cn/s/jgZXDhiIMho/'};
-    const names={quiz:'题库练习AI助手',student:'学生答疑小助手'};
-    window.open(urls[botChoice],'_blank');
-  }).catch(()=>{
-    const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-    closeFeishu();
-    alert('已复制到剪贴板！请打开Bot窗口粘贴发送。');
-    const botChoice=document.getElementById('feishuBot').value;
-    const urls={quiz:'https://www.coze.cn/s/iqhvcTg_ZoU/',student:'https://www.coze.cn/s/jgZXDhiIMho/'};
-    window.open(urls[botChoice],'_blank');
-  });
+  if(!msg){alert('无内容可同步');return}
+  const botChoice=document.getElementById('feishuBot').value;
+  const urls={quiz:'https://www.coze.cn/s/iqhvcTg_ZoU/',student:'https://www.coze.cn/s/jgZXDhiIMho/'};
+  const botWin=window.open(urls[botChoice],'_blank');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(()=>{
+      closeFeishu();
+      const el=document.getElementById('feishuSuccess');
+      if(el){el.style.display='block';setTimeout(()=>{el.style.display='none'},4000)}
+      alert('已复制到剪贴板！\n请在打开的Bot窗口中粘贴发送即可写入飞书。'+(botWin?'':'\n⚠️ Bot窗口被拦截，请手动打开'));
+    }).catch(()=>fallbackCopy(msg));
+  }else{fallbackCopy(msg)}
+}
+function fallbackCopy(msg){
+  const ta=document.createElement('textarea');ta.value=msg;ta.style.position='fixed';ta.style.left='-9999px';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta);
+  closeFeishu();
+  alert('已复制到剪贴板！\n请在Bot窗口中粘贴发送即可写入飞书。');
 }
 function wrongToQuiz(){
   closeWrong();
@@ -617,36 +620,7 @@ function formatMsg(text){
 }
 </script>
 
-<!-- 飞书同步弹窗 -->
-<div class="feishu-modal" id="feishuModal">
-  <div class="feishu-box">
-    <h3>📤 同步错题到飞书</h3>
-    <div class="subtitle">选择分类后，内容将复制到剪贴板，然后打开飞书助手完成写入</div>
-    <div class="feishu-label">错误原因</div>
-    <select class="feishu-select" id="feishuReason">
-      <option value="概念混淆">概念混淆</option>
-      <option value="计算错误">计算错误</option>
-      <option value="记忆遗漏">记忆遗漏</option>
-      <option value="审题不清">审题不清</option>
-      <option value="逻辑错误">逻辑错误</option>
-    </select>
-    <div class="feishu-label">知识点分类</div>
-    <select class="feishu-select" id="feishuCategory">
-      <option value="综合布线系统">综合布线系统</option>
-      <option value="网络基础">网络基础</option>
-      <option value="网络设备">网络设备</option>
-      <option value="网络安全">网络安全</option>
-      <option value="服务器配置">服务器配置</option>
-      <option value="光纤技术">光纤技术</option>
-    </select>
-    <div class="feishu-label">预览消息内容</div>
-    <div class="feishu-preview" id="feishuPreview"></div>
-    <div class="feishu-actions">
-      <button class="feishu-cancel" onclick="closeFeishu()">取消</button>
-      <button class="feishu-confirm" onclick="doSyncFeishu()">复制并打开飞书助手</button>
-    </div>
-  </div>
-</div>
+
 <div class="feishu-success" id="feishuSuccess">✅ 已复制到剪贴板，请在飞书助手中粘贴发送</div>
 </body>
 </html>

@@ -235,11 +235,23 @@ function doSyncFeishu(){
   const courseName=COURSE_MAP[course]||course;
   const now=new Date().toLocaleString('zh-CN');
   const msg=`【咨询记录同步】\n时间：${now}\n来源：学生AI答疑助手\n课程：${courseName}\n问题类型：${reason}\n咨询内容：\n${feishuContent.slice(0,800)}${note?'\n补充说明：'+note:''}\n\n请将此记录写入飞书多维表格。`;
-  navigator.clipboard.writeText(msg).then(()=>{
-    closeFeishu();
-    const t=document.getElementById('syncToast');t.classList.add('show');
-    setTimeout(()=>{t.classList.remove('show');window.open('https://www.coze.cn/s/jgZXDhiIMho/','_blank');},1500);
-  }).catch(()=>{closeFeishu();alert('复制失败，请手动复制');});
+  const botWin=window.open('https://www.coze.cn/s/jgZXDhiIMho/','_blank');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(()=>{
+      closeFeishu();
+      const t=document.getElementById('syncToast');t.classList.add('show');
+      setTimeout(()=>{t.classList.remove('show')},4000);
+      alert('已复制到剪贴板！\n请在打开的Bot窗口中粘贴发送即可写入飞书。'+(botWin?'':'\n⚠️ Bot窗口被拦截，请手动打开'));
+    }).catch(()=>fallbackCopyStudent(msg));
+  }else{fallbackCopyStudent(msg)}
+}
+function fallbackCopyStudent(msg){
+  const ta=document.createElement('textarea');ta.value=msg;ta.style.position='fixed';ta.style.left='-9999px';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta);
+  closeFeishu();
+  alert('已复制到剪贴板！\n请在Bot窗口中粘贴发送即可写入飞书。');
 }
 </script>
 
