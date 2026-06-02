@@ -78,6 +78,7 @@ a{text-decoration:none;color:inherit}
 .scard{background:#fff;border-radius:var(--rd);padding:28px 24px;cursor:pointer;transition:all .3s;border:1px solid #e2e8f0;text-align:center;position:relative}
 .scard:hover:not(.dis){transform:translateY(-4px);box-shadow:var(--sh);border-color:var(--acc)}
 .scard.dis{opacity:.6;cursor:default}
+.stag{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:12px;font-size:.8rem;background:#fef3c7;color:#92400e;font-weight:600}
 .sico{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 14px}
 .snum{position:absolute;top:12px;right:16px;font-size:.75rem;color:var(--txl);font-weight:600;background:#f1f5f9;padding:2px 10px;border-radius:20px}
 .scard h3{font-size:1.2rem;font-weight:600;margin-bottom:6px;color:var(--txt)}
@@ -301,10 +302,10 @@ a{text-decoration:none;color:inherit}
 <div class="micon">📝</div>
 <div class="minfo"><h3>题库练习AI助手</h3><p>按课程、题型、难度智能出题，生成Word试卷+答案解析。还能出课后作业和阶段测验。</p><span class="mbtn">开始出题 →</span></div>
 </a>
-<a class="mcard mc-p" href="fiber-splicing.html">
+<div class="mcard mc-p" onclick="sp('sim')">
 <div class="micon">🔬</div>
-<div class="minfo"><h3>虚拟仿真实训平台</h3><p>光纤熔接3D全真模拟操作，8步完整交互实训，含工具认识、剥线清洁、切割熔接、热缩保护、智能评分。</p><span class="mbtn">进入实训 →</span></div>
-</a>
+<div class="minfo"><h3>虚拟仿真实训平台</h3><p>沉浸式3D交互模拟操作</p><span class="mbtn">进入实训 →</span></div>
+</div>
 </div>
 </section>
 
@@ -404,23 +405,26 @@ tml lang="zh-CN">
 </div>
 <div class="sim-ct" style="max-width:100%;padding:40px 32px">
 <div class="sim-g">
-<div class="scard" onclick="sp('twisted-pair')">
+<div class="scard dis" title="开发中">
 <div class="sico" style="background:#dbeafe;color:#2563eb">🔌</div>
 <span class="snum">1</span>
 <h3>双绞线T568B端接实操</h3>
 <p>学习T568B标准线序，完成双绞线端接操作</p>
+<span class="stag">开发中</span>
 </div>
-<div class="scard" onclick="sp('patch-panel')">
+<div class="scard dis" title="开发中">
 <div class="sico" style="background:#dbeafe;color:#2563eb">📋</div>
 <span class="snum">2</span>
 <h3>配线架打线实操</h3>
 <p>学习配线架打线规范，完成线缆终接操作</p>
+<span class="stag">开发中</span>
 </div>
-<div class="scard" onclick="sp('link-test')">
+<div class="scard dis" title="开发中">
 <div class="sico" style="background:#dbeafe;color:#2563eb">📊</div>
 <span class="snum">3</span>
 <h3>链路测试与认证</h3>
 <p>学习使用测试仪进行链路测试和认证</p>
+<span class="stag">开发中</span>
 </div>
 <a class="scard" href="fiber-splicing.html">
 <div class="sico" style="background:#f0fdf4;color:#059669">💡</div>
@@ -428,6 +432,20 @@ tml lang="zh-CN">
 <h3>光纤熔接实操</h3>
 <p>光纤剥覆、清洁、切割、对准、熔接全流程3D仿真操作</p>
 </a>
+<div class="scard dis" title="开发中">
+<div class="sico" style="background:#fef3c7;color:#d97706">🏢</div>
+<span class="snum">5</span>
+<h3>办公室网络布线</h3>
+<p>学习办公室场景综合布线设计与施工</p>
+<span class="stag">开发中</span>
+</div>
+<div class="scard dis" title="开发中">
+<div class="sico" style="background:#ede9fe;color:#7c3aed">🏫</div>
+<span class="snum">6</span>
+<h3>教学楼网络布线</h3>
+<p>学习教学楼场景综合布线设计与施工</p>
+<span class="stag">开发中</span>
+</div>
 </div>
 </div>
 </div>
