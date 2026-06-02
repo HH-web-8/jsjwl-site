@@ -217,10 +217,11 @@ function toggleThinking(id){
 const COURSE_MAP={cable:'综合布线系统',net:'网络基础',route:'路由交换技术',security:'网络安全',server:'服务器配置',wireless:'无线网络',program:'网络编程'};
 const REASON_TYPES=['概念理解错误','计算错误','配置步骤遗漏','协议理解偏差','实操流程不熟','其他'];
 let feishuContent='';
+let feishuSyncing=false;
 
 function openFeishuModal(btn){
   const bubble=btn.closest('.msg-bubble');
-  feishuContent=bubble.querySelector('.msg-text')?bubble.querySelector('.msg-text').textContent:btn.previousSibling.textContent||'';
+  feishuContent=bubble.textContent.replace('📤 同步到飞书','').trim().slice(0,800);
   const s=document.getElementById('feishuOverlay');
   s.classList.add('show');
   document.getElementById('fsReason').value=REASON_TYPES[0];
@@ -228,30 +229,70 @@ function openFeishuModal(btn){
 }
 function closeFeishu(){document.getElementById('feishuOverlay').classList.remove('show');}
 
-function doSyncFeishu(){
+/* 通过Coze API自动写入飞书（不再需要剪贴板） */
+async function doSyncFeishu(){
+  if(feishuSyncing)return;
+  feishuSyncing=true;
+  closeFeishu();
+  showToast('📤 正在同步到飞书...','syncing');
+
   const reason=document.getElementById('fsReason').value;
   const course=document.getElementById('fsCourse').value;
   const note=document.getElementById('fsNote').value.trim();
   const courseName=COURSE_MAP[course]||course;
   const now=new Date().toLocaleString('zh-CN');
-  const msg=`【咨询记录同步】\n时间：${now}\n来源：学生AI答疑助手\n课程：${courseName}\n问题类型：${reason}\n咨询内容：\n${feishuContent.slice(0,800)}${note?'\n补充说明：'+note:''}\n\n请将此记录写入飞书多维表格。`;
-  const botWin=window.open('https://www.coze.cn/s/jgZXDhiIMho/','_blank');
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(msg).then(()=>{
-      closeFeishu();
-      const t=document.getElementById('syncToast');t.classList.add('show');
-      setTimeout(()=>{t.classList.remove('show')},4000);
-      alert('已复制到剪贴板！\n请在打开的Bot窗口中粘贴发送即可写入飞书。'+(botWin?'':'\n⚠️ Bot窗口被拦截，请手动打开'));
-    }).catch(()=>fallbackCopyStudent(msg));
-  }else{fallbackCopyStudent(msg)}
+  const msg=`【咨询记录同步】\n时间：${now}\n来源：学生AI答疑助手\n课程：${courseName}\n问题类型：${reason}\n咨询内容：\n${feishuContent}${note?'\n补充说明：'+note:''}\n\n请将此记录写入飞书多维表格。`;
+
+  try{
+    const body={
+      bot_id:'7645540020057374756',
+      user_id:'feishu_sync_'+(localStorage.getItem('feishuUid')||('u_'+Math.random().toString(36).substr(2,8))),
+      stream:false,
+      auto_save_history:true,
+      additional_messages:[{role:'user',content:msg,content_type:'text'}]
+    };
+    const resp=await fetch(API_URL,{method:'POST',headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!resp.ok){throw new Error('API错误:'+resp.status);}
+    const data=await resp.json();
+    if(data.code===0&&data.data){
+      const chatId=data.data.id;
+      const convId=data.data.conversation_id;
+      const success=await pollChatResult(chatId,convId);
+      showToast(success?'✅ 咨询记录已同步到飞书':'⚠️ 同步可能失败，请稍后检查','success');
+    }else{
+      showToast('⚠️ 飞书同步失败','error');
+    }
+  }catch(e){
+    console.error('飞书同步异常:',e);
+    showToast('⚠️ 飞书同步异常','error');
+  }
+  feishuSyncing=false;
 }
-function fallbackCopyStudent(msg){
-  const ta=document.createElement('textarea');ta.value=msg;ta.style.position='fixed';ta.style.left='-9999px';
-  document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy')}catch(e){}
-  document.body.removeChild(ta);
-  closeFeishu();
-  alert('已复制到剪贴板！\n请在Bot窗口中粘贴发送即可写入飞书。');
+
+/* 轮询Chat完成状态 */
+async function pollChatResult(chatId,convId){
+  for(let i=0;i<15;i++){
+    await new Promise(r=>setTimeout(r,5000));
+    try{
+      const resp=await fetch(`https://api.coze.cn/v3/chat/retrieve?chat_id=${chatId}&conversation_id=${convId}`,{headers:{'Authorization':'Bearer '+TOKEN}});
+      const data=await resp.json();
+      if(data.code===0&&data.data){
+        if(data.data.status==='completed')return true;
+        if(data.data.status==='failed')return false;
+      }
+    }catch(e){console.error('轮询异常:',e);}
+  }
+  return false;
+}
+
+/* Toast提示 */
+function showToast(msg,type){
+  let el=document.getElementById('syncToast');
+  const colors={success:'background:#48bb78',error:'background:#e53e3e',syncing:'background:#3370ff'};
+  el.style.cssText=colors[type]||colors.syncing;
+  el.textContent=msg;
+  el.classList.add('show');
+  if(type!=='syncing'){setTimeout(()=>{el.classList.remove('show');},3000);}
 }
 </script>
 
@@ -266,11 +307,11 @@ function fallbackCopyStudent(msg){
     <textarea id="fsNote" placeholder="补充说明..."></textarea>
     <div class="feishu-btns">
       <button class="btn-cancel" onclick="closeFeishu()">取消</button>
-      <button class="btn-confirm" onclick="doSyncFeishu()">确认同步</button>
+      <button class="btn-confirm" onclick="doSyncFeishu()">📤 自动同步到飞书</button>
     </div>
   </div>
 </div>
-<div class="sync-toast" id="syncToast">✅ 已复制到剪贴板，即将打开飞书Bot窗口...</div>
+<div class="sync-toast" id="syncToast">📤 同步中...</div>
 
 </body>
 </html>
