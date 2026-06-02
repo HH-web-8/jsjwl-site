@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>题库练习AI助手 - 山东工业技师学院线上课堂</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f5fa;min-height:100vh;display:flex;flex-direction:column}
+.top-bar{background:linear-gradient(135deg,#8b5a1b,#c07830);color:#fff;padding:12px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(139,90,27,.3)}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;font-size:15px;padding:6px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.3);transition:all .2s}
+.back-btn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.5)}
+.top-bar h1{font-size:18px;font-weight:700;flex:1;text-align:center;padding-right:80px}
+.hero{background:linear-gradient(135deg,#8b5a1b 0%,#c07830 40%,#e8a040 100%);padding:40px 24px 32px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:500px;height:500px;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);border-radius:50%}
+.hero::after{content:'';position:absolute;bottom:-30%;left:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);border-radius:50%}
+.hero-icon{font-size:56px;margin-bottom:12px;display:block;position:relative;z-index:1}
+.hero h2{font-size:28px;color:#fff;font-weight:800;margin-bottom:8px;position:relative;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hero p{font-size:15px;color:rgba(255,255,255,.85);max-width:600px;margin:0 auto;line-height:1.6;position:relative;z-index:1}
+.hero-tags{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;position:relative;z-index:1}
+.hero-tag{background:rgba(255,255,255,.18);color:#fff;padding:4px 14px;border-radius:20px;font-size:13px;backdrop-filter:blur(4px)}
+.chat-section{flex:1;display:flex;flex-direction:column;max-width:860px;width:100%;margin:24px auto;padding:0 16px}
+.chat-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(139,90,27,.1);overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:500px}
+.chat-header{background:linear-gradient(90deg,#8b5a1b,#c07830);color:#fff;padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600}
+.chat-header .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.chat-body{flex:1;position:relative;overflow:hidden}
+.chat-body iframe{width:100%;height:100%;border:none;min-height:460px}
+.chat-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#faf5ee,#f8f0e0);padding:40px;text-align:center}
+.chat-fallback-icon{font-size:64px;margin-bottom:16px}
+.chat-fallback h3{font-size:20px;color:#8b5a1b;margin-bottom:8px}
+.chat-fallback p{font-size:14px;color:#64748b;margin-bottom:24px;line-height:1.6}
+.cta-section{padding:20px 16px 32px;text-align:center}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#8b5a1b,#c07830);color:#fff;text-decoration:none;padding:14px 36px;border-radius:12px;font-size:16px;font-weight:700;box-shadow:0 4px 16px rgba(139,90,27,.3);transition:all .3s}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(139,90,27,.4)}
+.cta-btn svg{width:20px;height:20px;fill:currentColor}
+.cta-hint{font-size:12px;color:#94a3b8;margin-top:10px}
+@media(max-width:640px){
+  .hero h2{font-size:22px}
+  .hero p{font-size:13px}
+  .chat-card{min-height:400px}
+  .top-bar h1{font-size:15px;padding-right:60px}
+  .cta-btn{padding:12px 28px;font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html" class="back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    返回首页
+  </a>
+  <h1>题库练习AI助手</h1>
+</div>
+
+<div class="hero">
+  <span class="hero-icon">📝</span>
+  <h2>题库练习AI助手</h2>
+  <p>根据课程标准和职业标准自动生成各类型试题，支持自定义题型、难度和数量，助力高效备考</p>
+  <div class="hero-tags">
+    <span class="hero-tag">智能出题</span>
+    <span class="hero-tag">多题型支持</span>
+    <span class="hero-tag">难度可调</span>
+    <span class="hero-tag">职业标准</span>
+  </div>
+</div>
+
+<div class="chat-section">
+  <div class="chat-card">
+    <div class="chat-header">
+      <span class="dot"></span>
+      题库练习AI助手 · 在线
+    </div>
+    <div class="chat-body">
+      <iframe src="https://www.coze.cn/s/iqhvcTg_ZoU/" allow="microphone;camera" loading="lazy"></iframe>
+      <div class="chat-fallback" style="display:none">
+        <div class="chat-fallback-icon">💬</div>
+        <h3>聊天窗口加载中...</h3>
+        <p>如无法加载，请点击下方按钮直接进入COZE官方智能体对话</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <a href="https://www.coze.cn/s/iqhvcTg_ZoU/" target="_blank" rel="noopener" class="cta-btn">
+    <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+    进入COZE官方智能体
+  </a>
+  <div class="cta-hint">点击上方按钮在COZE平台与智能体完整对话</div>
+</div>
+
+<script>
+var iframe = document.querySelector('.chat-body iframe');
+var fallback = document.querySelector('.chat-fallback');
+iframe.onerror = function(){ iframe.style.display='none'; fallback.style.display='flex'; };
+iframe.onload = function(){
+  try{ var doc = iframe.contentDocument; if(!doc || !doc.body || doc.body.innerHTML===''){ throw 0; } }
+  catch(e){ iframe.style.display='none'; fallback.style.display='flex'; }
+};
+</script>
+</body>
+</html>
