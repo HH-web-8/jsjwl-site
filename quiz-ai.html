@@ -7,98 +7,291 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f5fa;min-height:100vh;display:flex;flex-direction:column}
-.top-bar{background:linear-gradient(135deg,#8b5a1b,#c07830);color:#fff;padding:12px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(139,90,27,.3)}
+/* 顶部导航 */
+.top-bar{background:linear-gradient(135deg,#5c3a1a,#8c5a2a);color:#fff;padding:12px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(92,58,26,.3)}
 .back-btn{display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;font-size:15px;padding:6px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.3);transition:all .2s}
 .back-btn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.5)}
 .top-bar h1{font-size:18px;font-weight:700;flex:1;text-align:center;padding-right:80px}
-.hero{background:linear-gradient(135deg,#8b5a1b 0%,#c07830 40%,#e8a040 100%);padding:40px 24px 32px;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:500px;height:500px;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);border-radius:50%}
-.hero::after{content:'';position:absolute;bottom:-30%;left:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);border-radius:50%}
-.hero-icon{font-size:56px;margin-bottom:12px;display:block;position:relative;z-index:1}
-.hero h2{font-size:28px;color:#fff;font-weight:800;margin-bottom:8px;position:relative;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.2)}
-.hero p{font-size:15px;color:rgba(255,255,255,.85);max-width:600px;margin:0 auto;line-height:1.6;position:relative;z-index:1}
-.hero-tags{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;position:relative;z-index:1}
-.hero-tag{background:rgba(255,255,255,.18);color:#fff;padding:4px 14px;border-radius:20px;font-size:13px;backdrop-filter:blur(4px)}
-.chat-section{flex:1;display:flex;flex-direction:column;max-width:860px;width:100%;margin:24px auto;padding:0 16px}
-.chat-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(139,90,27,.1);overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:500px}
-.chat-header{background:linear-gradient(90deg,#8b5a1b,#c07830);color:#fff;padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600}
-.chat-header .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.chat-body{flex:1;position:relative;overflow:hidden}
-.chat-body iframe{width:100%;height:100%;border:none;min-height:460px}
-.chat-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#faf5ee,#f8f0e0);padding:40px;text-align:center}
-.chat-fallback-icon{font-size:64px;margin-bottom:16px}
-.chat-fallback h3{font-size:20px;color:#8b5a1b;margin-bottom:8px}
-.chat-fallback p{font-size:14px;color:#64748b;margin-bottom:24px;line-height:1.6}
-.cta-section{padding:20px 16px 32px;text-align:center}
-.cta-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#8b5a1b,#c07830);color:#fff;text-decoration:none;padding:14px 36px;border-radius:12px;font-size:16px;font-weight:700;box-shadow:0 4px 16px rgba(139,90,27,.3);transition:all .3s}
-.cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(139,90,27,.4)}
-.cta-btn svg{width:20px;height:20px;fill:currentColor}
-.cta-hint{font-size:12px;color:#94a3b8;margin-top:10px}
-@media(max-width:640px){
-  .hero h2{font-size:22px}
-  .hero p{font-size:13px}
-  .chat-card{min-height:400px}
+/* 主布局：左右分栏 */
+.split{flex:1;display:flex;overflow:hidden}
+/* 左侧：题库练习 */
+.left-panel{flex:3;background:#fff;border-right:1px solid #e0e8f0;display:flex;flex-direction:column;overflow:hidden}
+.left-hd{background:linear-gradient(135deg,#e85d04,#f59e0b);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px}
+.left-hd h2{font-size:18px;font-weight:700}
+.left-hd .score{margin-left:auto;font-size:14px;background:rgba(255,255,255,.2);padding:4px 14px;border-radius:12px}
+.left-bd{flex:1;overflow-y:auto;padding:20px 24px}
+/* 课程选择卡片 */
+.sel-card{background:#f8fbff;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #e0e8f0}
+.sel-card h3{font-size:15px;color:#1a3a5c;margin-bottom:10px;font-weight:700}
+.sel-opts{display:flex;flex-wrap:wrap;gap:8px}
+.sel-opt{padding:8px 16px;border-radius:8px;border:1px solid #d0e0f0;background:#fff;cursor:pointer;font-size:14px;transition:all .2s;color:#4a6a8a}
+.sel-opt:hover{border-color:#e85d04;color:#e85d04}
+.sel-opt.active{background:#e85d04;color:#fff;border-color:#e85d04;font-weight:700}
+.start-btn{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#e85d04,#f59e0b);color:#fff;font-size:17px;font-weight:700;cursor:pointer;transition:all .3s;box-shadow:0 4px 16px rgba(232,93,4,.25)}
+.start-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,93,4,.35)}
+/* 练习区域 */
+.quiz-area{display:none}
+.quiz-progress{height:6px;background:#e0e8f0;border-radius:3px;margin-bottom:16px;overflow:hidden}
+.quiz-progress-bar{height:100%;background:linear-gradient(90deg,#e85d04,#f59e0b);border-radius:3px;transition:width .3s}
+.quiz-qnum{font-size:13px;color:#8a9ab0;margin-bottom:8px}
+.quiz-qtext{font-size:17px;color:#1a3a5c;font-weight:600;margin-bottom:16px;line-height:1.6}
+.quiz-qopts{display:flex;flex-direction:column;gap:10px}
+.qopt{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:10px;border:1.5px solid #e0e8f0;cursor:pointer;transition:all .2s;background:#fff}
+.qopt:hover{border-color:#e85d04;background:#fff8f0}
+.qopt-label{width:28px;height:28px;border-radius:50%;background:#f0f5fa;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#4a6a8a;flex-shrink:0}
+.qopt-text{font-size:15px;color:#3a5a7a;line-height:1.5;padding-top:3px}
+.qopt.correct{border-color:#16a34a;background:#f0fdf4}
+.qopt.correct .qopt-label{background:#16a34a;color:#fff}
+.qopt.wrong{border-color:#dc2626;background:#fef2f2}
+.qopt.wrong .qopt-label{background:#dc2626;color:#fff}
+.qopt.disabled{pointer-events:none;opacity:.85}
+.feedback{margin-top:16px;padding:14px;border-radius:10px;font-size:14px;line-height:1.6;display:none}
+.feedback.correct{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;display:block}
+.feedback.wrong{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;display:block}
+.qnav{margin-top:16px;display:none;justify-content:flex-end}
+.qnav-btn{padding:10px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#e85d04,#f59e0b);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
+.qnav-btn:hover{transform:translateY(-1px)}
+/* 成绩 */
+.result{text-align:center;padding:32px 0}
+.result-score{font-size:56px;font-weight:800;line-height:1}
+.result-unit{font-size:20px;font-weight:400}
+.result-grade{font-size:22px;font-weight:700;margin:8px 0}
+.result-info{font-size:14px;color:#6b7f99;margin-bottom:20px}
+.result-btns{display:flex;justify-content:center;gap:12px}
+/* 右侧：AI助手 */
+.right-panel{flex:2;background:#f8fbff;display:flex;flex-direction:column;overflow:hidden;min-width:300px}
+.right-hd{background:linear-gradient(135deg,#e85d04,#f59e0b);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px}
+.right-hd h2{font-size:18px;font-weight:700}
+.right-bd{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;position:relative}
+.ai-placeholder{text-align:center}
+.ai-placeholder-icon{font-size:64px;margin-bottom:16px;display:block;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.ai-placeholder h3{font-size:18px;color:#5c3a1a;margin-bottom:8px}
+.ai-placeholder p{font-size:13px;color:#8a7a6a;margin-bottom:20px;line-height:1.6}
+.ai-start-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e85d04,#f59e0b);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;box-shadow:0 4px 16px rgba(232,93,4,.25)}
+.ai-start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(232,93,4,.35)}
+.ai-loading{position:absolute;top:0;left:0;right:0;bottom:0;display:none;align-items:center;justify-content:center;background:rgba(248,251,255,.95);z-index:2}
+.ai-loading.active{display:flex}
+.ai-loading-text{font-size:15px;color:#8a7a6a}
+.ai-loading-text::after{content:'...';animation:dots 1.5s steps(3) infinite}
+@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+/* COZE按钮 */
+.coze-link{margin-top:24px;padding:12px 24px;border:2px solid #e85d04;border-radius:10px;color:#e85d04;font-weight:700;font-size:14px;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.coze-link:hover{background:#e85d04;color:#fff}
+.coze-link svg{width:16px;height:16px;fill:currentColor}
+/* 响应式：手机端上下布局 */
+@media(max-width:768px){
+  .split{flex-direction:column}
+  .left-panel{flex:none;height:55vh;border-right:none;border-bottom:1px solid #e0e8f0}
+  .right-panel{flex:1;min-width:auto}
   .top-bar h1{font-size:15px;padding-right:60px}
-  .cta-btn{padding:12px 28px;font-size:14px}
 }
 </style>
 </head>
 <body>
-
+<!-- 顶部导航 -->
 <div class="top-bar">
-  <a href="index.html" class="back-btn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    返回首页
-  </a>
-  <h1>题库练习AI助手</h1>
+  <a class="back-btn" href="index.html">← 返回首页</a>
+  <h1>题库练习 & AI助手</h1>
 </div>
 
-<div class="hero">
-  <span class="hero-icon">📝</span>
-  <h2>题库练习AI助手</h2>
-  <p>根据课程标准和职业标准自动生成各类型试题，支持自定义题型、难度和数量，助力高效备考</p>
-  <div class="hero-tags">
-    <span class="hero-tag">智能出题</span>
-    <span class="hero-tag">多题型支持</span>
-    <span class="hero-tag">难度可调</span>
-    <span class="hero-tag">职业标准</span>
-  </div>
-</div>
-
-<div class="chat-section">
-  <div class="chat-card">
-    <div class="chat-header">
-      <span class="dot"></span>
-      题库练习AI助手 · 在线
+<div class="split">
+  <!-- 左侧：题库练习 -->
+  <div class="left-panel">
+    <div class="left-hd">
+      <h2>📝 智能题库练习</h2>
+      <span class="score" id="scoreDisplay">得分：0</span>
     </div>
-    <div class="chat-body">
-      <iframe src="https://www.coze.cn/s/iqhvcTg_ZoU/" allow="microphone;camera" loading="lazy"></iframe>
-      <div class="chat-fallback" style="display:none">
-        <div class="chat-fallback-icon">💬</div>
-        <h3>聊天窗口加载中...</h3>
-        <p>如无法加载，请点击下方按钮直接进入COZE官方智能体对话</p>
+    <div class="left-bd" id="leftBd">
+      <!-- 选择区域 -->
+      <div class="sel-area" id="selArea">
+        <div class="sel-card">
+          <h3>📚 选择课程</h3>
+          <div class="sel-opts" id="courseOpts"></div>
+        </div>
+        <div class="sel-card">
+          <h3>🎯 难度等级</h3>
+          <div class="sel-opts" id="diffOpts"></div>
+        </div>
+        <button class="start-btn" onclick="startPractice()">🎯 开始练习</button>
+        <div style="margin-top:16px;padding:14px;background:#fff8f0;border-radius:8px;border:1px solid #fde0c0;font-size:13px;color:#8a6a4a;line-height:1.6">
+          <b>💡 使用提示：</b>选择课程和难度后点击"开始练习"，即可在线答题。右侧AI助手可帮你生成新试卷。
+        </div>
+      </div>
+      <!-- 练习区域 -->
+      <div class="quiz-area" id="quizArea">
+        <div class="quiz-progress"><div class="quiz-progress-bar" id="progressBar"></div></div>
+        <div class="quiz-qnum" id="qnum"></div>
+        <div class="quiz-qtext" id="qtext"></div>
+        <div class="quiz-qopts" id="qopts"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="qnav" id="qnav"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧：AI助手 -->
+  <div class="right-panel">
+    <div class="right-hd">
+      <h2>🤖 题库AI助手</h2>
+    </div>
+    <div class="right-bd" id="aiBody">
+      <div class="ai-placeholder">
+        <span class="ai-placeholder-icon">💬</span>
+        <h3>AI出题助手</h3>
+        <p>自动生成试卷、出题、解析<br>支持Word试卷下载</p>
+        <button class="ai-start-btn" onclick="openChat()">💬 开始对话</button>
+        <br>
+        <a class="coze-link" href="https://www.coze.cn/s/iqhvcTg_ZoU/" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+          进入COZE官方智能体
+        </a>
+      </div>
+      <div class="ai-loading" id="aiLoading">
+        <span class="ai-loading-text">正在打开对话窗口</span>
       </div>
     </div>
   </div>
 </div>
 
-<div class="cta-section">
-  <a href="https://www.coze.cn/s/iqhvcTg_ZoU/" target="_blank" rel="noopener" class="cta-btn">
-    <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-    进入COZE官方智能体
-  </a>
-  <div class="cta-hint">点击上方按钮在COZE平台与智能体完整对话</div>
-</div>
-
 <script>
-var iframe = document.querySelector('.chat-body iframe');
-var fallback = document.querySelector('.chat-fallback');
-iframe.onerror = function(){ iframe.style.display='none'; fallback.style.display='flex'; };
-iframe.onload = function(){
-  try{ var doc = iframe.contentDocument; if(!doc || !doc.body || doc.body.innerHTML===''){ throw 0; } }
-  catch(e){ iframe.style.display='none'; fallback.style.display='flex'; }
-};
+// ===== 题库数据 =====
+var QBANK={"综合布线系统":{"基础":[{q:"T568B标准中，双绞线第1芯的颜色是？",o:["白橙","白绿","橙","蓝"],a:0,e:"T568B线序：1-白橙 2-橙 3-白绿 4-蓝 5-白蓝 6-绿 7-白棕 8-棕"},{q:"综合布线系统中，直接连接用户终端设备的子系统是？",o:["工作区子系统","配线子系统","干线子系统","设备间子系统"],a:0,e:"工作区子系统由信息插座和终端设备跳线组成，直接连接用户终端"},{q:"超五类双绞线(CAT5e)支持的最高传输速率是？",o:["100Mbps","1000Mbps","10Gbps","100Mbps"],a:1,e:"CAT5e支持最高1000Mbps（1Gbps），CAT5最高100Mbps"},{q:"RJ-45水晶头共有多少个金属触点？",o:["4个","6个","8个","10个"],a:2,e:"RJ-45水晶头有8个金属触点，对应双绞线的8根芯线"},{q:"综合布线系统中，配线架的作用是？",o:["信号放大","线路终接和跳线管理","电源分配","网络路由"],a:1,e:"配线架用于终接水平线缆，并通过跳线连接交换机等设备"}],"中等":[{q:"T568A和T568B的主要区别是？",o:["线芯数量不同","第1/2和第3/6对线序互换","屏蔽方式不同","传输速率不同"],a:1,e:"T568A第1-2对是白绿/绿，第3-6对是白橙/蓝；T568B正好互换"},{q:"水平布线子系统中，双绞线电缆的最大长度不应超过？",o:["50米","90米","100米","150米"],a:1,e:"水平子系统永久链路最长90米，加上跳线总信道不超过100米"},{q:"光纤熔接时，熔接机的放电时间通常为？",o:["1-3秒","5-10秒","15-20秒","30秒以上"],a:1,e:"光纤熔接机放电时间通常5-10秒，具体取决于光纤类型和机器参数"},{q:"综合布线系统中，管理间的功能是？",o:["存放网络设备","楼层配线管理","垂直干线连接","电源管理"],a:1,e:"管理间（电信间）用于楼层配线设备安装和线缆管理"},{q:"6类双绞线(CAT6)在短距离内可支持的传输速率为？",o:["1Gbps","2.5Gbps","5Gbps","10Gbps"],a:3,e:"CAT6在55米内可支持10Gbps传输速率"}],"较难":[{q:"OTDR测试光纤时，事件点的判断依据是？",o:["信号衰减突然变化","信号完全消失","信号频率变化","信号相位偏移"],a:0,e:"OTDR通过检测瑞利散射和菲涅尔反射来定位事件点（接头、断裂等）"},{q:"综合布线系统信道测试中，近端串扰(NEXT)测试不合格最可能的原因是？",o:["线缆过长","端接不规范","温度过高","弯折半径过小"],a:1,e:"端接不规范（如线对解绞过多）会导致NEXT测试不合格"},{q:"MPO多芯光纤连接器常见芯数不包括？",o:["12芯","24芯","48芯","64芯"],a:3,e:"MPO常见规格为12、24、48芯，64芯较少使用"},{q:"综合布线永久链路测试与信道测试的区别是？",o:["测试仪器不同","永久链路不含跳线，信道包含跳线","测试频率不同","测试标准不同"],a:1,e:"永久链路测试不含设备跳线，信道测试包含两端跳线"},{q:"单模光纤的纤芯直径通常为？",o:["8-10μm","50μm","62.5μm","125μm"],a:0,e:"单模光纤纤芯8-10μm（常用9μm），多模常用50μm或62.5μm"}]},"网络基础":{"基础":[{q:"OSI参考模型共分为几层？",o:["4层","5层","6层","7层"],a:3,e:"OSI七层模型：物理层、数据链路层、网络层、传输层、会话层、表示层、应用层"},{q:"IP地址192.168.1.1属于哪类地址？",o:["A类","B类","C类","D类"],a:2,e:"C类地址范围192.0.0.0-223.255.255.255，192.168开头是C类私有地址"},{q:"HTTP协议默认使用的端口号是？",o:["21","22","80","443"],a:2,e:"HTTP默认端口80，HTTPS默认443，FTP默认21，SSH默认22"},{q:"MAC地址由多少位二进制组成？",o:["16位","32位","48位","64位"],a:2,e:"MAC地址48位（6字节），通常用12位十六进制表示"},{q:"TCP和UDP的主要区别是？",o:["TCP面向连接，UDP无连接","TCP更快","UDP更安全","无区别"],a:0,e:"TCP是面向连接的可靠传输协议，UDP是无连接的不可靠传输协议"}],"中等":[{q:"子网掩码255.255.255.0对应的CIDR表示是？",o:["/16","/20","/24","/28"],a:2,e:"255.255.255.0即24位1，CIDR表示为/24"},{q:"ARP协议的作用是？",o:["域名解析","IP地址到MAC地址映射","路由选择","流量控制"],a:1,e:"ARP协议将IP地址解析为MAC地址，RARP则相反"},{q:"TCP三次握手中，第二次握手发送的标志位是？",o:["SYN","ACK","SYN+ACK","FIN"],a:2,e:"三次握手：SYN → SYN+ACK → ACK，第二次是SYN+ACK"},{q:"VLAN的主要作用是？",o:["提高带宽","隔离广播域","加密数据","负载均衡"],a:1,e:"VLAN通过逻辑划分隔离广播域，减少广播风暴"},{q:"DNS服务器使用的默认端口是？",o:["25","53","80","110"],a:1,e:"DNS默认使用53端口，SMTP使用25，POP3使用110"}],"较难":[{q:"BGP协议属于哪种路由类型？",o:["内部网关协议","外部网关协议","静态路由","直连路由"],a:1,e:"BGP是边界网关协议，用于自治系统之间的路由，属于EGP"},{q:"TCP拥塞控制中，慢启动阶段拥塞窗口的增长方式是？",o:["线性增长","指数增长","不增长","随机增长"],a:1,e:"慢启动阶段cwnd指数增长（每RTT翻倍），拥塞避免阶段线性增长"},{q:"OSPF协议中，Area 0的作用是？",o:["普通区域","骨干区域","末梢区域","非纯末梢区域"],a:1,e:"Area 0是OSPF的骨干区域，所有非骨干区域必须与Area 0直接相连"},{q:"IPv6地址长度为多少位？",o:["32位","64位","128位","256位"],a:2,e:"IPv6地址128位，是IPv4（32位）的4倍"},{q:"STP协议的最终目的是？",o:["提高带宽","防止二层环路","IP路由","VLAN划分"],a:1,e:"STP（生成树协议）通过阻塞冗余链路防止二层环路"}]},"网络设备配置":{"基础":[{q:"Cisco路由器进入特权模式的命令是？",o:["enable","configure","interface","router"],a:0,e:"enable命令从用户模式进入特权模式，configure进入全局配置模式"},{q:"交换机的基本功能是？",o:["路由选择","帧转发和MAC地址学习","NAT转换","DHCP分配"],a:1,e:"交换机基于MAC地址表进行帧转发和学习"},{q:"保存Cisco设备配置的命令是？",o:["save","write memory","copy running-config startup-config","commit"],a:2,e:"copy running-config startup-config将当前配置保存到NVRAM"},{q:"查看路由表的命令是？",o:["show ip route","show arp","show mac","show vlan"],a:0,e:"show ip route显示路由表，show arp显示ARP表"},{q:"路由器的主要功能是？",o:["帧转发","路由选择和网络互联","MAC学习","VLAN划分"],a:1,e:"路由器工作在网络层，主要功能是路由选择和网络互联"}],"中等":[{q:"配置静态路由时，下一跳参数表示？",o:["源地址","目的地址","下一跳路由器接口IP","出接口"],a:2,e:"静态路由下一跳指定数据包转发的下一个路由器接口IP地址"},{q:"ACL标准访问控制列表的编号范围是？",o:["1-99","100-199","200-299","1000-1999"],a:0,e:"标准ACL编号1-99，扩展ACL编号100-199"},{q:"NAT中，将内部局部地址转换为内部全局地址称为？",o:["静态NAT","动态NAT","PAT","DNAT"],a:1,e:"动态NAT将内部局部地址池转换为内部全局地址池"},{q:"SSH和Telnet的主要区别是？",o:["端口不同","SSH加密传输，Telnet明文传输","速度不同","协议不同"],a:1,e:"SSH使用加密传输，安全性高；Telnet明文传输，不安全"},{q:"VTP协议的作用是？",o:["路由协议","VLAN信息同步","安全认证","地址分配"],a:1,e:"VTP（VLAN中继协议）用于在交换机之间同步VLAN信息"}],"较难":[{q:"OSPF中DR和BDR选举的优先级默认值是？",o:["0","1","100","255"],a:1,e:"OSPF接口优先级默认1，设为0则不参与DR/BDR选举"},{q:"HSRP中，活跃路由器的优先级默认值是？",o:["0","50","100","200"],a:2,e:"HSRP默认优先级100，范围0-255，值越大优先级越高"},{q:"BGP的AS-PATH属性的作用是？",o:["路由选择","环路检测","负载均衡","安全认证"],a:1,e:"AS-PATH记录路由经过的自治系统，用于环路检测和路径选择"},{q:"策略路由(PBR)与普通路由的区别是？",o:["更快速","基于策略而非仅目的地址","更安全","支持更多协议"],a:1,e:"策略路由根据源地址、协议类型等策略转发，不限于目的地址"},{q:"EIGRP的度量值计算默认使用哪些参数？",o:["仅带宽","带宽和延迟","带宽、延迟、可靠性和负载","跳数"],a:1,e:"EIGRP默认使用带宽和延迟计算度量值，可靠性和负载默认关闭"}]},"网络安全":{"基础":[{q:"防火墙的基本功能是？",o:["加速网络","访问控制","域名解析","地址分配"],a:1,e:"防火墙通过访问控制策略过滤网络流量，保护网络安全"},{q:"以下哪种攻击属于DDoS攻击？",o:["SQL注入","XSS","SYN Flood","钓鱼"],a:2,e:"SYN Flood利用TCP三次握手缺陷发起拒绝服务攻击，属于DDoS"},{q:"HTTPS相比HTTP增加了什么？",o:["速度","SSL/TLS加密","端口","协议版本"],a:1,e:"HTTPS=HTTP+SSL/TLS，在传输层和应用层之间增加加密层"},{q:"计算机病毒的特征不包括？",o:["传染性","隐蔽性","破坏性","合法性"],a:3,e:"病毒具有传染性、隐蔽性、破坏性、潜伏性等，不具合法性"},{q:"常见密码安全原则不包括？",o:["定期更换","使用复杂密码","多处使用同一密码","长度足够"],a:2,e:"不应在多个平台使用相同密码，一旦泄露影响所有账户"}],"中等":[{q:"数字签名的主要作用是？",o:["加密数据","验证身份和数据完整性","压缩数据","加速传输"],a:1,e:"数字签名用于验证发送者身份和确保数据未被篡改"},{q:"IDS和IPS的主要区别是？",o:["检测方式不同","IDS检测告警，IPS检测并阻断","协议不同","部署位置不同"],a:1,e:"IDS仅检测和告警，IPS在检测后还能自动阻断攻击"},{q:"PKI体系中，CA的作用是？",o:["加密数据","签发和管理数字证书","路由选择","防火墙"],a:1,e:"CA（证书颁发机构）负责签发、管理和撤销数字证书"},{q:"SQL注入攻击的原理是？",o:["暴力破解密码","在输入中嵌入恶意SQL语句","网络监听","拒绝服务"],a:1,e:"SQL注入通过在用户输入中嵌入SQL语句操控数据库"},{q:"VPN使用的核心技术是？",o:["防火墙","加密隧道","负载均衡","NAT"],a:1,e:"VPN通过加密隧道技术在公共网络上建立安全的专用通道"}],"较难":[{q:"零信任安全模型的核心原则是？",o:["信任内部网络","永不信任，始终验证","仅验证外部访问","使用最强加密"],a:1,e:"零信任模型假设任何访问都不可信，需持续验证身份和权限"},{q:"APT攻击的特点是？",o:["快速爆发","持续性、针对性、隐蔽性","随机性","仅攻击个人"],a:1,e:"APT（高级持续性威胁）具有长期潜伏、高度针对和隐蔽的特征"},{q:"Kerberos协议中，TGS的作用是？",o:["用户认证","签发票据授权票据","签发服务票据","密钥管理"],a:2,e:"TGS（票据授予服务）根据TGT向客户端签发服务票据（ST）"},{q:"SSL/TLS握手中，Pre-Master Secret由谁生成？",o:["仅服务器","仅客户端","客户端生成并发送给服务器","CA生成"],a:2,e:"客户端生成Pre-Master Secret，用服务器公钥加密后发送"},{q:"等保2.0中，第三级安全要求适用于？",o:["一般系统","重要系统","关键信息基础设施","所有系统"],a:1,e:"等保三级适用于一旦遭到破坏会对社会秩序造成严重损害的重要系统"}]},"服务器管理":{"基础":[{q:"Linux中查看当前目录的命令是？",o:["ls","pwd","cd","dir"],a:1,e:"pwd显示当前工作目录，ls列出目录内容，cd切换目录"},{q:"Linux中重启系统的命令是？",o:["shutdown","reboot","exit","logout"],a:1,e:"reboot重启系统，shutdown可定时关机或重启"},{q:"Windows Server中，域控制器的主要作用是？",o:["文件共享","集中管理用户和计算机","Web服务","数据库服务"],a:1,e:"域控制器存储Active Directory数据库，集中管理域内资源"},{q:"DHCP服务器的作用是？",o:["域名解析","自动分配IP地址","网页服务","邮件服务"],a:1,e:"DHCP自动为客户端分配IP地址、子网掩码、网关等网络参数"},{q:"RAID 1的特点是？",o:["条带化","镜像","校验","压缩"],a:1,e:"RAID 1通过磁盘镜像实现数据冗余，可用容量为总容量的50%"}],"中等":[{q:"Linux中修改文件权限的命令是？",o:["chown","chmod","chgrp","chattr"],a:1,e:"chmod修改文件权限，chown修改文件所有者，chgrp修改所属组"},{q:"RAID 5至少需要几块磁盘？",o:["2块","3块","4块","5块"],a:1,e:"RAID 5最少3块磁盘，1块用于校验，允许1块磁盘故障"},{q:"Windows中查看IP配置的命令是？",o:["ifconfig","ipconfig","ping","netstat"],a:1,e:"Windows使用ipconfig，Linux使用ifconfig或ip addr"},{q:"Linux中，/etc/passwd文件存储的是？",o:["密码哈希","用户账户信息","组信息","网络配置"],a:1,e:"/etc/passwd存储用户账户信息，密码哈希存储在/etc/shadow"},{q:"虚拟化技术中，Hypervisor的类型分为？",o:["1型和2型","A型和B型","硬件型和软件型","网络型和存储型"],a:0,e:"1型Hypervisor直接运行在硬件上（如ESXi），2型运行在OS上（如VMware Workstation）"}],"较难":[{q:"LVM中，PV、VG、LV的关系是？",o:["PV包含VG包含LV","PV组成VG，VG划分LV","LV包含VG包含PV","独立关系"],a:1,e:"物理卷(PV)组成卷组(VG)，从VG中划分逻辑卷(LV)"},{q:"Kubernetes中Pod的生命周期管理由谁负责？",o:["Service","Deployment","Ingress","PV"],a:1,e:"Deployment管理Pod的副本数、更新策略和滚动升级"},{q:"Docker容器与虚拟机的主要区别是？",o:["容器需要独立OS","容器共享宿主内核，更轻量","虚拟机更安全","无区别"],a:1,e:"容器共享宿主机内核，无需完整OS，启动快、资源占用少"},{q:"Nginx反向代理与正向代理的区别是？",o:["代理方向不同","正向代理代理客户端，反向代理代理服务端","性能不同","协议不同"],a:1,e:"正向代理代表客户端访问服务器，反向代理代表服务端接收客户端请求"},{q:"Zabbix监控系统中，触发器(Trigger)的作用是？",o:["收集数据","定义告警条件","发送通知","展示图表"],a:1,e:"触发器基于监控项数据定义告警条件，满足条件时触发动作"}]},"编程基础":{"基础":[{q:"HTML中，最大的标题标签是？",o:["<h6>","<h1>","<title>","<head>"],a:1,e:"<h1>是最大标题标签，<h6>是最小，<title>定义网页标题，<head>是文档头部"},{q:"CSS中，设置文字颜色的属性是？",o:["font-color","text-color","color","background-color"],a:2,e:"CSS中用color属性设置文字颜色，没有font-color和text-color"},{q:"JavaScript中，声明变量的关键字不包括？",o:["var","let","const","define"],a:3,e:"JavaScript声明变量用var、let、const，没有define关键字"},{q:"Python中，单行注释使用的符号是？",o:["//","#","/*","--"],a:1,e:"Python单行注释用#，多行注释用三引号；//是JS/Java单行注释"},{q:"以下哪个是正确的HTML标签？",o:["<img>","<image>","<pic>","<photo>"],a:0,e:"HTML中插入图片使用<img>标签，没有<image>等标签"}],"中等":[{q:"JavaScript中，===和==的区别是？",o:["没有区别","===不类型转换，==会类型转换","===更慢","==更严格"],a:1,e:"===严格相等（值和类型都相等），==会进行类型转换后比较"},{q:"Python中，列表和元组的主要区别是？",o:["长度不同","列表可变，元组不可变","类型不同","语法相同"],a:1,e:"列表(list)可变，用[]；元组(tuple)不可变，用()"},{q:"CSS中，position:fixed的特点是？",o:["相对定位","绝对定位","固定定位，不随滚动","默认定位"],a:2,e:"fixed固定定位，相对于浏览器窗口定位，滚动时不移动"},{q:"SQL中，用于去重的关键字是？",o:["UNIQUE","DISTINCT","GROUP BY","HAVING"],a:1,e:"DISTINCT用于查询结果去重，UNIQUE是约束关键字"},{q:"Git中，将暂存区的修改提交到仓库的命令是？",o:["git add","git commit","git push","git pull"],a:1,e:"git commit将暂存区修改提交到本地仓库，push推送到远程"}],"较难":[{q:"JavaScript中，闭包(Closure)是指？",o:["函数嵌套","函数可以访问其外部作用域变量","私有变量","回调函数"],a:1,e:"闭包是函数与其词法环境的组合，内部函数可访问外部函数变量"},{q:"Python中装饰器(decorator)的作用是？",o:["修饰字符串","不修改原函数代码增强其功能","定义类","异常处理"],a:1,e:"装饰器在不修改原函数代码的情况下，动态增加功能（如日志、权限）"},{q:"CSS Flexbox中，align-items控制的是？",o:["主轴对齐","交叉轴对齐","换行","排序"],a:1,e:"justify-content控制主轴，align-items控制交叉轴（垂直方向）对齐"},{q:"HTTP状态码304表示？",o:["重定向","未修改(缓存有效)","服务器错误","请求成功"],a:1,e:"304 Not Modified表示资源未修改，可使用缓存，无需重新下载"},{q:"Redis中，持久化的两种方式是？",o:["SQL和NoSQL","RDB和AOF","内存和磁盘","主从和集群"],a:1,e:"RDB（快照）和AOF（追加日志）是Redis两种持久化方式"}]},"信息安全与法规":{"基础":[{q:"《网络安全法》施行的时间是？",o:["2016年11月7日","2017年6月1日","2018年1月1日","2019年1月1日"],a:1,e:"《网络安全法》2016年11月7日通过，2017年6月1日起施行"},{q:"个人信息保护的基本原则不包括？",o:["合法正当","最小必要","公开出售","安全保障"],a:2,e:"个人信息处理应遵循合法正当、最小必要、安全保障原则，不得公开出售"},{q:"网络等级保护共分为几级？",o:["3级","4级","5级","6级"],a:2,e:"网络安全等级保护共5级，第5级最高（涉及国家安全）"},{q:"以下哪种行为违反《网络安全法》？",o:["定期更新密码","非法获取他人信息","使用正版软件","安装杀毒软件"],a:1,e:"非法获取、出售他人个人信息违反《网络安全法》第44条"},{q:"网络安全事件应急预案应包括？",o:["仅预防措施","预防、监测、处置和恢复","仅处置措施","仅恢复措施"],a:1,e:"应急预案应覆盖预防、监测、预警、处置和恢复等环节"}],"中等":[{q:"《数据安全法》中，数据分类分级的依据是？",o:["数据量大小","数据在经济社会发展中的重要程度","存储时间","格式类型"],a:1,e:"根据数据在经济社会发展中的重要程度及一旦遭到篡改、破坏后的危害程度分类分级"},{q:"个人信息处理者处理不满14周岁未成年人信息的特殊要求是？",o:["无需同意","需监护人同意","仅需本人同意","学校同意"],a:1,e:"处理未成年人个人信息需取得监护人同意，并制定专门处理规则"},{q:"等保2.0中，安全通用要求分为哪几类？",o:["2类","3类","4类","5类"],a:2,e:"安全通用要求分为技术要求和管理要求"},{q:"网络安全审查制度针对的是？",o:["所有企业","关键信息基础设施运营者","个人用户","外国企业"],a:1,e:"网络安全审查针对CIIO采购网络产品和服务可能带来的国家安全风险"},{q:"侵犯公民个人信息罪的入罪标准是？",o:["任意数量","达到情节严重","50条以上","必须获利"],a:1,e:"侵犯公民个人信息需达到\"情节严重\"才构成犯罪"}],"较难":[{q:"《个人信息保护法》中，跨境提供个人信息的条件不包括？",o:["通过安全评估","经专业机构认证","签订标准合同","个人自行决定"],a:3,e:"跨境提供需满足：安全评估/专业认证/标准合同/政府间协定"},{q:"等保2.0新增的安全要求不包括？",o:["云计算安全","移动互联安全","物联网安全","物理隔离"],a:3,e:"等保2.0新增云、移动、物联网、工控和大数据安全，物理隔离不是新增"},{q:"网络安全漏洞披露的法律要求是？",o:["可随意公开","需先向主管部门报告","无需报告","仅通知用户"],a:1,e:"发现漏洞应先向主管部门报告，不得利用漏洞谋利"},{q:"《关键信息基础设施安全保护条例》中CIIO的义务不包括？",o:["安全建设","安全评估","公开所有数据","应急预案"],a:2,e:"CIIO义务包括安全建设、检测评估、应急预案等，不包括公开所有数据"},{q:"GDPR和《个人信息保护法》的管辖范围差异是？",o:["完全相同","GDPR适用欧盟，个保法适用中国境内及境外处理中国自然人信息","GDPR全球适用","个保法仅适用境内"],a:1,e:"GDPR适用欧盟境内处理及对欧盟数据主体的处理，个保法适用中国境内及境外处理中国自然人信息"}]}};
+
+// ===== 状态 =====
+var courses=["综合布线系统","网络基础","网络设备配置","网络安全","服务器管理","编程基础","信息安全与法规"];
+var diffs=["基础","中等","较难"];
+var selCourse="综合布线系统",selDiff="中等";
+var state={qs:[],idx:0,score:0,answered:0};
+
+// ===== 初始化选择器 =====
+function initSelectors(){
+  var ch=document.getElementById("courseOpts");
+  var dh=document.getElementById("diffOpts");
+  courses.forEach(function(c,i){
+    var d=document.createElement("div");
+    d.className="sel-opt"+(i===0?" active":"");
+    d.textContent=c;
+    d.onclick=function(){selOpts("courseOpts",this);selCourse=c};
+    ch.appendChild(d);
+  });
+  diffs.forEach(function(d,i){
+    var el=document.createElement("div");
+    el.className="sel-opt"+(i===1?" active":"");
+    el.textContent=d;
+    el.onclick=function(){selOpts("diffOpts",this);selDiff=d};
+    dh.appendChild(el);
+  });
+}
+
+function selOpts(gid,el){
+  var g=document.getElementById(gid);
+  g.querySelectorAll(".sel-opt").forEach(function(o){o.classList.remove("active")});
+  el.classList.add("active");
+}
+
+// ===== 练习逻辑 =====
+function startPractice(){
+  var course=QBANK[selCourse];
+  if(!course){return}
+  var qs=course[selDiff];
+  if(!qs||!qs.length){return}
+  qs=qs.slice().sort(function(){return Math.random()-0.5}).slice(0,5);
+  state={qs:qs,idx:0,score:0,answered:0};
+  document.getElementById("selArea").style.display="none";
+  document.getElementById("quizArea").style.display="block";
+  showQuestion();
+}
+
+function showQuestion(){
+  var q=state.qs[state.idx];
+  var total=state.qs.length;
+  var num=state.idx+1;
+  document.getElementById("progressBar").style.width=(num/total*100)+"%";
+  document.getElementById("qnum").textContent="第 "+num+" 题 / 共 "+total+" 题";
+  document.getElementById("qtext").textContent=q.q;
+  var labels=["A","B","C","D"];
+  var oh="";
+  for(var i=0;i<q.o.length;i++){
+    oh+='<div class="qopt" onclick="answer(this,'+i+')"><span class="qopt-label">'+labels[i]+'</span><span class="qopt-text">'+q.o[i]+'</span></div>';
+  }
+  document.getElementById("qopts").innerHTML=oh;
+  document.getElementById("feedback").className="feedback";
+  document.getElementById("feedback").style.display="none";
+  document.getElementById("qnav").style.display="none";
+  updateScore();
+}
+
+function answer(el,idx){
+  if(state.answered>state.idx)return;
+  var q=state.qs[state.idx];
+  var correct=q.a;
+  var opts=document.querySelectorAll("#qopts .qopt");
+  opts.forEach(function(o){o.classList.add("disabled")});
+  opts[correct].classList.add("correct");
+  if(idx!==correct)opts[idx].classList.add("wrong");
+  else state.score+=20;
+  state.answered=state.idx+1;
+  var fb=document.getElementById("feedback");
+  var labels=["A","B","C","D"];
+  if(idx===correct){
+    fb.className="feedback correct";
+    fb.innerHTML="<b>✅ 回答正确！</b><br>"+q.e;
+  }else{
+    fb.className="feedback wrong";
+    fb.innerHTML="<b>❌ 回答错误</b>，正确答案是 "+labels[correct]+"："+q.o[correct]+"<br>"+q.e;
+  }
+  fb.style.display="block";
+  var nav=document.getElementById("qnav");
+  nav.style.display="flex";
+  if(state.idx>=state.qs.length-1){
+    nav.innerHTML='<button class="qnav-btn" onclick="finish()">查看成绩 📊</button>';
+  }else{
+    nav.innerHTML='<button class="qnav-btn" onclick="nextQ()">下一题 →</button>';
+  }
+  updateScore();
+}
+
+function nextQ(){state.idx++;showQuestion()}
+
+function finish(){
+  var total=state.qs.length;
+  var score=state.score;
+  var pct=Math.round(score/(total*20)*100);
+  var grade,gColor;
+  if(pct>=80){grade="🎉 优秀！";gColor="#16a34a"}
+  else if(pct>=60){grade="👍 良好";gColor="#2563eb"}
+  else{grade="💪 继续加油";gColor="#ea580c"}
+  document.getElementById("quizArea").innerHTML='<div class="result"><div class="result-score" style="color:'+gColor+'">'+score+'<span class="result-unit">分</span></div><div class="result-grade" style="color:'+gColor+'">'+grade+'</div><div class="result-info">共 '+total+' 题，满分 '+total*20+' 分，正确率 '+pct+'%</div><div class="result-btns"><button class="qnav-btn" onclick="resetPractice()">🔄 再练一次</button></div></div>';
+  updateScore();
+}
+
+function resetPractice(){
+  state={qs:[],idx:0,score:0,answered:0};
+  document.getElementById("selArea").style.display="block";
+  document.getElementById("quizArea").style.display="none";
+  document.getElementById("quizArea").innerHTML='<div class="quiz-progress"><div class="quiz-progress-bar" id="progressBar"></div></div><div class="quiz-qnum" id="qnum"></div><div class="quiz-qtext" id="qtext"></div><div class="quiz-qopts" id="qopts"></div><div class="feedback" id="feedback"></div><div class="qnav" id="qnav"></div>';
+  updateScore();
+}
+
+function updateScore(){
+  document.getElementById("scoreDisplay").textContent="得分："+state.score;
+}
+
+// ===== AI助手 =====
+function openChat(){
+  var loading=document.getElementById("aiLoading");
+  loading.classList.add("active");
+  var w=window.open('https://www.coze.cn/s/iqhvcTg_ZoU/','coze_quiz_chat','width=480,height=720,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no');
+  setTimeout(function(){loading.classList.remove("active")},1500);
+  if(!w||w.closed||typeof w.closed==='undefined'){
+    loading.classList.remove("active");
+    window.open('https://www.coze.cn/s/iqhvcTg_ZoU/','_blank');
+  }
+}
+
+// 初始化
+initSelectors();
 </script>
 </body>
 </html>
