@@ -43,9 +43,6 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 .video-panel-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;background:var(--bg);position:relative;overflow:hidden}
 .video-player{width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--radius);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
 .video-player video{width:100%;height:100%;object-fit:contain}
-.video-placeholder{color:var(--txt3);text-align:center;padding:20px}
-.video-placeholder .icon{font-size:3rem;margin-bottom:10px;display:block;color:var(--bg3)}
-.video-placeholder p{font-size:.82rem;line-height:1.6}
 .video-info{padding:10px 14px;font-size:.78rem;color:var(--txt3);border-top:1px solid var(--bg3);line-height:1.5}
 .video-info span{color:var(--cyan);font-weight:600}
 /* Middle: 3D Scene */
@@ -84,6 +81,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .tool-icon{width:48px;height:48px;margin:0 auto 6px;display:block}
 .tool-icon svg{width:100%;height:100%}
+.tool-icon img{width:100%;height:100%;object-fit:contain;border-radius:4px}
 .tool-name{font-size:.78rem;color:var(--txt2);font-weight:600;display:block}
 .tool-info-btn{position:absolute;top:4px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--bg3);color:var(--txt3);font-size:.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .tool-info-btn:hover{background:var(--blue);color:#fff}
@@ -242,15 +240,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     </div>
     <div class="video-panel-body">
       <div class="video-player" id="videoPlayer">
-        <div class="video-placeholder" id="videoPlaceholder">
-          <span class="icon">🎬</span>
-          <p>光纤熔接实操教学视频<br><span style="font-size:.72rem;color:var(--txt3)">视频加载中...</span></p>
-        </div>
+        <video id="videoEl" autoplay muted loop playsinline>
+          <source src="光纤熔接视频1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center">
+        <button id="btnVideo1" onclick="switchVideo(1)" style="padding:4px 12px;border-radius:4px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.75rem;cursor:pointer;font-weight:600">视频1</button>
+        <button id="btnVideo2" onclick="switchVideo(2)" style="padding:4px 12px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.75rem;cursor:pointer">视频2</button>
       </div>
     </div>
     <div class="video-info">
-      当前步骤：<span id="videoStepName">工具准备</span><br>
-      视频将随步骤自动切换对应教学片段
+      当前播放：<span id="videoStepName">光纤熔接实操教学1</span>
     </div>
   </div>
 
@@ -327,6 +327,23 @@ function renderStepBar(){
   bar.innerHTML = html;
 }
 
+/* Video switch */
+function switchVideo(n){
+  var v=document.getElementById('videoEl');
+  var name=document.getElementById('videoStepName');
+  var b1=document.getElementById('btnVideo1');
+  var b2=document.getElementById('btnVideo2');
+  v.src=n===1?'光纤熔接视频1.mp4':'光纤熔接视频2.mp4';
+  v.load();v.play();
+  name.textContent=n===1?'光纤熔接实操教学1':'光纤熔接实操教学2';
+  b1.style.background=n===1?'var(--cyan)':'var(--bg2)';
+  b1.style.color=n===1?'#000':'var(--txt)';
+  b1.style.borderColor=n===1?'var(--cyan)':'var(--bg3)';
+  b2.style.background=n===2?'var(--cyan)':'var(--bg2)';
+  b2.style.color=n===2?'#000':'var(--txt)';
+  b2.style.borderColor=n===2?'var(--cyan)':'var(--bg3)';
+}
+
 function goStep(idx){
   if(idx <= state.step || state.completed.indexOf(idx-1) >= 0 || idx === 0){
     state.step = idx;
@@ -374,12 +391,12 @@ function renderPanel(){
 
 // --- Tool info data ---
 var TOOLS = [
-  {name:'光纤剥线钳',icon:'<svg viewBox="0 0 48 48"><rect x="8" y="28" width="12" height="16" rx="2" fill="#ef4444"/><rect x="28" y="28" width="12" height="16" rx="2" fill="#ef4444"/><path d="M14 28 L20 14 Q24 8 28 14 L34 28" fill="#94a3b8"/><circle cx="24" cy="18" r="3" fill="#4a5568"/></svg>',desc:'专用剥线钳，用于精确剥除光纤涂覆层（250μm/900μm）',detail:'型号：CFS-2光纤剥线钳\n孔径：250μm（红孔）和900μm（蓝孔）\n用途：剥除光纤涂覆层，露出裸光纤\n注意：不可用来剥除光纤加强件或外护套'},
-  {name:'光纤切割刀',icon:'<svg viewBox="0 0 48 48"><rect x="6" y="30" width="36" height="10" rx="2" fill="#4a5568"/><rect x="10" y="22" width="28" height="8" rx="1" fill="#94a3b8"/><path d="M20 22 L22 8 L26 8 L28 22" fill="#718096"/><line x1="14" y1="26" x2="34" y2="26" stroke="#e2e8f0" stroke-width="1.5"/></svg>',desc:'精密光纤切割刀，确保端面平整光滑',detail:'型号：FC-6S高精度光纤切割刀\n切割角度：<0.5°\n适用光纤：单模/多模（涂覆层250-900μm）\n注意：刀片为消耗品，每面可切割约1000次，需定期更换'},
+  {name:'光纤剥线钳',icon:'<img src="米勒钳.png" alt="光纤剥线钳">',desc:'专用剥线钳，用于精确剥除光纤涂覆层（250μm/900μm）',detail:'型号：CFS-2光纤米勒钳\n孔径：250μm（红孔）和900μm（蓝孔）\n用途：剥除光纤涂覆层，露出裸光纤\n注意：不可用来剥除光纤加强件或外护套'},
+  {name:'光纤切割刀',icon:'<img src="切割刀.png" alt="光纤切割刀">',desc:'精密光纤切割刀，确保端面平整光滑',detail:'型号：FC-6S高精度光纤切割刀\n切割角度：<0.5°\n适用光纤：单模/多模（涂覆层250-900μm）\n注意：刀片为消耗品，每面可切割约1000次，需定期更换'},
   {name:'无尘纸/酒精',icon:'<svg viewBox="0 0 48 48"><rect x="16" y="6" width="16" height="32" rx="4" fill="#93c5fd" opacity="0.7"/><rect x="20" y="2" width="8" height="6" rx="2" fill="#3b82f6"/><rect x="6" y="34" width="16" height="10" rx="2" fill="#f1f5f9"/><line x1="10" y1="37" x2="18" y2="37" stroke="#cbd5e1" stroke-width="0.8"/><line x1="10" y1="40" x2="18" y2="40" stroke="#cbd5e1" stroke-width="0.8"/></svg>',desc:'99%高纯度无水酒精+无尘纸，清洁光纤表面',detail:'规格：99.9%无水酒精\n无尘纸：专用光纤清洁纸，不掉纤维\n用途：清除光纤表面涂覆层残留和灰尘\n注意：擦拭方向只能从手指持握端向外单向擦拭'},
-  {name:'光纤熔接机',icon:'<svg viewBox="0 0 48 48"><rect x="6" y="20" width="36" height="20" rx="3" fill="#4a5568"/><rect x="12" y="6" width="24" height="14" rx="2" fill="#0f172a"/><rect x="14" y="8" width="20" height="10" rx="1" fill="#10b981"/><circle cx="14" cy="34" r="2.5" fill="#10b981"/><circle cx="21" cy="34" r="2.5" fill="#3b82f6"/><circle cx="28" cy="34" r="2.5" fill="#f59e0b"/><circle cx="35" cy="34" r="2.5" fill="#ef4444"/></svg>',desc:'全自动光纤熔接机，核心设备',detail:'型号：藤仓FSM-70S / 住原S178\n功能：自动对准、放电熔接、损耗估算\n熔接时间：约9秒\n对准方式：纤芯对准（PAS）\n注意：使用前需清洁电极棒，检查防风盖'},
-  {name:'热缩管',icon:'<svg viewBox="0 0 48 48"><rect x="10" y="14" width="28" height="20" rx="6" fill="#fbbf24" opacity="0.5"/><rect x="12" y="18" width="24" height="4" rx="1" fill="#94a3b8"/><rect x="12" y="26" width="24" height="4" rx="1" fill="#94a3b8"/><line x1="24" y1="8" x2="24" y2="40" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,2"/></svg>',desc:'光纤熔接保护套管，含钢针加强',detail:'规格：60mm/40mm热缩保护管\n结构：外层热缩管+内层不锈钢针+内衬管\n作用：保护熔接点，增强抗拉强度\n注意：必须在熔接前套入光纤'},
-  {name:'光纤',icon:'<svg viewBox="0 0 48 48"><path d="M6 24 Q12 16 18 24 Q24 32 30 24 Q36 16 42 24" fill="none" stroke="#eab308" stroke-width="4"/><path d="M6 24 Q12 16 18 24 Q24 32 30 24 Q36 16 42 24" fill="none" stroke="#60a5fa" stroke-width="1.5"/><circle cx="6" cy="24" r="3" fill="#eab308"/><circle cx="42" cy="24" r="3" fill="#eab308"/></svg>',desc:'单模光纤（G.652D），外径125μm',detail:'类型：G.652D单模光纤\n结构：纤芯9μm + 包层125μm + 涂覆层250μm\n颜色：黄色外皮（室内），红色/蓝色标记区分\n衰减：1310nm ≤0.35dB/km，1550nm ≤0.20dB/km'}
+  {name:'光纤熔接机',icon:'<img src="光纤熔接机.png" alt="光纤熔接机">',desc:'全自动光纤熔接机，核心设备',detail:'型号：藤仓FSM-70S / 住原S178\n功能：自动对准、放电熔接、损耗估算\n熔接时间：约9秒\n对准方式：纤芯对准（PAS）\n注意：使用前需清洁电极棒，检查防风盖'},
+  {name:'热缩管',icon:'<img src="热缩管.png" alt="热缩管">',desc:'光纤熔接保护套管，含钢针加强',detail:'规格：60mm/40mm热缩保护管\n结构：外层热缩管+内层不锈钢针+内衬管\n作用：保护熔接点，增强抗拉强度\n注意：必须在熔接前套入光纤'},
+  {name:'光纤',icon:'<img src="室内光纤.png" alt="光纤">',desc:'单模光纤（G.652D），外径125μm',detail:'类型：G.652D单模光纤\n结构：纤芯9μm + 包层125μm + 涂覆层250μm\n颜色：黄色外皮（室内），红色/蓝色标记区分\n衰减：1310nm ≤0.35dB/km，1550nm ≤0.20dB/km'}
 ];
 
 function renderToolShelf(body, onSelect){
@@ -398,7 +415,7 @@ function renderToolShelf(body, onSelect){
 function showToolInfo(idx){
   var t = TOOLS[idx];
   var popup = document.getElementById('toolPopup');
-  document.getElementById('popupTitle').textContent = t.icon+' '+t.name;
+  document.getElementById('popupTitle').textContent = t.name;
   document.getElementById('popupBody').innerHTML = t.detail.replace(/\n/g,'<br>');
   popup.style.display = 'block';
   popup.style.left = '50%';
@@ -717,9 +734,9 @@ function renderStep5(body){
   html += '<div style="text-align:center">';
   html += '<div style="font-size:.82rem;color:var(--txt2);margin-bottom:12px">选择热缩管规格并套入</div>';
   html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">';
-  html += '<div class="tool-card" style="width:120px" id="tube40" onclick="selectTube(40)"><div class="tool-icon"><svg viewBox="0 0 48 48"><rect x="10" y="14" width="28" height="20" rx="6" fill="#fbbf24" opacity="0.5"/><text x="24" y="28" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">40</text></svg></div><span class="tool-name">40mm热缩管</span></div>';
-  html += '<div class="tool-card" style="width:120px" id="tube60" onclick="selectTube(60)"><div class="tool-icon"><svg viewBox="0 0 48 48"><rect x="10" y="14" width="28" height="20" rx="6" fill="#fbbf24" opacity="0.5"/><text x="24" y="28" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">60</text></svg></div><span class="tool-name">60mm热缩管</span></div>';
-  html += '<div class="tool-card" style="width:120px" id="tube80" onclick="selectTube(80)"><div class="tool-icon"><svg viewBox="0 0 48 48"><rect x="10" y="14" width="28" height="20" rx="6" fill="#fbbf24" opacity="0.5"/><text x="24" y="28" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">80</text></svg></div><span class="tool-name">80mm热缩管</span></div>';
+  html += '<div class="tool-card" style="width:120px" id="tube40" onclick="selectTube(40)"><div class="tool-icon"><img src="热缩管.png" alt="40mm" style="width:48px;height:48px;object-fit:contain"><div style="text-align:center;font-size:.7rem;color:var(--cyan);margin-top:2px">40mm</div></div><span class="tool-name">40mm热缩管</span></div>';
+  html += '<div class="tool-card" style="width:120px" id="tube60" onclick="selectTube(60)"><div class="tool-icon"><img src="热缩管.png" alt="60mm" style="width:48px;height:48px;object-fit:contain"><div style="text-align:center;font-size:.7rem;color:var(--cyan);margin-top:2px">60mm</div></div><span class="tool-name">60mm热缩管</span></div>';
+  html += '<div class="tool-card" style="width:120px" id="tube80" onclick="selectTube(80)"><div class="tool-icon"><img src="热缩管.png" alt="80mm" style="width:48px;height:48px;object-fit:contain"><div style="text-align:center;font-size:.7rem;color:var(--cyan);margin-top:2px">80mm</div></div><span class="tool-name">80mm热缩管</span></div>';
   html += '</div>';
   html += '</div>';
   html += '<div id="tubeVisual" style="margin-top:16px;height:40px;position:relative">';
