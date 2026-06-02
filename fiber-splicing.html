@@ -36,11 +36,25 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 
 /* === MAIN LAYOUT === */
 .main{position:fixed;top:108px;left:0;right:0;bottom:0;display:flex}
+/* Left: Video Panel */
+.video-panel{width:25%;min-width:240px;background:var(--bg2);border-right:1px solid var(--bg3);display:flex;flex-direction:column;overflow:hidden}
+.video-panel-head{padding:12px 16px;border-bottom:1px solid var(--bg3);font-size:.9rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px}
+.video-panel-head .icon{color:var(--cyan)}
+.video-panel-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;background:var(--bg);position:relative;overflow:hidden}
+.video-player{width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--radius);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.video-player video{width:100%;height:100%;object-fit:contain}
+.video-placeholder{color:var(--txt3);text-align:center;padding:20px}
+.video-placeholder .icon{font-size:3rem;margin-bottom:10px;display:block;color:var(--bg3)}
+.video-placeholder p{font-size:.82rem;line-height:1.6}
+.video-info{padding:10px 14px;font-size:.78rem;color:var(--txt3);border-top:1px solid var(--bg3);line-height:1.5}
+.video-info span{color:var(--cyan);font-weight:600}
+/* Middle: 3D Scene */
 .scene-wrap{flex:1;position:relative;overflow:hidden}
 #three-canvas{width:100%;height:100%;display:block}
+.scene-label{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(239,68,68,.85);color:#fff;font-size:.75rem;font-weight:700;padding:4px 14px;border-radius:12px;pointer-events:none;z-index:5;letter-spacing:.5px}
 
 /* === RIGHT PANEL === */
-.panel{width:420px;background:var(--bg2);border-left:1px solid var(--bg3);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+.panel{width:25%;min-width:280px;max-width:420px;background:var(--bg2);border-left:1px solid var(--bg3);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
 .panel.collapsed{width:48px}
 .panel-toggle{display:none}
 .panel-head{padding:16px 20px;border-bottom:1px solid var(--bg3)}
@@ -68,8 +82,9 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 .tool-card.correct{border-color:var(--green);background:rgba(16,185,129,.08)}
 .tool-card.wrong{border-color:var(--red);background:rgba(239,68,68,.08);animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.tool-icon{font-size:2rem;margin-bottom:6px;display:block}
-.tool-name{font-size:.78rem;color:var(--txt2);font-weight:600}
+.tool-icon{width:48px;height:48px;margin:0 auto 6px;display:block}
+.tool-icon svg{width:100%;height:100%}
+.tool-name{font-size:.78rem;color:var(--txt2);font-weight:600;display:block}
 .tool-info-btn{position:absolute;top:4px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--bg3);color:var(--txt3);font-size:.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .tool-info-btn:hover{background:var(--blue);color:#fff}
 
@@ -169,13 +184,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 /* === RESPONSIVE === */
 @media(max-width:900px){
-  .panel{width:360px}
+  .panel{max-width:360px}
   .tool-shelf{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+  .video-panel{width:20%;min-width:180px}
+  .panel{min-width:240px}
 }
 @media(max-width:700px){
   .main{flex-direction:column}
-  .panel{width:100%;height:50%;border-left:none;border-top:1px solid var(--bg3)}
-  .scene-wrap{height:50%}
+  .video-panel{width:100%;height:auto;max-height:160px;border-right:none;border-bottom:1px solid var(--bg3)}
+  .video-panel-body{padding:6px}
+  .panel{width:100%;height:50%;border-left:none;border-top:1px solid var(--bg3);max-width:none}
+  .scene-wrap{height:40%}
   .step-lbl{display:none}
 }
 
@@ -213,9 +234,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <!-- MAIN -->
 <div class="main">
-  <!-- 3D SCENE -->
+  <!-- LEFT: VIDEO PANEL -->
+  <div class="video-panel" id="videoPanel">
+    <div class="video-panel-head">
+      <span class="icon">▶</span> 光纤熔接视频播放
+    </div>
+    <div class="video-panel-body">
+      <div class="video-player" id="videoPlayer">
+        <div class="video-placeholder" id="videoPlaceholder">
+          <span class="icon">🎬</span>
+          <p>光纤熔接实操教学视频<br><span style="font-size:.72rem;color:var(--txt3)">视频加载中...</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="video-info">
+      当前步骤：<span id="videoStepName">工具准备</span><br>
+      视频将随步骤自动切换对应教学片段
+    </div>
+  </div>
+
+  <!-- MIDDLE: 3D SCENE -->
   <div class="scene-wrap" id="sceneWrap">
     <canvas id="three-canvas"></canvas>
+    <div class="scene-label">3D光纤熔接平台</div>
   </div>
 
   <!-- RIGHT PANEL -->
@@ -312,6 +353,9 @@ function renderPanel(){
   var body = document.getElementById('panelBody');
   var s = state.step;
   title.innerHTML = '步骤 '+(s+1)+'：'+STEPS[s].name+' <span class="badge">'+STEPS.length+'步</span>';
+  // Update video panel step name
+  var vn = document.getElementById('videoStepName');
+  if(vn) vn.textContent = STEPS[s].name;
   body.innerHTML = '';
   body.scrollTop = 0;
 
@@ -329,12 +373,12 @@ function renderPanel(){
 
 // --- Tool info data ---
 var TOOLS = [
-  {name:'光纤剥线钳',icon:'🔧',desc:'专用剥线钳，用于精确剥除光纤涂覆层（250μm/900μm）',detail:'型号：CFS-2光纤剥线钳\n孔径：250μm（红孔）和900μm（蓝孔）\n用途：剥除光纤涂覆层，露出裸光纤\n注意：不可用来剥除光纤加强件或外护套'},
-  {name:'光纤切割刀',icon:'✂️',desc:'精密光纤切割刀，确保端面平整光滑',detail:'型号：FC-6S高精度光纤切割刀\n切割角度：<0.5°\n适用光纤：单模/多模（涂覆层250-900μm）\n注意：刀片为消耗品，每面可切割约1000次，需定期更换'},
-  {name:'无尘纸/酒精',icon:'🧴',desc:'99%高纯度无水酒精+无尘纸，清洁光纤表面',detail:'规格：99.9%无水酒精\n无尘纸：专用光纤清洁纸，不掉纤维\n用途：清除光纤表面涂覆层残留和灰尘\n注意：擦拭方向只能从手指持握端向外单向擦拭'},
-  {name:'光纤熔接机',icon:'⚡',desc:'全自动光纤熔接机，核心设备',detail:'型号：藤仓FSM-70S / 住原S178\n功能：自动对准、放电熔接、损耗估算\n熔接时间：约9秒\n对准方式：纤芯对准（PAS）\n注意：使用前需清洁电极棒，检查防风盖'},
-  {name:'热缩管',icon:'🔒',desc:'光纤熔接保护套管，含钢针加强',detail:'规格：60mm/40mm热缩保护管\n结构：外层热缩管+内层不锈钢针+内衬管\n作用：保护熔接点，增强抗拉强度\n注意：必须在熔接前套入光纤'},
-  {name:'光纤',icon:'💡',desc:'单模光纤（G.652D），外径125μm',detail:'类型：G.652D单模光纤\n结构：纤芯9μm + 包层125μm + 涂覆层250μm\n颜色：黄色外皮（室内），红色/蓝色标记区分\n衰减：1310nm ≤0.35dB/km，1550nm ≤0.20dB/km'}
+  {name:'光纤剥线钳',icon:'<svg viewBox="0 0 48 48"><rect x="8" y="28" width="12" height="16" rx="2" fill="#ef4444"/><rect x="28" y="28" width="12" height="16" rx="2" fill="#ef4444"/><path d="M14 28 L20 14 Q24 8 28 14 L34 28" fill="#94a3b8"/><circle cx="24" cy="18" r="3" fill="#4a5568"/></svg>',desc:'专用剥线钳，用于精确剥除光纤涂覆层（250μm/900μm）',detail:'型号：CFS-2光纤剥线钳\n孔径：250μm（红孔）和900μm（蓝孔）\n用途：剥除光纤涂覆层，露出裸光纤\n注意：不可用来剥除光纤加强件或外护套'},
+  {name:'光纤切割刀',icon:'<svg viewBox="0 0 48 48"><rect x="6" y="30" width="36" height="10" rx="2" fill="#4a5568"/><rect x="10" y="22" width="28" height="8" rx="1" fill="#94a3b8"/><path d="M20 22 L22 8 L26 8 L28 22" fill="#718096"/><line x1="14" y1="26" x2="34" y2="26" stroke="#e2e8f0" stroke-width="1.5"/></svg>',desc:'精密光纤切割刀，确保端面平整光滑',detail:'型号：FC-6S高精度光纤切割刀\n切割角度：<0.5°\n适用光纤：单模/多模（涂覆层250-900μm）\n注意：刀片为消耗品，每面可切割约1000次，需定期更换'},
+  {name:'无尘纸/酒精',icon:'<svg viewBox="0 0 48 48"><rect x="16" y="6" width="16" height="32" rx="4" fill="#93c5fd" opacity="0.7"/><rect x="20" y="2" width="8" height="6" rx="2" fill="#3b82f6"/><rect x="6" y="34" width="16" height="10" rx="2" fill="#f1f5f9"/><line x1="10" y1="37" x2="18" y2="37" stroke="#cbd5e1" stroke-width="0.8"/><line x1="10" y1="40" x2="18" y2="40" stroke="#cbd5e1" stroke-width="0.8"/></svg>',desc:'99%高纯度无水酒精+无尘纸，清洁光纤表面',detail:'规格：99.9%无水酒精\n无尘纸：专用光纤清洁纸，不掉纤维\n用途：清除光纤表面涂覆层残留和灰尘\n注意：擦拭方向只能从手指持握端向外单向擦拭'},
+  {name:'光纤熔接机',icon:'<svg viewBox="0 0 48 48"><rect x="6" y="20" width="36" height="20" rx="3" fill="#4a5568"/><rect x="12" y="6" width="24" height="14" rx="2" fill="#0f172a"/><rect x="14" y="8" width="20" height="10" rx="1" fill="#10b981"/><circle cx="14" cy="34" r="2.5" fill="#10b981"/><circle cx="21" cy="34" r="2.5" fill="#3b82f6"/><circle cx="28" cy="34" r="2.5" fill="#f59e0b"/><circle cx="35" cy="34" r="2.5" fill="#ef4444"/></svg>',desc:'全自动光纤熔接机，核心设备',detail:'型号：藤仓FSM-70S / 住原S178\n功能：自动对准、放电熔接、损耗估算\n熔接时间：约9秒\n对准方式：纤芯对准（PAS）\n注意：使用前需清洁电极棒，检查防风盖'},
+  {name:'热缩管',icon:'<svg viewBox="0 0 48 48"><rect x="10" y="14" width="28" height="20" rx="6" fill="#fbbf24" opacity="0.5"/><rect x="12" y="18" width="24" height="4" rx="1" fill="#94a3b8"/><rect x="12" y="26" width="24" height="4" rx="1" fill="#94a3b8"/><line x1="24" y1="8" x2="24" y2="40" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,2"/></svg>',desc:'光纤熔接保护套管，含钢针加强',detail:'规格：60mm/40mm热缩保护管\n结构：外层热缩管+内层不锈钢针+内衬管\n作用：保护熔接点，增强抗拉强度\n注意：必须在熔接前套入光纤'},
+  {name:'光纤',icon:'<svg viewBox="0 0 48 48"><path d="M6 24 Q12 16 18 24 Q24 32 30 24 Q36 16 42 24" fill="none" stroke="#eab308" stroke-width="4"/><path d="M6 24 Q12 16 18 24 Q24 32 30 24 Q36 16 42 24" fill="none" stroke="#60a5fa" stroke-width="1.5"/><circle cx="6" cy="24" r="3" fill="#eab308"/><circle cx="42" cy="24" r="3" fill="#eab308"/></svg>',desc:'单模光纤（G.652D），外径125μm',detail:'类型：G.652D单模光纤\n结构：纤芯9μm + 包层125μm + 涂覆层250μm\n颜色：黄色外皮（室内），红色/蓝色标记区分\n衰减：1310nm ≤0.35dB/km，1550nm ≤0.20dB/km'}
 ];
 
 function renderToolShelf(body, onSelect){
@@ -342,7 +386,7 @@ function renderToolShelf(body, onSelect){
   for(var i=0;i<TOOLS.length;i++){
     html += '<div class="tool-card" id="tool-'+i+'" onclick="selectTool('+i+')">';
     html += '<button class="tool-info-btn" onclick="event.stopPropagation();showToolInfo('+i+')">i</button>';
-    html += '<span class="tool-icon">'+TOOLS[i].icon+'</span>';
+    html += '<div class="tool-icon">'+TOOLS[i].icon+'</div>';
     html += '<span class="tool-name">'+TOOLS[i].name+'</span>';
     html += '</div>';
   }
@@ -672,9 +716,9 @@ function renderStep5(body){
   html += '<div style="text-align:center">';
   html += '<div style="font-size:.82rem;color:var(--txt2);margin-bottom:12px">选择热缩管规格并套入</div>';
   html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">';
-  html += '<div class="tool-card" style="width:120px" id="tube40" onclick="selectTube(40)"><span class="tool-icon">📏</span><span class="tool-name">40mm热缩管</span></div>';
-  html += '<div class="tool-card" style="width:120px" id="tube60" onclick="selectTube(60)"><span class="tool-icon">📏</span><span class="tool-name">60mm热缩管</span></div>';
-  html += '<div class="tool-card" style="width:120px" id="tube80" onclick="selectTube(80)"><span class="tool-icon">📏</span><span class="tool-name">80mm热缩管</span></div>';
+  html += '<div class="tool-card" style="width:120px" id="tube40" onclick="selectTube(40)"><div class="tool-icon"><svg viewBox="0 0 48 48"><rect x="10" y="14" width="28" height="20" rx="6" fill="#fbbf24" opacity="0.5"/><text x="24" y="28" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">40</text></svg></div><span class="tool-name">40mm热缩管</span></div>';
+  html += '<div class="tool-card" style="width:120px" id="tube60" onclick="selectTube(60)"><div class="tool-icon"><svg viewBox="0 0 48 48"><rect x="10" y="14" width="28" height="20" rx="6" fill="#fbbf24" opacity="0.5"/><text x="24" y="28" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">60</text></svg></div><span class="tool-name">60mm热缩管</span></div>';
+  html += '<div class="tool-card" style="width:120px" id="tube80" onclick="selectTube(80)"><div class="tool-icon"><svg viewBox="0 0 48 48"><rect x="10" y="14" width="28" height="20" rx="6" fill="#fbbf24" opacity="0.5"/><text x="24" y="28" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">80</text></svg></div><span class="tool-name">80mm热缩管</span></div>';
   html += '</div>';
   html += '</div>';
   html += '<div id="tubeVisual" style="margin-top:16px;height:40px;position:relative">';
@@ -1252,6 +1296,7 @@ function initThreeJS(){
   buildStripper();
   buildFiber();
   buildHeatShrink();
+  buildFiberCables();
 
   // Mouse interaction for rotation
   var isDragging = false;
@@ -1461,6 +1506,123 @@ function buildHeatShrink(){
   sceneObjects.heatShrink = group;
 }
 
+function buildFiberCables(){
+  // Fiber spool/reel on the desk
+  var spoolGroup = new THREE.Group();
+  // Spool core
+  var coreGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 16);
+  var coreMat = new THREE.MeshStandardMaterial({color: 0x4a5568, roughness: 0.4});
+  var core = new THREE.Mesh(coreGeo, coreMat);
+  core.rotation.z = Math.PI/2;
+  spoolGroup.add(core);
+  // Spool flanges
+  var flangeGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.03, 16);
+  var flangeMat = new THREE.MeshStandardMaterial({color: 0x718096, roughness: 0.5});
+  var flange1 = new THREE.Mesh(flangeGeo, flangeMat);
+  flange1.rotation.z = Math.PI/2;
+  flange1.position.x = 0.25;
+  spoolGroup.add(flange1);
+  var flange2 = new THREE.Mesh(flangeGeo, flangeMat);
+  flange2.rotation.z = Math.PI/2;
+  flange2.position.x = -0.25;
+  spoolGroup.add(flange2);
+  // Wound fiber on spool (torus)
+  var woundGeo = new THREE.TorusGeometry(0.14, 0.04, 8, 24);
+  var woundMat = new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.3});
+  var wound = new THREE.Mesh(woundGeo, woundMat);
+  wound.rotation.y = Math.PI/2;
+  spoolGroup.add(wound);
+  spoolGroup.position.set(-2.2, 0.22, -0.8);
+  spoolGroup.castShadow = true;
+  scene.add(spoolGroup);
+  sceneObjects.fiberSpool = spoolGroup;
+
+  // Additional fiber cables laid across the desk
+  // Cable 1: yellow jacket fiber cable (left side, coiled)
+  var cableGroup1 = new THREE.Group();
+  var cablePath1 = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-2.5, 0.08, 0),
+    new THREE.Vector3(-2.0, 0.08, 0.2),
+    new THREE.Vector3(-1.5, 0.08, 0.1),
+    new THREE.Vector3(-1.0, 0.08, 0.3),
+    new THREE.Vector3(-0.5, 0.08, 0.15),
+  ]);
+  var cableGeo1 = new THREE.TubeGeometry(cablePath1, 40, 0.03, 8, false);
+  var cableMat1 = new THREE.MeshStandardMaterial({color: 0xeab308, roughness: 0.5});
+  var cable1 = new THREE.Mesh(cableGeo1, cableMat1);
+  cable1.castShadow = true;
+  cableGroup1.add(cable1);
+  // Inner fiber visible at end
+  var innerPath1 = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-0.5, 0.08, 0.15),
+    new THREE.Vector3(-0.2, 0.08, 0.1),
+    new THREE.Vector3(0.0, 0.08, 0.0),
+  ]);
+  var innerGeo1 = new THREE.TubeGeometry(innerPath1, 20, 0.01, 8, false);
+  var innerMat1 = new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.2, metalness: 0.3});
+  var inner1 = new THREE.Mesh(innerGeo1, innerMat1);
+  cableGroup1.add(inner1);
+  scene.add(cableGroup1);
+  sceneObjects.cable1 = cableGroup1;
+
+  // Cable 2: another fiber on the right side
+  var cableGroup2 = new THREE.Group();
+  var cablePath2 = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(2.5, 0.08, -0.3),
+    new THREE.Vector3(2.0, 0.08, -0.1),
+    new THREE.Vector3(1.5, 0.08, 0.1),
+    new THREE.Vector3(1.2, 0.08, 0.0),
+  ]);
+  var cableGeo2 = new THREE.TubeGeometry(cablePath2, 30, 0.03, 8, false);
+  var cableMat2 = new THREE.MeshStandardMaterial({color: 0xeab308, roughness: 0.5});
+  var cable2 = new THREE.Mesh(cableGeo2, cableMat2);
+  cable2.castShadow = true;
+  cableGroup2.add(cable2);
+  // Bare fiber at end
+  var innerPath2 = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(1.2, 0.08, 0.0),
+    new THREE.Vector3(1.0, 0.08, -0.1),
+    new THREE.Vector3(0.8, 0.08, -0.05),
+  ]);
+  var innerGeo2 = new THREE.TubeGeometry(innerPath2, 20, 0.01, 8, false);
+  var innerMat2 = new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.2, metalness: 0.3});
+  var inner2 = new THREE.Mesh(innerGeo2, innerMat2);
+  cableGroup2.add(inner2);
+  scene.add(cableGroup2);
+  sceneObjects.cable2 = cableGroup2;
+
+  // Alcohol bottle model
+  var bottleGroup = new THREE.Group();
+  var bottleBodyGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.25, 12);
+  var bottleBodyMat = new THREE.MeshStandardMaterial({color: 0x93c5fd, roughness: 0.2, transparent: true, opacity: 0.6});
+  var bottleBody = new THREE.Mesh(bottleBodyGeo, bottleBodyMat);
+  bottleGroup.add(bottleBody);
+  var capGeo = new THREE.CylinderGeometry(0.03, 0.04, 0.05, 12);
+  var capMat = new THREE.MeshStandardMaterial({color: 0x3b82f6, roughness: 0.4});
+  var cap = new THREE.Mesh(capGeo, capMat);
+  cap.position.y = 0.15;
+  bottleGroup.add(cap);
+  // Label
+  var labelGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.1, 12, 1, true);
+  var labelMat = new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6, side: THREE.DoubleSide});
+  var label = new THREE.Mesh(labelGeo, labelMat);
+  label.position.y = 0.03;
+  bottleGroup.add(label);
+  bottleGroup.position.set(1.8, 0.2, 0.7);
+  bottleGroup.castShadow = true;
+  scene.add(bottleGroup);
+  sceneObjects.alcoholBottle = bottleGroup;
+
+  // Cleaning tissue (flat white rectangle on desk)
+  var tissueGeo = new THREE.BoxGeometry(0.25, 0.01, 0.15);
+  var tissueMat = new THREE.MeshStandardMaterial({color: 0xf1f5f9, roughness: 0.8});
+  var tissue = new THREE.Mesh(tissueGeo, tissueMat);
+  tissue.position.set(1.5, 0.01, 0.8);
+  tissue.rotation.y = 0.3;
+  scene.add(tissue);
+  sceneObjects.tissue = tissue;
+}
+
 function updateScene(){
   var step = state.step;
   // Reset visibility
@@ -1469,6 +1631,11 @@ function updateScene(){
   if(sceneObjects.stripper) sceneObjects.stripper.visible = true;
   if(sceneObjects.fiber) sceneObjects.fiber.visible = true;
   if(sceneObjects.heatShrink) sceneObjects.heatShrink.visible = false;
+  if(sceneObjects.fiberSpool) sceneObjects.fiberSpool.visible = true;
+  if(sceneObjects.cable1) sceneObjects.cable1.visible = true;
+  if(sceneObjects.cable2) sceneObjects.cable2.visible = true;
+  if(sceneObjects.alcoholBottle) sceneObjects.alcoholBottle.visible = true;
+  if(sceneObjects.tissue) sceneObjects.tissue.visible = true;
 
   // Highlight current step equipment
   if(sceneObjects.splicer){
