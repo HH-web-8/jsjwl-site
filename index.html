@@ -25,17 +25,17 @@ a{text-decoration:none;color:inherit}
 @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== HOME ===== */
-.hero{position:relative;height:auto;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:18px 0 10px}
-.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;background-repeat:no-repeat;background-image:url('campus-panorama.jpg');filter:contrast(1.08) saturate(1.1) brightness(1.05);opacity:.35}
+.hero{position:relative;height:480px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;background-repeat:no-repeat;background-image:url('campus-panorama.jpg');filter:contrast(1.08) saturate(1.1) brightness(1.05)}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(240,249,255,.15) 35%,rgba(255,255,255,.1) 100%)}
-.hero-content{position:relative;z-index:2;text-align:center;padding-top:0;width:100%}
+.hero-content{position:relative;z-index:2;text-align:center;padding-top:56px;width:100%}
 .hero-logo{display:none}
 .hero-title{font-family:'STKaiti','KaiTi','楷体','FangSong','SimSun',serif;font-size:3.8rem;font-weight:900;color:#0c4a6e;letter-spacing:20px;margin:0;text-shadow:0 2px 8px rgba(255,255,255,.9),0 0 30px rgba(255,255,255,.7);white-space:nowrap;overflow:visible}
 .hero-sub{font-size:1rem;color:rgba(12,74,110,.65);letter-spacing:3px;margin:0;font-weight:500;text-shadow:0 1px 4px rgba(255,255,255,.7);white-space:nowrap;display:none}
 .hero-arrow{display:none}
 
 /* ===== MODULES ===== */
-.modules{background:#f0f9ff;padding:0 32px 32px}
+.modules{background:#f0f9ff;padding:16px 32px 32px}
 .modules-title{font-size:2.6rem;font-weight:700;text-align:center;margin-bottom:8px;color:var(--txt)}
 .modules-sub{text-align:center;color:var(--txl);margin-bottom:18px;font-size:1.25rem}
 .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%}
@@ -149,9 +149,9 @@ a{text-decoration:none;color:inherit}
   .nav-logo span{font-size:.88rem;letter-spacing:0}
   .nav-logo img{height:28px}
   .nav-a{padding:5px 12px;font-size:.82rem}
-  .hero{padding:14px 0 8px}
+  .hero{height:300px}
   .hero-title{font-size:1.6rem;letter-spacing:4px;white-space:normal}
-  .hero-content{padding-top:0}
+  .hero-content{padding-top:28px}
   .modules{padding:36px 16px 28px}
   .modules-title{font-size:1.6rem}
   .mgrid{grid-template-columns:repeat(2,1fr)!important;gap:14px}
@@ -167,7 +167,7 @@ a{text-decoration:none;color:inherit}
   .mgrid{grid-template-columns:1fr!important}
   .skills-grid{grid-template-columns:1fr!important}
   .sim-g{grid-template-columns:1fr!important}
-  .hero{padding:10px 0 6px}
+  .hero{height:220px}
   .hero-title{font-size:1.2rem;letter-spacing:2px}
 }
 
@@ -283,7 +283,6 @@ a{text-decoration:none;color:inherit}
 <p class="hero-sub">计算机网络应用专业——线上学习平台</p>
 </div>
 <div class="hero-arrow">&#x25BC;</div>
-</div>
 </section>
 
 <!-- 4 Modules -->
