@@ -23,8 +23,14 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0fdf4;h
 .msg-bubble{padding:12px 16px;border-radius:16px;line-height:1.7;font-size:15px;word-break:break-word;position:relative}
 .msg.bot .msg-bubble{background:#fff;color:#2d3748;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .msg.user .msg-bubble{background:linear-gradient(135deg,#276749,#48bb78);color:#fff;border-bottom-right-radius:4px}
-.msg-thinking{color:#a0aec0;font-size:13px;font-style:italic;margin-bottom:6px;padding-bottom:6px;border-bottom:1px dashed #e2e8f0}
-.msg-thinking-summary{color:#718096;font-size:13px;margin-bottom:4px}
+.msg-thinking-wrap{margin-bottom:8px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
+.msg-thinking-header{display:flex;align-items:center;gap:6px;padding:8px 12px;cursor:pointer;background:#f7fafc;user-select:none;font-size:13px;color:#718096}
+.msg-thinking-header:hover{background:#edf2f7}
+.msg-thinking-header .arrow{transition:transform .2s;display:inline-block}
+.msg-thinking-header .arrow.collapsed{transform:rotate(-90deg)}
+.msg-thinking-body{padding:8px 12px;color:#a0aec0;font-size:13px;font-style:italic;max-height:300px;overflow-y:auto;white-space:pre-wrap;line-height:1.5}
+.msg-thinking-wrap.collapsed .msg-thinking-body{display:none}
+.msg-thinking-wrap.expanded .msg-thinking-body{display:block}
 .typing-cursor::after{content:'▊';animation:blink 1s infinite;color:#48bb78}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -49,7 +55,13 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0fdf4;h
   .chat-wrap{padding:10px}
   .msg{max-width:92%}
   .welcome h2{font-size:17px}
-}
+  }
+  .msg-thinking-wrap{margin:4px 0 8px;border-left:3px solid #2E7D32;padding:6px 10px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0}
+  .msg-thinking-header{font-size:12px;color:#2E7D32;cursor:pointer;user-select:none;display:flex;align-items:center;gap:4px}
+  .msg-thinking-header .arrow{font-size:10px}
+  .msg-thinking-body{margin-top:6px;font-size:13px;color:#555;line-height:1.6;white-space:pre-wrap;max-height:0;overflow:hidden;transition:max-height .3s}
+  .msg-thinking-wrap.expanded .msg-thinking-body{max-height:2000px}
+  .msg-thinking-wrap:not(.expanded) .msg-thinking-body{max-height:0}
 </style>
 </head>
 <body>
@@ -143,9 +155,9 @@ async function send(){
             if(obj.type==='answer'&&obj.content){answerText=obj.content;hasAnswer=true;}
           }
           let html='';
-          if(thinkingText)html+=`<div class="msg-thinking-summary">💭 思考完成</div>`;
+          if(thinkingText)html+=`<div class="msg-thinking-wrap expanded" id="thinking-${msgId}"><div class="msg-thinking-header" onclick="toggleThinking('thinking-${msgId}')"><span class="arrow">▼</span>💭 思考过程</div><div class="msg-thinking-body">${escHtml(thinkingText)}</div></div>`;
           if(answerText)html+=formatMsg(answerText);
-          else if(!hasAnswer)html+=thinkingText?`<div class="msg-thinking">💭 ${escHtml(thinkingText.slice(-100))}...</div>`:'<span class="typing-cursor">思考中...</span>';
+          else if(!hasAnswer)html+=thinkingText?'':'<span class="typing-cursor">思考中...</span>';
           bubble.innerHTML=html;
           scrollBottom();
         }catch(e){}
@@ -177,6 +189,10 @@ function formatMsg(text){
   html=html.replace(/^[-*] (.+)$/gm,'<div style="padding-left:16px;margin:2px 0">• $1</div>');
   html=html.replace(/^(\d+)\. (.+)$/gm,'<div style="padding-left:16px;margin:2px 0">$1. $2</div>');
   return html;
+}
+function toggleThinking(id){
+  const el=document.getElementById(id);
+  if(el){el.classList.toggle('expanded');const arrow=el.querySelector('.arrow');if(arrow)arrow.textContent=el.classList.contains('expanded')?'▼':'▶';}
 }
 </script>
 </body>

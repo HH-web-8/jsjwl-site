@@ -63,7 +63,14 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 .ai-msg-bubble{padding:10px 14px;border-radius:14px;line-height:1.6;font-size:14px;word-break:break-word}
 .ai-msg.bot .ai-msg-bubble{background:#fff;color:#2d3748;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .ai-msg.user .ai-msg-bubble{background:linear-gradient(135deg,#c05621,#dd6b20);color:#fff;border-bottom-right-radius:4px}
-.ai-thinking-summary{color:#a0aec0;font-size:12px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px dashed #e2e8f0}
+.ai-thinking-summary{display:none}
+.msg-thinking-wrap{margin-bottom:8px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#f9fafb}
+.msg-thinking-header{padding:8px 12px;cursor:pointer;font-size:13px;color:#6b7280;display:flex;align-items:center;gap:6px;user-select:none}
+.msg-thinking-header:hover{background:#f3f4f6}
+.msg-thinking-header .arrow{font-size:10px;transition:transform .2s}
+.msg-thinking-wrap.expanded .msg-thinking-header .arrow{transform:rotate(180deg)}
+.msg-thinking-body{display:none;padding:8px 12px;font-size:12px;color:#9ca3af;white-space:pre-wrap;line-height:1.6;border-top:1px solid #e5e7eb;max-height:200px;overflow-y:auto}
+.msg-thinking-wrap.expanded .msg-thinking-body{display:block}
 .typing-cursor::after{content:'▊';animation:blink 1s infinite;color:#c05621}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -412,12 +419,16 @@ async function aiSend(){
 
           // 实时渲染
           let html='';
-          if(thinkingText&&!hasAnswer)html+=`<div class="ai-thinking-summary">💭 思考中...</div>`;
-          else if(thinkingText&&hasAnswer)html+=`<div class="ai-thinking-summary">💭 思考完成</div>`;
+          if(thinkingText){
+            html+=`<div class="msg-thinking-wrap expanded" id="tw_${aiMsgCount}">
+              <div class="msg-thinking-header" onclick="toggleThinking(this)">💭 思考中... <span class="arrow">▼</span></div>
+              <div class="msg-thinking-body">${escH(thinkingText)}</div></div>`;
+          }
           if(hasAnswer)html+=formatMsg(answerText)+'<span class="typing-cursor"></span>';
-          else if(thinkingText)html+=`<div style="color:#a0aec0;font-size:13px">${escH(thinkingText.slice(-200))}...</div>`;
-          else html+='<span class="typing-cursor">思考中...</span>';
+          else if(!thinkingText)html+='<span class="typing-cursor">等待中...</span>';
           bubble.innerHTML=html;
+          const tw=bubble.querySelector('.msg-thinking-wrap');
+          if(tw){const hdr=tw.querySelector('.msg-thinking-header');if(hasAnswer)hdr.innerHTML='💭 思考完成 <span class="arrow">▶</span>';tw.classList.remove('expanded');}
           bubble.scrollIntoView({behavior:'smooth'});
         }catch(e){}
       }
@@ -425,7 +436,9 @@ async function aiSend(){
 
     // 最终渲染
     let finalHtml='';
-    if(thinkingText)finalHtml+=`<div class="ai-thinking-summary">💭 思考完成</div>`;
+    if(thinkingText)finalHtml+=`<div class="msg-thinking-wrap" id="twf_${aiMsgCount}">
+      <div class="msg-thinking-header" onclick="toggleThinking(this)">💭 思考完成 <span class="arrow">▶</span></div>
+      <div class="msg-thinking-body">${escH(thinkingText)}</div></div>`;
     finalHtml+=answerText?formatMsg(answerText):'未获取到回复，请重试';
 
     // 如果回复中包含选择题，添加"加入练习"按钮
@@ -447,6 +460,7 @@ async function aiSend(){
 function aiQuick(t){document.getElementById('aiInput').value=t;aiSend()}
 
 function escH(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML.replace(/\n/g,'<br>')}
+function toggleThinking(el){const w=el.parentElement;w.classList.toggle('expanded')}
 
 function formatMsg(text){
   let html=escH(text);
