@@ -18,10 +18,17 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 .quiz-header{padding:12px 20px;border-bottom:1px solid #e2e8f0;background:#fafafa;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .quiz-header h2{font-size:16px;color:#2d3748;margin-right:8px}
 .qsel{padding:6px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;cursor:pointer;background:#fff}
+.btn-rand{padding:6px 14px;background:linear-gradient(135deg,#48bb78,#38a169);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;transition:all .2s}
+.btn-rand:hover{box-shadow:0 2px 6px rgba(72,187,120,.3)}
+.btn-wrong{padding:6px 14px;background:#fff;color:#e53e3e;border:1px solid #fed7d7;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;transition:all .2s;position:relative}
+.btn-wrong:hover{background:#fff5f5}
+.btn-wrong .badge{position:absolute;top:-6px;right:-6px;background:#e53e3e;color:#fff;font-size:10px;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center}
 .quiz-body{flex:1;overflow-y:auto;padding:16px 20px}
 .q-item{border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:14px;transition:all .2s}
 .q-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.q-num{font-size:12px;color:#a0aec0;margin-bottom:6px}
+.q-item.ai-gen{border-left:3px solid #dd6b20}
+.q-num{font-size:12px;color:#a0aec0;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.q-num .ai-badge{background:#fefcbf;color:#c05621;font-size:11px;padding:1px 6px;border-radius:4px}
 .q-text{font-size:15px;color:#2d3748;line-height:1.6;margin-bottom:10px;font-weight:500}
 .q-opts label{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;margin-bottom:4px;border-radius:8px;cursor:pointer;transition:all .15s;font-size:14px;color:#4a5568}
 .q-opts label:hover{background:#ebf4ff}
@@ -35,14 +42,19 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 .btn-submit:hover{box-shadow:0 2px 8px rgba(192,86,33,.3)}
 .btn-next{background:#edf2f7;color:#4a5568}
 .btn-next:hover{background:#e2e8f0}
+.btn-clear{background:#fff;color:#e53e3e;border:1px solid #fed7d7;margin-left:auto}
+.btn-clear:hover{background:#fff5f5}
 .score-box{margin-left:auto;font-size:14px;color:#718096}
+.empty-state{text-align:center;padding:50px 20px;color:#a0aec0}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:15px;line-height:1.6}
 /* 右侧AI助手 */
-.ai-side{flex:4;display:flex;flex-direction:column;background:#fffbf0;overflow:hidden;min-width:280px}
+.ai-side{flex:4;display:flex;flex-direction:column;background:#fffbf0;overflow:hidden;min-width:300px}
 .ai-header{padding:10px 16px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;background:#fefcbf}
 .ai-header h3{font-size:15px;color:#744210;flex:1}
 .ai-status{font-size:12px;color:#c05621}
 .ai-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
-.ai-msg{display:flex;gap:8px;max-width:90%;animation:fadeIn .3s ease}
+.ai-msg{display:flex;gap:8px;max-width:92%;animation:fadeIn .3s ease}
 .ai-msg.bot{align-self:flex-start}
 .ai-msg.user{align-self:flex-end;flex-direction:row-reverse}
 .ai-msg-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
@@ -51,15 +63,19 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 .ai-msg-bubble{padding:10px 14px;border-radius:14px;line-height:1.6;font-size:14px;word-break:break-word}
 .ai-msg.bot .ai-msg-bubble{background:#fff;color:#2d3748;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .ai-msg.user .ai-msg-bubble{background:linear-gradient(135deg,#c05621,#dd6b20);color:#fff;border-bottom-right-radius:4px}
-.ai-thinking{color:#a0aec0;font-size:12px;font-style:italic;margin-bottom:4px}
+.ai-thinking-summary{color:#a0aec0;font-size:12px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px dashed #e2e8f0}
 .typing-cursor::after{content:'▊';animation:blink 1s infinite;color:#c05621}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .ai-welcome{background:#fffbeb;border-radius:12px;padding:14px;text-align:center;margin-bottom:8px}
 .ai-welcome p{color:#744210;font-size:13px;line-height:1.5}
-.ai-quick{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
-.ai-quick span{background:#fff;color:#c05621;padding:4px 10px;border-radius:16px;font-size:12px;cursor:pointer;border:1px solid #fbd38d;transition:all .15s}
+.ai-quick{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.ai-quick span{background:#fff;color:#c05621;padding:5px 12px;border-radius:16px;font-size:12px;cursor:pointer;border:1px solid #fbd38d;transition:all .15s;font-weight:500}
 .ai-quick span:hover{background:#c05621;color:#fff}
+.ai-quick span.green{color:#38a169;border-color:#c6f6d5}
+.ai-quick span.green:hover{background:#38a169;color:#fff}
+.add-quiz-btn{display:inline-block;margin-top:8px;padding:6px 14px;background:linear-gradient(135deg,#48bb78,#38a169);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;transition:all .2s}
+.add-quiz-btn:hover{box-shadow:0 2px 6px rgba(72,187,120,.3)}
 .ai-input{padding:8px 10px;display:flex;gap:8px;border-top:1px solid #e2e8f0;background:#fefcbf}
 .ai-input input{flex:1;padding:8px 14px;border:1px solid #e2e8f0;border-radius:20px;font-size:13px;outline:none}
 .ai-input input:focus{border-color:#c05621}
@@ -67,6 +83,18 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 .ai-input button:disabled{opacity:.5;cursor:not-allowed}
 .ai-bottom{padding:6px 10px;text-align:center;border-top:1px solid #e2e8f0}
 .coze-btn-sm{display:inline-flex;align-items:center;gap:4px;padding:6px 16px;background:linear-gradient(135deg,#c05621,#dd6b20);color:#fff;text-decoration:none;border-radius:20px;font-size:12px;font-weight:600}
+/* 错题弹窗 */
+.wrong-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.wrong-modal.show{display:flex}
+.wrong-panel{background:#fff;border-radius:16px;width:90%;max-width:600px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.wrong-panel-header{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center}
+.wrong-panel-header h3{flex:1;font-size:16px;color:#e53e3e}
+.wrong-panel-header button{background:none;border:none;font-size:20px;cursor:pointer;color:#a0aec0;padding:4px 8px}
+.wrong-panel-body{flex:1;overflow-y:auto;padding:16px 20px}
+.wrong-item{padding:12px;border:1px solid #fed7d7;border-radius:10px;margin-bottom:10px;background:#fff5f5}
+.wrong-item .wrong-q{font-size:14px;font-weight:500;color:#2d3748;margin-bottom:6px}
+.wrong-item .wrong-info{font-size:12px;color:#9b2c2c}
+.wrong-empty{text-align:center;padding:40px;color:#a0aec0}
 /* 响应式 */
 @media(max-width:768px){
   .main{flex-direction:column}
@@ -85,15 +113,19 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
   <!-- 左侧题库 -->
   <div class="quiz-side">
     <div class="quiz-header">
-      <h2>题库练习</h2>
-      <select class="qsel" id="courseSel" onchange="loadQs()"><option value="all">全部课程</option><option value="net">计算机网络基础</option><option value="route">路由与交换技术</option><option value="cab">综合布线技术</option><option value="sec">网络安全技术</option><option value="linux">Linux系统管理</option><option value="prog">程序设计基础</option><option value="server">Windows服务器配置</option></select>
-      <select class="qsel" id="diffSel" onchange="loadQs()"><option value="all">全部难度</option><option value="easy">初级</option><option value="mid">中级</option><option value="hard">高级</option></select>
+      <h2>智能题库</h2>
+      <select class="qsel" id="courseSel" onchange="filterQs()"><option value="all">全部课程</option><option value="net">计算机网络基础</option><option value="route">路由与交换技术</option><option value="cab">综合布线技术</option><option value="sec">网络安全技术</option><option value="linux">Linux系统管理</option><option value="prog">程序设计基础</option><option value="server">Windows服务器配置</option></select>
+      <select class="qsel" id="diffSel" onchange="filterQs()"><option value="all">全部难度</option><option value="easy">初级</option><option value="mid">中级</option><option value="hard">高级</option></select>
+      <button class="btn-rand" onclick="randomGen()">🎲 随机出题</button>
+      <button class="btn-wrong" onclick="showWrong()">📝 错题本<span class="badge" id="wrongBadge" style="display:none">0</span></button>
     </div>
-    <div class="quiz-body" id="quizBody"><p style="color:#a0aec0;text-align:center;padding:40px 0">点击"开始答题"加载题目</p></div>
+    <div class="quiz-body" id="quizBody">
+      <div class="empty-state"><div class="icon">📚</div><p>点击<strong>"随机出题"</strong>生成题目<br>或在右侧AI助手中请AI出题，点击"加入练习"</p></div>
+    </div>
     <div class="quiz-footer">
-      <button class="btn-submit" onclick="startQuiz()">开始答题</button>
       <button class="btn-submit" onclick="submitQuiz()" id="submitBtn" style="display:none">提交答案</button>
       <button class="btn-next" onclick="nextBatch()" id="nextBtn" style="display:none">下一组</button>
+      <button class="btn-clear" onclick="clearQuiz()" id="clearBtn" style="display:none">清空重做</button>
       <span class="score-box" id="scoreBox"></span>
     </div>
   </div>
@@ -102,21 +134,33 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
     <div class="ai-header"><h3>题库AI助手</h3><span class="ai-status">在线</span></div>
     <div class="ai-msgs" id="aiMsgs">
       <div class="ai-welcome">
-        <p>遇到不会的题目？输入题目或知识点，AI帮你解析！</p>
+        <p>我是题库AI助手，可以帮你<strong>出试卷、出练习题</strong>，也可以解答专业问题</p>
         <div class="ai-quick">
-          <span onclick="aiQuick('解释一下OSI七层模型')">OSI七层模型</span>
-          <span onclick="aiQuick('子网掩码怎么算')">子网掩码计算</span>
-          <span onclick="aiQuick('TCP三次握手过程')">TCP三次握手</span>
+          <span class="green" onclick="aiQuick('请生成5道计算机网络基础的选择题，包含答案和解析')">📝 生成练习题</span>
+          <span class="green" onclick="aiQuick('请生成一份综合布线技术的模拟试卷，10道选择题，标注分值、答案和解析')">📋 生成试卷</span>
+          <span onclick="aiQuick('解释一下OSI七层模型每层的功能')">OSI七层模型</span>
+          <span onclick="aiQuick('子网掩码怎么计算可用主机数？')">子网掩码计算</span>
         </div>
       </div>
     </div>
     <div class="ai-input">
-      <input id="aiInput" type="text" placeholder="输入问题..." onkeydown="if(event.key==='Enter')aiSend()">
+      <input id="aiInput" type="text" placeholder="请AI出题或提问..." onkeydown="if(event.key==='Enter')aiSend()">
       <button id="aiSendBtn" onclick="aiSend()">发送</button>
     </div>
     <div class="ai-bottom">
       <a class="coze-btn-sm" href="https://www.coze.cn/s/iqhvcTg_ZoU/" target="_blank">进入COZE官方智能体 &rarr;</a>
     </div>
+  </div>
+</div>
+
+<!-- 错题本弹窗 -->
+<div class="wrong-modal" id="wrongModal">
+  <div class="wrong-panel">
+    <div class="wrong-panel-header">
+      <h3>📝 错题本</h3>
+      <button onclick="closeWrong()">&times;</button>
+    </div>
+    <div class="wrong-panel-body" id="wrongBody"></div>
   </div>
 </div>
 
@@ -127,53 +171,80 @@ const QBANK=[
 {c:"net",d:"easy",q:"TCP/IP协议栈共分几层？",o:["5层","6层","7层","4层"],a:3,e:"TCP/IP协议栈分为4层：网络接口层、网际层、传输层、应用层。"},
 {c:"net",d:"mid",q:"HTTP协议默认使用的端口号是？",o:["21","22","80","443"],a:2,e:"HTTP默认端口80，HTTPS默认端口443，FTP默认端口21，SSH默认端口22。"},
 {c:"net",d:"mid",q:"IP地址192.168.1.0/24的子网掩码是？",o:["255.255.0.0","255.255.255.0","255.255.255.128","255.0.0.0"],a:1,e:"/24表示前24位为网络位，子网掩码为255.255.255.0。"},
-{c:"net",d:"hard",q:"VLAN的主要作用是？",o:["提高网络速度","隔离广播域","加密数据","分配IP地址"],a:1,e:"VLAN（虚拟局域网）的主要作用是在逻辑上隔离广播域，减少广播风暴，提高网络安全性。"},
-{c:"route",d:"easy",q:"路由器工作在OSI模型的哪一层？",o:["物理层","数据链路层","网络层","传输层"],a:2,e:"路由器根据IP地址进行路由选择，工作在OSI模型的网络层（第三层）。"},
-{c:"route",d:"mid",q:"静态路由和动态路由的区别是？",o:["静态路由自动学习，动态路由手动配置","静态路由手动配置，动态路由自动学习","没有区别","静态路由更快"],a:1,e:"静态路由由管理员手动配置，动态路由通过路由协议自动学习和更新路由表。"},
+{c:"net",d:"hard",q:"VLAN的主要作用是？",o:["提高网络速度","隔离广播域","加密数据","分配IP地址"],a:1,e:"VLAN（虚拟局域网）的主要作用是在逻辑上隔离广播域，减少广播风暴。"},
+{c:"route",d:"easy",q:"路由器工作在OSI模型的哪一层？",o:["物理层","数据链路层","网络层","传输层"],a:2,e:"路由器根据IP地址进行路由选择，工作在OSI模型的网络层。"},
+{c:"route",d:"mid",q:"静态路由和动态路由的区别是？",o:["静态路由自动学习，动态路由手动配置","静态路由手动配置，动态路由自动学习","没有区别","静态路由更快"],a:1,e:"静态路由由管理员手动配置，动态路由通过路由协议自动学习。"},
 {c:"route",d:"mid",q:"OSPF协议属于哪种类型的路由协议？",o:["距离矢量","链路状态","路径矢量","混合型"],a:1,e:"OSPF是链路状态路由协议，使用SPF算法计算最短路径。"},
-{c:"route",d:"hard",q:"BGP协议的AS-PATH属性作用是？",o:["指定下一跳","防止路由环路","设置本地优先级","标识路由起源"],a:1,e:"AS-PATH属性记录路由经过的自治系统路径，主要用于防止BGP路由环路。"},
+{c:"route",d:"hard",q:"BGP协议的AS-PATH属性作用是？",o:["指定下一跳","防止路由环路","设置本地优先级","标识路由起源"],a:1,e:"AS-PATH记录路由经过的自治系统路径，主要用于防止BGP路由环路。"},
 {c:"cab",d:"easy",q:"T568B标准中第1脚的线序颜色是？",o:["绿白","橙白","蓝白","棕白"],a:1,e:"T568B线序：橙白-橙-绿白-蓝-蓝白-绿-棕白-棕，第1脚为橙白。"},
-{c:"cab",d:"mid",q:"单模光纤的纤芯直径约为？",o:["8-10μm","50μm","62.5μm","125μm"],a:0,e:"单模光纤纤芯直径约8-10μm，多模光纤纤芯直径为50μm或62.5μm。"},
-{c:"cab",d:"hard",q:"光纤熔接后热缩管加热温度一般为？",o:["80-100℃","120-150℃","150-180℃","200℃以上"],a:2,e:"光纤熔接后热缩管加热温度一般为150-180℃，使热缩管均匀收缩保护熔接点。"},
+{c:"cab",d:"mid",q:"单模光纤的纤芯直径约为？",o:["8-10μm","50μm","62.5μm","125μm"],a:0,e:"单模光纤纤芯直径约8-10μm，多模光纤为50μm或62.5μm。"},
+{c:"cab",d:"hard",q:"光纤熔接后热缩管加热温度一般为？",o:["80-100℃","120-150℃","150-180℃","200℃以上"],a:2,e:"光纤热缩管加热温度一般为150-180℃，使热缩管均匀收缩。"},
 {c:"sec",d:"easy",q:"防火墙的主要功能是？",o:["加速网络","过滤网络流量","分配IP","域名解析"],a:1,e:"防火墙的主要功能是根据安全策略过滤和控制进出网络的流量。"},
-{c:"sec",d:"mid",q:"SSL/TLS协议工作在OSI模型的哪一层？",o:["网络层","传输层","会话层","应用层"],a:2,e:"SSL/TLS工作在会话层（或传输层与应用层之间），为应用层数据提供加密传输。"},
-{c:"sec",d:"hard",q:"SQL注入攻击的防范措施不包括？",o:["参数化查询","输入验证","使用更复杂的SQL语句","使用ORM框架"],a:2,e:"使用更复杂的SQL语句并不能防止SQL注入，反而可能增加风险。正确防范措施包括参数化查询、输入验证、使用ORM等。"},
-{c:"linux",d:"easy",q:"Linux中查看当前目录的命令是？",o:["ls","cd","pwd","dir"],a:2,e:"pwd（Print Working Directory）命令用于显示当前工作目录的完整路径。"},
-{c:"linux",d:"mid",q:"chmod 755 file.txt 中数字7代表什么权限？",o:["只读","读写","读写执行","只执行"],a:2,e:"7=4+2+1，即读(r)+写(w)+执行(x)，表示所有者拥有读写执行权限。"},
-{c:"prog",d:"easy",q:"以下哪个不是编程语言？",o:["Python","Java","HTML","C++"],a:2,e:"HTML是超文本标记语言，用于定义网页结构和内容，不是编程语言。"},
-{c:"prog",d:"mid",q:"变量的作用域是指？",o:["变量的数据类型","变量的有效范围","变量的命名规则","变量的存储位置"],a:1,e:"变量的作用域是指变量在程序中可以被访问和使用的有效范围。"},
-{c:"server",d:"easy",q:"Windows Server中DNS服务器的作用是？",o:["分配IP地址","域名解析","文件共享","邮件服务"],a:1,e:"DNS服务器的主要作用是将域名解析为IP地址，实现域名到IP的映射。"},
-{c:"server",d:"mid",q:"DHCP服务器分配IP地址的4步过程是？",o:["Discover-Offer-Request-Acknowledge","Request-Offer-Discover-Acknowledge","Discover-Request-Offer-Acknowledge","Offer-Discover-Request-Acknowledge"],a:0,e:"DHCP分配IP的4步：Discover(发现)→Offer(提供)→Request(请求)→Acknowledge(确认)，简称DORA。"}
+{c:"sec",d:"mid",q:"SSL/TLS协议工作在OSI模型的哪一层？",o:["网络层","传输层","会话层","应用层"],a:2,e:"SSL/TLS工作在会话层，为应用层数据提供加密传输。"},
+{c:"sec",d:"hard",q:"SQL注入攻击的防范措施不包括？",o:["参数化查询","输入验证","使用更复杂的SQL语句","使用ORM框架"],a:2,e:"使用更复杂的SQL语句并不能防止SQL注入，反而可能增加风险。"},
+{c:"linux",d:"easy",q:"Linux中查看当前目录的命令是？",o:["ls","cd","pwd","dir"],a:2,e:"pwd（Print Working Directory）显示当前工作目录的完整路径。"},
+{c:"linux",d:"mid",q:"chmod 755 file.txt 中数字7代表什么权限？",o:["只读","读写","读写执行","只执行"],a:2,e:"7=4+2+1，即读(r)+写(w)+执行(x)，所有者拥有读写执行权限。"},
+{c:"prog",d:"easy",q:"以下哪个不是编程语言？",o:["Python","Java","HTML","C++"],a:2,e:"HTML是超文本标记语言，不是编程语言。"},
+{c:"prog",d:"mid",q:"变量的作用域是指？",o:["变量的数据类型","变量的有效范围","变量的命名规则","变量的存储位置"],a:1,e:"变量的作用域是指变量在程序中可被访问和使用的有效范围。"},
+{c:"server",d:"easy",q:"DNS服务器的作用是？",o:["分配IP地址","域名解析","文件共享","邮件服务"],a:1,e:"DNS服务器将域名解析为IP地址。"},
+{c:"server",d:"mid",q:"DHCP分配IP地址的4步过程是？",o:["Discover-Offer-Request-Acknowledge","Request-Offer-Discover-Acknowledge","Discover-Request-Offer-Acknowledge","Offer-Discover-Request-Acknowledge"],a:0,e:"DHCP 4步：Discover→Offer→Request→Acknowledge，简称DORA。"}
 ];
-let curQs=[],qIdx=0,BATCH=5,score=0,total=0;
 
-function startQuiz(){loadQs()}
-function loadQs(){
-  const c=document.getElementById('courseSel').value,d=document.getElementById('diffSel').value;
-  curQs=QBANK.filter(q=>(c==='all'||q.c===c)&&(d==='all'||q.d===d));
-  if(!curQs.length){document.getElementById('quizBody').innerHTML='<p style="color:#a0aec0;text-align:center;padding:40px 0">该条件下暂无题目</p>';return}
-  curQs.sort(()=>Math.random()-.5);qIdx=0;score=0;total=0;
-  document.getElementById('submitBtn').style.display='';document.getElementById('nextBtn').style.display='none';
-  document.getElementById('scoreBox').textContent='';showBatch();
+let curQs=[],qIdx=0,BATCH=5,score=0,total=0,submitted=false;
+let wrongList=JSON.parse(localStorage.getItem('wrongList')||'[]');
+
+function updateWrongBadge(){
+  const b=document.getElementById('wrongBadge');
+  if(wrongList.length>0){b.textContent=wrongList.length;b.style.display='flex'}
+  else b.style.display='none';
 }
+
+function filterQs(){
+  const c=document.getElementById('courseSel').value,d=document.getElementById('diffSel').value;
+  return QBANK.filter(q=>(c==='all'||q.c===c)&&(d==='all'||q.d===d));
+}
+
+function loadQsToPanel(qs){
+  curQs=qs;qIdx=0;score=0;total=0;submitted=false;
+  document.getElementById('submitBtn').style.display='';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('clearBtn').style.display='';
+  document.getElementById('scoreBox').textContent='';
+  showBatch();
+}
+
 function showBatch(){
   const end=Math.min(qIdx+BATCH,curQs.length),batch=curQs.slice(qIdx,end);
   let html='';
   batch.forEach((q,i)=>{
     const num=qIdx+i+1;
-    html+=`<div class="q-item" id="qi${num}"><div class="q-num">第${num}题 / ${curQs.length}题 · ${{easy:'初级',mid:'中级',hard:'高级'}[q.d]}</div><div class="q-text">${q.q}</div><div class="q-opts">${q.o.map((o,j)=>`<label><input type="radio" name="q${num}" value="${j}">${String.fromCharCode(65+j)}. ${o}</label>`).join('')}</div><div class="q-ans" id="ans${num}"></div></div>`;
+    const aiBadge=q.aiGen?'<span class="ai-badge">AI生成</span>':'';
+    html+=`<div class="q-item${q.aiGen?' ai-gen':''}" id="qi${num}">
+      <div class="q-num">第${num}题 / ${curQs.length}题 · ${{easy:'初级',mid:'中级',hard:'高级'}[q.d]}${aiBadge}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-opts">${q.o.map((o,j)=>`<label><input type="radio" name="q${num}" value="${j}">${String.fromCharCode(65+j)}. ${o}</label>`).join('')}</div>
+      <div class="q-ans" id="ans${num}"></div>
+    </div>`;
   });
   document.getElementById('quizBody').innerHTML=html;
-  if(qIdx+BATCH>=curQs.length)document.getElementById('nextBtn').style.display='none';
 }
+
 function submitQuiz(){
+  submitted=true;
   const end=Math.min(qIdx+BATCH,curQs.length);let right=0;
   for(let i=qIdx;i<end;i++){
     const num=i+1,q=curQs[i],sel=document.querySelector(`input[name="q${num}"]:checked`);
     const ansDiv=document.getElementById('ans'+num);
-    if(!sel){ansDiv.className='q-ans wrong';ansDiv.textContent='⚠️ 未作答';ansDiv.style.display='block';continue}
+    if(!sel){ansDiv.className='q-ans wrong';ansDiv.textContent='⚠️ 未作答';continue}
     const v=parseInt(sel.value);
-    if(v===q.a){right++;ansDiv.className='q-ans correct';ansDiv.textContent='✅ 正确！'+q.e}else{ansDiv.className='q-ans wrong';ansDiv.textContent='❌ 错误。正确答案：'+String.fromCharCode(65+q.a)+'. '+q.o[q.a]+'。'+q.e}
+    if(v===q.a){
+      right++;ansDiv.className='q-ans correct';ansDiv.textContent='✅ 正确！'+q.e;
+    }else{
+      ansDiv.className='q-ans wrong';ansDiv.textContent='❌ 错误。正确答案：'+String.fromCharCode(65+q.a)+'. '+q.o[q.a]+'。'+q.e;
+      // 记录错题
+      const exists=wrongList.find(w=>w.q===q.q);
+      if(!exists){wrongList.push({q:q.q,o:q.o,a:q.a,e:e_ID=q.e,c:q.c,d:q.d,ts:Date.now()});localStorage.setItem('wrongList',JSON.stringify(wrongList));updateWrongBadge();}
+    }
     ansDiv.style.display='block';
     document.querySelectorAll(`input[name="q${num}"]`).forEach(r=>r.disabled=true);
   }
@@ -182,12 +253,113 @@ function submitQuiz(){
   document.getElementById('submitBtn').style.display='none';
   document.getElementById('nextBtn').style.display=(qIdx+BATCH<curQs.length)?'':'none';
 }
+
 function nextBatch(){
-  qIdx+=BATCH;
-  if(qIdx>=curQs.length){document.getElementById('quizBody').innerHTML=`<div style="text-align:center;padding:40px 0"><h3 style="color:#2d3748">练习完成！</h3><p style="color:#718096;margin-top:10px;font-size:18px">最终得分：${score}/${total}</p></div>`;document.getElementById('nextBtn').style.display='none';return}
+  qIdx+=BATCH;submitted=false;
+  if(qIdx>=curQs.length){
+    document.getElementById('quizBody').innerHTML=`<div class="empty-state"><div class="icon">🎉</div><h3 style="color:#2d3748;margin-bottom:8px">练习完成！</h3><p style="font-size:20px;color:#744210">最终得分：${score}/${total}</p></div>`;
+    document.getElementById('nextBtn').style.display='none';return;
+  }
   document.getElementById('submitBtn').style.display='';document.getElementById('nextBtn').style.display='none';
   showBatch();
 }
+
+function clearQuiz(){
+  curQs=[];qIdx=0;score=0;total=0;submitted=false;
+  document.getElementById('quizBody').innerHTML='<div class="empty-state"><div class="icon">📚</div><p>点击<strong>"随机出题"</strong>生成题目<br>或在右侧AI助手中请AI出题，点击"加入练习"</p></div>';
+  document.getElementById('submitBtn').style.display='none';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('clearBtn').style.display='none';
+  document.getElementById('scoreBox').textContent='';
+}
+
+/* 随机出题 - 从内置题库随机抽取 */
+function randomGen(){
+  const c=document.getElementById('courseSel').value,d=document.getElementById('diffSel').value;
+  let pool=QBANK.filter(q=>(c==='all'||q.c===c)&&(d==='all'||q.d===d));
+  if(!pool.length){alert('该条件下暂无内置题目，请让AI助手出题');return}
+  pool.sort(()=>Math.random()-.5);
+  const qs=pool.slice(0,Math.min(10,pool.length)).map(q=>({...q}));
+  loadQsToPanel(qs);
+}
+
+/* 从AI回复中解析题目并加入练习 */
+function addAiQuestions(text){
+  const questions=parseAiQuestions(text);
+  if(!questions.length){alert('未能从AI回复中识别到可用的选择题，请让AI按标准格式输出');return}
+  questions.forEach(q=>{q.aiGen=true;if(!q.c)q.c='net';if(!q.d)q.d='mid';});
+  if(curQs.length===0||submitted){
+    loadQsToPanel(questions);
+  }else{
+    curQs=curQs.concat(questions);
+    document.getElementById('nextBtn').style.display=(qIdx+BATCH<curQs.length)?'':'none';
+    // 刷新显示
+    if(submitted)nextBatch();
+  }
+  // 滚动到左侧题库顶部
+  document.getElementById('quizBody').scrollTop=0;
+}
+
+/* 解析AI输出的选择题 */
+function parseAiQuestions(text){
+  const qs=[];
+  // 匹配模式：数字. 题干  A. 选项 B. 选项 C. 选项 D. 选项  答案：X
+  const blocks=text.split(/\n(?=\d+[\.\、．])/);
+  for(const block of blocks){
+    const lines=block.trim().split('\n').filter(l=>l.trim());
+    if(lines.length<3)continue;
+    // 提取题干（第一行）
+    let qText=lines[0].replace(/^\d+[\.\、．]\s*/,'').trim();
+    // 提取选项
+    const opts=[];
+    const optRe=/^[A-Da-d][\.\、．、]\s*(.+)/;
+    let answerIdx=-1;
+    let explanation='';
+    for(let i=1;i<lines.length;i++){
+      const m=lines[i].match(optRe);
+      if(m){opts.push(m[1].trim());continue}
+      // 匹配答案
+      const ansM=lines[i].match(/[答案|正确答案|Answer][:：]\s*([A-Da-d])/i);
+      if(ansM){
+        const letter=ansM[1].toUpperCase();
+        answerIdx='ABCD'.indexOf(letter);
+        continue;
+      }
+      // 匹配解析
+      const expM=lines[i].match(/[解析|解释|Explanation][:：]\s*(.+)/i);
+      if(expM)explanation=expM[1].trim();
+    }
+    if(qText&&opts.length>=2&&answerIdx>=0){
+      qs.push({q:qText,o:opts,a:answerIdx,e:explanation||'暂无解析'});
+    }
+  }
+  return qs;
+}
+
+/* 错题本 */
+function showWrong(){
+  const body=document.getElementById('wrongBody');
+  if(!wrongList.length){body.innerHTML='<div class="wrong-empty">📝 暂无错题记录<br><span style="font-size:13px">答题错误会自动记录到这里</span></div>';}
+  else{
+    let html='';
+    wrongList.forEach((w,i)=>{
+      html+=`<div class="wrong-item"><div class="wrong-q">${i+1}. ${w.q}</div><div class="wrong-info">正确答案：${String.fromCharCode(65+w.a)}. ${(w.o&&w.o[w.a])||''}</div>${w.e?'<div style="font-size:12px;color:#718096;margin-top:4px">'+w.e+'</div>':''}</div>`;
+    });
+    body.innerHTML=html+`<div style="text-align:center;margin-top:16px"><button onclick="clearWrong()" style="padding:8px 20px;background:#fff;color:#e53e3e;border:1px solid #fed7d7;border-radius:8px;cursor:pointer;font-size:13px">清空错题本</button> <button onclick="wrongToQuiz()" style="padding:8px 20px;background:linear-gradient(135deg,#c05621,#dd6b20);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">重新练习错题</button></div>`;
+  }
+  document.getElementById('wrongModal').classList.add('show');
+  updateWrongBadge();
+}
+function closeWrong(){document.getElementById('wrongModal').classList.remove('show')}
+function clearWrong(){wrongList=[];localStorage.setItem('wrongList','[]');updateWrongBadge();closeWrong()}
+function wrongToQuiz(){
+  closeWrong();
+  if(!wrongList.length)return;
+  const qs=wrongList.map(w=>({...w,aiGen:false}));
+  loadQsToPanel(qs);
+}
+
+updateWrongBadge();
 
 /* ========== AI助手逻辑 ========== */
 const AI_BOT_ID='7645540020057423908';
@@ -201,30 +373,90 @@ function addAiMsg(role,html){
   d.innerHTML=`<div class="ai-msg-avatar">${role==='bot'?'🤖':'👤'}</div><div class="ai-msg-bubble">${html}</div>`;
   document.getElementById('aiMsgs').appendChild(d);d.scrollIntoView({behavior:'smooth'});return d;
 }
+
 async function aiSend(){
   const input=document.getElementById('aiInput'),text=input.value.trim();
   if(!text||aiStreaming)return;input.value='';aiStreaming=true;document.getElementById('aiSendBtn').disabled=true;
   addAiMsg('user',escH(text));
-  const botDiv=addAiMsg('bot','<span class="typing-cursor"></span>');
+  const botDiv=addAiMsg('bot','<span class="typing-cursor">思考中...</span>');
   const bubble=botDiv.querySelector('.ai-msg-bubble');
-  let full='',thinking='';
+  let answerText='',thinkingText='',hasAnswer=false,lastFullAnswer='';
+
   try{
     const body={bot_id:AI_BOT_ID,user_id:aiUserId,stream:true,auto_save_history:true,additional_messages:[{role:'user',content:text,content_type:'text'}]};
     if(aiConvId)body.conversation_id=aiConvId;
     const resp=await fetch(AI_API,{method:'POST',headers:{'Authorization':'Bearer '+AI_TOKEN,'Content-Type':'application/json'},body:JSON.stringify(body)});
     const reader=resp.body.getReader(),decoder=new TextDecoder();let buf='';
-    while(true){const{done,value}=await reader.read();if(done)break;buf+=decoder.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop();
-      for(const line of lines){if(!line.startsWith('data:'))continue;const data=line.slice(5).trim();if(!data)continue;
-        try{const obj=JSON.parse(data);if(obj.conversation_id&&!aiConvId)aiConvId=obj.conversation_id;
-          if(obj.type==='answer'){if(obj.content)full=obj.content;if(obj.reasoning_content)thinking+=obj.reasoning_content;
-            let h='';if(thinking)h+=`<div class="ai-thinking">💭 ${escH(thinking.slice(-60))}...</div>`;h+=escH(full)+'<span class="typing-cursor"></span>';bubble.innerHTML=h;}
-        }catch(e){}}
-    }bubble.innerHTML=escH(full)||'未获取到回复，请重试';
-  }catch(e){bubble.innerHTML='⚠️ 网络错误，<a href="https://www.coze.cn/s/iqhvcTg_ZoU/" target="_blank" style="color:#c05621">点击进入COZE官方智能体</a>';}
-  aiStreaming=false;document.getElementById('aiSendBtn').disabled=false;
+
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      let currentEvent='';
+
+      for(const line of lines){
+        if(line.startsWith('event:')){currentEvent=line.slice(6).trim();continue;}
+        if(!line.startsWith('data:'))continue;
+        const data=line.slice(5).trim();if(!data||data==='[DONE]')continue;
+        try{
+          const obj=JSON.parse(data);
+          if(obj.conversation_id&&!aiConvId)aiConvId=obj.conversation_id;
+
+          if(currentEvent==='conversation.message.delta'){
+            if(obj.type==='answer'){hasAnswer=true;if(obj.content)answerText+=obj.content;}
+            else if(obj.type==='verbose'&&obj.content){thinkingText+=obj.content;}
+          }
+          if(currentEvent==='conversation.message.completed'){
+            if(obj.type==='answer'&&obj.content){answerText=obj.content;hasAnswer=true;}
+          }
+
+          // 实时渲染
+          let html='';
+          if(thinkingText&&!hasAnswer)html+=`<div class="ai-thinking-summary">💭 思考中...</div>`;
+          else if(thinkingText&&hasAnswer)html+=`<div class="ai-thinking-summary">💭 思考完成</div>`;
+          if(hasAnswer)html+=formatMsg(answerText)+'<span class="typing-cursor"></span>';
+          else if(thinkingText)html+=`<div style="color:#a0aec0;font-size:13px">${escH(thinkingText.slice(-200))}...</div>`;
+          else html+='<span class="typing-cursor">思考中...</span>';
+          bubble.innerHTML=html;
+          bubble.scrollIntoView({behavior:'smooth'});
+        }catch(e){}
+      }
+    }
+
+    // 最终渲染
+    let finalHtml='';
+    if(thinkingText)finalHtml+=`<div class="ai-thinking-summary">💭 思考完成</div>`;
+    finalHtml+=answerText?formatMsg(answerText):'未获取到回复，请重试';
+
+    // 如果回复中包含选择题，添加"加入练习"按钮
+    const parsed=parseAiQuestions(answerText);
+    if(parsed.length>0){
+      finalHtml+=`<div style="margin-top:10px"><button class="add-quiz-btn" onclick="addAiQuestions(lastAiAnswer)">📚 将${parsed.length}道题加入练习</button></div>`;
+    }
+    bubble.innerHTML=finalHtml;
+    // 保存答案供按钮回调
+    window.lastAiAnswer=answerText;
+    bubble.scrollIntoView({behavior:'smooth'});
+
+  }catch(e){
+    bubble.innerHTML='⚠️ 网络错误，<a href="https://www.coze.cn/s/iqhvcTg_ZoU/" target="_blank" style="color:#c05621">点击进入COZE官方智能体</a>';
+  }
+  aiStreaming=false;document.getElementById('aiSendBtn').disabled=false;document.getElementById('aiInput').focus();
 }
+
 function aiQuick(t){document.getElementById('aiInput').value=t;aiSend()}
+
 function escH(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML.replace(/\n/g,'<br>')}
+
+function formatMsg(text){
+  let html=escH(text);
+  html=html.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  html=html.replace(/^### (.+)$/gm,'<div style="font-size:15px;font-weight:700;margin:8px 0 4px;color:#744210">$1</div>');
+  html=html.replace(/^## (.+)$/gm,'<div style="font-size:16px;font-weight:700;margin:10px 0 4px;color:#744210">$1</div>');
+  html=html.replace(/^[-*] (.+)$/gm,'<div style="padding-left:14px;margin:2px 0">• $1</div>');
+  html=html.replace(/^(\d+)[\.\、．]\s*(.+)$/gm,'<div style="padding-left:14px;margin:2px 0">$1. $2</div>');
+  return html;
+}
 </script>
 </body>
 </html>

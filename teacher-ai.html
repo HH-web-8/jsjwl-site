@@ -7,15 +7,12 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;height:100vh;display:flex;flex-direction:column}
-/* 顶部导航 */
 .topbar{background:linear-gradient(135deg,#1e3a5f,#2c5282);color:#fff;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .topbar a{color:#fff;text-decoration:none;font-size:14px;padding:6px 14px;border:1px solid rgba(255,255,255,.3);border-radius:6px;transition:all .2s}
 .topbar a:hover{background:rgba(255,255,255,.15)}
 .topbar h1{font-size:18px;font-weight:600;flex:1}
 .bot-tag{font-size:12px;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:12px}
-/* 聊天区 */
 .chat-wrap{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin:0 auto;padding:16px;overflow:hidden}
-/* 消息列表 */
 .msgs{flex:1;overflow-y:auto;padding:8px 0;display:flex;flex-direction:column;gap:12px}
 .msg{display:flex;gap:10px;max-width:85%;animation:fadeIn .3s ease}
 .msg.bot{align-self:flex-start}
@@ -26,29 +23,26 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 .msg-bubble{padding:12px 16px;border-radius:16px;line-height:1.7;font-size:15px;word-break:break-word;position:relative}
 .msg.bot .msg-bubble{background:#fff;color:#2d3748;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .msg.user .msg-bubble{background:linear-gradient(135deg,#2c5282,#4299e1);color:#fff;border-bottom-right-radius:4px}
-.msg-thinking{color:#a0aec0;font-size:13px;font-style:italic;margin-bottom:4px}
+.msg-thinking{color:#a0aec0;font-size:13px;font-style:italic;margin-bottom:6px;padding-bottom:6px;border-bottom:1px dashed #e2e8f0}
+.msg-thinking-summary{color:#718096;font-size:13px;margin-bottom:4px}
 .typing-cursor::after{content:'▊';animation:blink 1s infinite;color:#4299e1}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-/* 欢迎消息 */
 .welcome{background:linear-gradient(135deg,#ebf4ff,#e2e8f0);border-radius:16px;padding:24px;margin-bottom:12px;text-align:center}
 .welcome h2{color:#1e3a5f;font-size:20px;margin-bottom:8px}
 .welcome p{color:#4a5568;font-size:14px;line-height:1.6;margin-bottom:12px}
 .welcome-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .welcome-tag{background:#fff;color:#2c5282;padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid #bee3f8}
 .welcome-tag:hover{background:#2c5282;color:#fff}
-/* 输入区 */
 .input-area{padding:12px 0;display:flex;gap:10px;flex-shrink:0}
 .input-area input{flex:1;padding:12px 18px;border:2px solid #e2e8f0;border-radius:24px;font-size:15px;outline:none;transition:border-color .2s}
 .input-area input:focus{border-color:#4299e1}
 .input-area button{padding:12px 24px;background:linear-gradient(135deg,#2c5282,#4299e1);color:#fff;border:none;border-radius:24px;font-size:15px;cursor:pointer;transition:all .2s;font-weight:600}
 .input-area button:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(44,82,130,.3)}
 .input-area button:disabled{opacity:.5;cursor:not-allowed;transform:none}
-/* 底部按钮 */
 .bottom-bar{padding:10px 16px;text-align:center;flex-shrink:0}
 .coze-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;background:linear-gradient(135deg,#2c5282,#4299e1);color:#fff;text-decoration:none;border-radius:24px;font-size:14px;font-weight:600;transition:all .2s;box-shadow:0 2px 8px rgba(44,82,130,.2)}
 .coze-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(44,82,130,.35)}
-/* 响应式 */
 @media(max-width:640px){
   .topbar{padding:10px 16px}
   .topbar h1{font-size:15px}
@@ -64,7 +58,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
   <h1>教师AI备课助手</h1>
   <span class="bot-tag">在线</span>
 </div>
-
 <div class="chat-wrap">
   <div class="msgs" id="msgs">
     <div class="welcome">
@@ -85,7 +78,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
     <a class="coze-btn" href="https://www.coze.cn/s/xqfU3sWIPLI/" target="_blank">进入COZE官方智能体 &rarr;</a>
   </div>
 </div>
-
 <script>
 const BOT_ID='7645541370291699731';
 const API_URL='https://api.coze.cn/v3/chat';
@@ -115,32 +107,17 @@ async function send(){
   input.value='';
   isStreaming=true;
   document.getElementById('sendBtn').disabled=true;
-
-  // 用户消息
   addMsg('user',escHtml(text));
-
-  // Bot消息占位
-  const botDiv=addMsg('bot','<span class="typing-cursor"></span>');
+  const botDiv=addMsg('bot','<span class="typing-cursor">思考中...</span>');
   const bubble=botDiv.querySelector('.msg-bubble');
-  let fullAnswer='';
-  let thinking='';
+  let answerText='';
+  let thinkingText='';
+  let hasAnswer=false;
 
   try{
-    const body={
-      bot_id:BOT_ID,
-      user_id:userId,
-      stream:true,
-      auto_save_history:true,
-      additional_messages:[{role:'user',content:text,content_type:'text'}]
-    };
+    const body={bot_id:BOT_ID,user_id:userId,stream:true,auto_save_history:true,additional_messages:[{role:'user',content:text,content_type:'text'}]};
     if(conversationId)body.conversation_id=conversationId;
-
-    const resp=await fetch(API_URL,{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
-
+    const resp=await fetch(API_URL,{method:'POST',headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify(body)});
     const reader=resp.body.getReader();
     const decoder=new TextDecoder();
     let buf='';
@@ -152,34 +129,60 @@ async function send(){
       const lines=buf.split('\n');
       buf=lines.pop();
 
+      let currentEvent='';
       for(const line of lines){
+        // Parse SSE event type line
+        if(line.startsWith('event:')){
+          currentEvent=line.slice(6).trim();
+          continue;
+        }
         if(!line.startsWith('data:'))continue;
         const data=line.slice(5).trim();
-        if(!data)continue;
+        if(!data||data==='[DONE]')continue;
         try{
           const obj=JSON.parse(data);
-          // 保存conversation_id
+          // Save conversation_id
           if(obj.conversation_id&&!conversationId)conversationId=obj.conversation_id;
-          // 流式增量
-          if(obj.type==='answer'){
-            if(obj.content)fullAnswer=obj.content;
-            if(obj.reasoning_content)thinking+=obj.reasoning_content;
-            // 更新显示
-            let html='';
-            if(thinking)html+=`<div class="msg-thinking">💭 思考中: ${escHtml(thinking.slice(-80))}${thinking.length>80?'...':''}</div>`;
-            html+=escHtml(fullAnswer)+('<span class="typing-cursor"></span>');
-            bubble.innerHTML=html;
-            scrollBottom();
+
+          // conversation.message.delta - streaming incremental content
+          if(currentEvent==='conversation.message.delta'){
+            if(obj.type==='answer'){
+              hasAnswer=true;
+              if(obj.content)answerText+=obj.content;
+            }else if(obj.type==='verbose'&&obj.content){
+              thinkingText+=obj.content;
+            }
           }
-          // 完成消息
-          if(obj.type==='answer'&&obj.status==='completed'){
-            fullAnswer=obj.content||fullAnswer;
+          // conversation.message.completed - final complete message
+          if(currentEvent==='conversation.message.completed'){
+            if(obj.type==='answer'&&obj.content){
+              // Use completed content as the authoritative full text
+              answerText=obj.content;
+              hasAnswer=true;
+            }
           }
+
+          // Update display
+          let html='';
+          if(thinkingText){
+            const shortThink=thinkingText.length>200?thinkingText.slice(-200):thinkingText;
+            html+=`<div class="msg-thinking-summary">💭 思考完成</div>`;
+          }
+          if(answerText){
+            html+=formatMsg(answerText);
+          }else if(!hasAnswer){
+            html+=thinkingText?`<div class="msg-thinking">💭 ${escHtml(thinkingText.slice(-100))}...</div>`:'<span class="typing-cursor">思考中...</span>';
+          }
+          bubble.innerHTML=html;
+          scrollBottom();
         }catch(e){}
       }
     }
-    // 最终显示
-    bubble.innerHTML=escHtml(fullAnswer)||'抱歉，未获取到回复，请重试。';
+    // Final display
+    let finalHtml='';
+    if(thinkingText)finalHtml+=`<div class="msg-thinking-summary">💭 思考完成</div>`;
+    finalHtml+=answerText?formatMsg(answerText):'抱歉，未获取到回复，请重试。';
+    bubble.innerHTML=finalHtml;
     scrollBottom();
   }catch(e){
     bubble.innerHTML='⚠️ 网络错误，请稍后重试。也可<a href="https://www.coze.cn/s/xqfU3sWIPLI/" target="_blank" style="color:#4299e1">点击进入COZE官方智能体</a>';
@@ -199,6 +202,21 @@ function escHtml(s){
   const d=document.createElement('div');
   d.textContent=s;
   return d.innerHTML.replace(/\n/g,'<br>');
+}
+
+function formatMsg(text){
+  // Simple markdown-like formatting
+  let html=escHtml(text);
+  // Bold: **text**
+  html=html.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  // Headers: ### text
+  html=html.replace(/^### (.+)$/gm,'<div style="font-size:16px;font-weight:700;margin:8px 0 4px;color:#1e3a5f">$1</div>');
+  html=html.replace(/^## (.+)$/gm,'<div style="font-size:17px;font-weight:700;margin:10px 0 4px;color:#1e3a5f">$1</div>');
+  // Lists: - item or * item
+  html=html.replace(/^[-*] (.+)$/gm,'<div style="padding-left:16px;margin:2px 0">• $1</div>');
+  // Numbered lists: 1. item
+  html=html.replace(/^(\d+)\. (.+)$/gm,'<div style="padding-left:16px;margin:2px 0">$1. $2</div>');
+  return html;
 }
 </script>
 </body>
