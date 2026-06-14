@@ -155,10 +155,26 @@ body {
   overflow: hidden;
   min-height: 200px;
 }
-.video-player video {
+.video-player video,
+.video-player .bilibili-iframe {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border: 0;
+  display: block;
+}
+.video-player .bilibili-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.video-player #videoPlaceholder {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .video-placeholder {
   text-align: center;
@@ -1405,16 +1421,21 @@ body {
     </div>
     <div class="video-wrap">
       <div class="video-player" id="videoPlayer">
-        <video id="videoEl" autoplay loop muted playsinline>
-          <source src="T568B视频1.mp4" type="video/mp4" data-vid="1">
-          <source src="T568B视频2.mp4" type="video/mp4" data-vid="2">
-        </video>
+        <iframe id="bilibiliIframe" class="bilibili-iframe" src="" frameborder="0" allowfullscreen="true" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        <div class="video-placeholder" id="videoPlaceholder">
+          <div class="video-placeholder-icon">🎬</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.7;margin-top:8px">
+            <b style="color:#cbd5e1">网线制作视频教学</b><br>
+            <span style="color:#64748b">请在下方选择视频1或视频2开始学习</span><br>
+            <span style="color:#475569;font-size:11px">📺 视频源：Bilibili</span>
+          </div>
+        </div>
       </div>
       <div class="video-controls">
         <button class="video-btn active" onclick="switchVideo(0)">视频1</button>
         <button class="video-btn" onclick="switchVideo(1)">视频2</button>
       </div>
-      <div class="video-info" id="videoInfo">📺 正在播放：T568B网线制作演示1</div>
+      <div class="video-info" id="videoInfo">📺 请选择视频（B站源）</div>
     </div>
   </div>
 
@@ -1640,27 +1661,41 @@ document.getElementById('stepsBar').addEventListener('click', function(e){
   }
 });
 
-// ==================== 视频切换 ====================
+// ==================== B站视频切换 ====================
+// 视频BV号配置（您提供视频链接后填这里）
+var BILIBILI_BVS = {
+  0: '',  // 视频1：T568B网线制作演示
+  1: ''   // 视频2：常见错误与解决方法
+};
+var BILIBILI_PAGES = {0: 1, 1: 1}; // 第几P（一般1）
+
 function switchVideo(idx) {
   state.videoIndex = idx;
-  var video = $('videoEl');
-  // 仅保留选中的source
-  var sources = video.querySelectorAll('source');
-  sources.forEach(function(s){
-    s.parentNode.removeChild(s);
-  });
-  var newSrc = idx === 0 ? 'T568B视频1.mp4' : 'T568B视频2.mp4';
-  var newSource = document.createElement('source');
-  newSource.src = newSrc;
-  newSource.type = 'video/mp4';
-  video.appendChild(newSource);
-  video.load();
-  video.play().catch(function(){});
+  var bv = BILIBILI_BVS[idx];
+  var placeholder = $('videoPlaceholder');
+  var iframe = $('bilibiliIframe');
+  
   // 更新按钮样式
   document.querySelectorAll('.video-btn').forEach(function(b, i){
     b.classList.toggle('active', i === idx);
   });
-  $('videoInfo').textContent = '📺 正在播放：T568B网线制作演示' + (idx+1);
+  
+  if (!bv) {
+    // 未配置BV号：显示提示
+    iframe.style.display = 'none';
+    placeholder.style.display = 'flex';
+    placeholder.innerHTML = '<div class="video-placeholder-icon">🎬</div><div style="font-size:13px;color:#94a3b8;line-height:1.7;margin-top:8px"><b style="color:#cbd5e1">视频' + (idx+1) + '：待配置</b><br><span style="color:#64748b">请到 B站 搜索 T568B 网线制作</span><br><span style="color:#475569;font-size:11px">找到视频后复制链接发给我</span></div>';
+    $('videoInfo').textContent = '⏳ 视频' + (idx+1) + ' 待配置B站BV号';
+    return;
+  }
+  
+  // 已配置：嵌入B站iframe
+  var page = BILIBILI_PAGES[idx] || 1;
+  var src = 'https://player.bilibili.com/player.html?bvid=' + bv + '&page=' + page + '&autoplay=0&muted=0';
+  iframe.src = src;
+  iframe.style.display = 'block';
+  placeholder.style.display = 'none';
+  $('videoInfo').textContent = '📺 正在播放：视频' + (idx+1) + ' (BV' + bv + ')';
 }
 
 // ==================== 模式切换 ====================
@@ -2377,11 +2412,7 @@ function switchTab(tab) {
 window.addEventListener('load', function(){
   // 初始化错题本计数
   $('errorCount').textContent = getErrorBook().length;
-  // 视频错误处理
-  var video = $('videoEl');
-  video.addEventListener('error', function(){
-    $('videoPlayer').innerHTML = '<div class="video-placeholder"><div class="video-placeholder-icon">🎬</div>视频加载失败<br>请上传 T568B视频1.mp4 / T568B视频2.mp4</div>';
-  });
+  // B站嵌入错误处理：默认显示占位符，点击视频按钮才加载
   // 启动
   setStep(0);
 });
