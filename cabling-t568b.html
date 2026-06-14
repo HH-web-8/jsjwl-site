@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T568B网线制作虚拟实训 - 山东工业技师学院</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ============ 顶栏 ============ */
+.topbar {
+  height: 56px;
+  background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+  border-bottom: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+.back-btn {
+  background: transparent;
+  border: 1px solid #475569;
+  color: #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all .2s;
+}
+.back-btn:hover { background: #334155; color: #fff; }
+.topbar-title {
+  margin-left: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+.topbar-mode {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+.mode-btn {
+  background: #1e40af;
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all .2s;
+}
+.mode-btn:hover { background: #1d4ed8; }
+.mode-btn.secondary { background: #334155; }
+.mode-btn.secondary:hover { background: #475569; }
+.mode-btn.active { background: #dc2626; }
+.mode-btn.active:hover { background: #b91c1c; }
+
+/* ============ 步骤条 ============ */
+.steps-bar {
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  padding: 12px 20px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.step-tag {
+  background: #334155;
+  color: #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  border: none;
+  transition: all .2s;
+  position: relative;
+}
+.step-tag:hover { background: #475569; }
+.step-tag.active {
+  background: #3b82f6;
+  color: #fff;
+  box-shadow: 0 0 0 2px #1d4ed8;
+}
+.step-tag.completed {
+  background: #16a34a;
+  color: #fff;
+}
+.step-tag.completed::before {
+  content: "✓ ";
+}
+
+/* ============ 主体三栏 ============ */
+.main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* === 左栏：视频 === */
+.video-panel {
+  flex: 0 0 20%;
+  background: #1e293b;
+  border-right: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel-header {
+  background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
+  padding: 14px 16px;
+  border-bottom: 1px solid #334155;
+}
+.panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-title::before {
+  content: "▶";
+  color: #3b82f6;
+}
+.video-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  min-height: 0;
+}
+.video-player {
+  flex: 1;
+  width: 100%;
+  background: #000;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+.video-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.video-placeholder {
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
+  padding: 20px;
+}
+.video-placeholder-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+  opacity: 0.4;
+}
+.video-controls {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+}
+.video-btn {
+  flex: 1;
+  background: #334155;
+  border: 1px solid #475569;
+  color: #cbd5e1;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all .2s;
+}
+.video-btn:hover { background: #475569; color: #fff; }
+.video-btn.active { background: #3b82f6; color: #fff; border-color: #1d4ed8; }
+.video-info {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+  background: #0f172a;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+/* === 中栏：操作区 === */
+.scene-wrap {
+  flex: 5;
+  background: radial-gradient(ellipse at center, #1e293b 0%, #0f172a 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.scene-header {
+  background: rgba(15, 23, 42, 0.6);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  flex-shrink: 0;
+}
+.scene-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+.scene-title::before {
+  content: "● ";
+  color: #ef4444;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.scene-progress {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.scene-progress span {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.scene-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 通用舞台 */
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === 步骤1：工具准备 === */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 600px;
+  width: 100%;
+  padding: 30px;
+}
+.tool-card {
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+  border: 2px solid #475569;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  user-select: none;
+}
+.tool-card:hover {
+  transform: translateY(-4px);
+  border-color: #3b82f6;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+}
+.tool-card.selected {
+  border-color: #16a34a;
+  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.4);
+}
+.tool-card.selected::after {
+  content: "✓";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #16a34a;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.tool-card-icon {
+  font-size: 56px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.tool-card-name {
+  font-size: 13px;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+/* === 步骤2：剥线 === */
+.strip-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cable-horizontal {
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  cursor: default;
+}
+.cable {
+  width: 100%;
+  height: 36px;
+  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+  border-radius: 18px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all .3s;
+}
+.cable::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fdba74 0%, #fb923c 100%);
+  opacity: 0.6;
+}
+.cable.stripped {
+  background: transparent;
+  box-shadow: none;
+  height: 100px;
+}
+.cable.stripped::before { display: none; }
+.cable-wires {
+  position: absolute;
+  left: 30%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60%;
+  height: 80px;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 4px;
+}
+.cable.stripped .cable-wires { display: flex; }
+.wire {
+  height: 8px;
+  border-radius: 2px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 9px;
+  color: #fff;
+  font-weight: 600;
+  padding-left: 4px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  transition: all .3s;
+}
+.wire-wo { background: #f5f5f5; color: #444; text-shadow: none; }
+.wire-o { background: #f97316; }
+.wire-wg { background: #d1fae5; color: #065f46; text-shadow: none; }
+.wire-b { background: #3b82f6; }
+.wire-wb { background: #dbeafe; color: #1e3a8a; text-shadow: none; }
+.wire-g { background: #22c55e; }
+.wire-wbr { background: #fde68a; color: #78350f; text-shadow: none; }
+.wire-br { background: #92400e; }
+.cable-untouched-left {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30%;
+  height: 36px;
+  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+  border-radius: 18px 0 0 18px;
+}
+.cable-untouched-left::before {
+  content: "";
+  position: absolute;
+  inset: 2px 0 2px 2px;
+  border-radius: 16px 0 0 16px;
+  background: linear-gradient(180deg, #fdba74 0%, #fb923c 100%);
+  opacity: 0.6;
+}
+
+.strip-tool {
+  position: absolute;
+  font-size: 64px;
+  cursor: grab;
+  z-index: 10;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  user-select: none;
+  transition: transform .1s;
+}
+.strip-tool:active { cursor: grabbing; transform: scale(1.1); }
+.strip-hint {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(59, 130, 246, 0.9);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 5;
+}
+.strip-hint::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: rgba(59, 130, 246, 0.9);
+}
+
+/* === 步骤3：理线 === */
+.wire-sort-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 30px;
+}
+.wire-source {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  background: rgba(51, 65, 85, 0.5);
+  border-radius: 8px;
+  border: 1px dashed #64748b;
+}
+.wire-source-title {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.wire-source .wire {
+  width: 200px;
+  cursor: grab;
+  height: 24px;
+  padding-left: 10px;
+}
+.wire-source .wire:active { cursor: grabbing; }
+.wire-source .wire.dragging { opacity: 0.4; }
+
+.wire-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  border: 1px solid #334155;
+}
+.slots-title {
+  font-size: 11px;
+  color: #3b82f6;
+  text-align: center;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.wire-slot {
+  width: 200px;
+  height: 26px;
+  background: rgba(51, 65, 85, 0.3);
+  border: 1px dashed #475569;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 11px;
+  color: #64748b;
+  transition: all .2s;
+}
+.wire-slot.drag-over {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  border-style: solid;
+}
+.wire-slot.correct {
+  background: rgba(22, 163, 74, 0.2);
+  border-color: #16a34a;
+  border-style: solid;
+}
+.wire-slot.wrong {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: #dc2626;
+  border-style: solid;
+  animation: shake .3s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+.wire-slot .wire {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: grab;
+}
+.slot-label {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-right: 8px;
+  font-weight: 600;
+  min-width: 22px;
+}
+
+.sort-hint {
+  font-size: 12px;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+/* === 步骤4：剪齐 === */
+.cut-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 30px;
+}
+.cut-cable {
+  width: 60%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+.cut-cable .wire {
+  height: 10px;
+  border-radius: 2px;
+  padding: 0 8px;
+  font-size: 10px;
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+}
+.cut-cable .wire.uncut {
+  width: 100%;
+}
+.cut-cable .wire.cut {
+  width: 60%;
+  transition: width .5s;
+}
+.cut-tool {
+  font-size: 72px;
+  cursor: grab;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  user-select: none;
+  z-index: 5;
+  transition: transform .2s;
+}
+.cut-tool:hover { transform: scale(1.05); }
+.cut-tool:active { cursor: grabbing; }
+.cut-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+}
+
+/* === 步骤5：插入水晶头 === */
+.crimp-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 40px;
+}
+.cable-and-plug {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.bundled-cable {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bundled-cable .wire {
+  width: 200px;
+  height: 12px;
+  border-radius: 2px;
+  font-size: 9px;
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+.cable-jacket {
+  width: 60px;
+  height: 100px;
+  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+  border-radius: 8px 0 0 8px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fed7aa;
+  font-size: 10px;
+  writing-mode: vertical-rl;
+  letter-spacing: 2px;
+}
+.rj45-plug {
+  width: 120px;
+  height: 70px;
+  background: linear-gradient(180deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%);
+  border-radius: 8px;
+  position: relative;
+  cursor: grab;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  transition: transform .2s;
+  user-select: none;
+}
+.rj45-plug:hover { transform: scale(1.05); }
+.rj45-plug:active { cursor: grabbing; }
+.rj45-plug::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 50px;
+  background: #4b5563;
+  border-radius: 2px 0 0 2px;
+}
+.rj45-plug::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 30px;
+  background: #fbbf24;
+  border-radius: 2px;
+}
+.rj45-pin {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 8px;
+  color: #1e40af;
+  font-weight: 600;
+  z-index: 2;
+  background: rgba(255,255,255,0.7);
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+.crimp-hint {
+  font-size: 13px;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+
+/* === 步骤6：压接 === */
+.press-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+.crimper-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+.rj45-in-crimper {
+  position: relative;
+}
+.rj45-in-crimper .rj45-plug {
+  cursor: default;
+  position: relative;
+  z-index: 2;
+}
+.crimper {
+  width: 180px;
+  height: 200px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.crimper-head {
+  width: 160px;
+  height: 60px;
+  background: linear-gradient(180deg, #475569 0%, #334155 100%);
+  border-radius: 8px 8px 4px 4px;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+.crimper-head::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  width: 120px;
+  height: 12px;
+  background: #1e293b;
+  border-radius: 4px 4px 0 0;
+}
+.crimper-head::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 16px;
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+  border-radius: 4px;
+}
+.crimper-handle {
+  width: 40px;
+  height: 100px;
+  background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+  border-radius: 4px;
+  margin-top: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  position: relative;
+}
+.crimper-handle::after {
+  content: "▼";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #60a5fa;
+  font-size: 20px;
+  animation: bounce 1.2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+.crimper.pressing .crimper-head {
+  transform: translateY(8px);
+  transition: transform .3s;
+}
+.crimper.pressing .crimper-handle {
+  transform: translateY(4px);
+  transition: transform .3s;
+}
+.press-hint {
+  font-size: 13px;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  cursor: pointer;
+  transition: all .2s;
+}
+.press-hint:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  color: #fff;
+}
+
+/* === 步骤7：测线 === */
+.test-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 40px;
+}
+.tester {
+  width: 240px;
+  background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  transition: transform .2s;
+}
+.tester:hover { transform: scale(1.05); }
+.tester:active { cursor: grabbing; }
+.tester-screen {
+  background: #000;
+  color: #4ade80;
+  font-family: 'Courier New', monospace;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-bottom: 12px;
+  min-height: 60px;
+  line-height: 1.5;
+  text-align: center;
+}
+.tester-lights {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.tester-light {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 2px solid #475569;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #64748b;
+  font-weight: 600;
+  transition: all .3s;
+}
+.tester-light.on {
+  background: radial-gradient(circle, #4ade80 0%, #16a34a 100%);
+  border-color: #22c55e;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+.tester-label {
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+}
+.test-hint {
+  font-size: 13px;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+.test-stage {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 20px;
+}
+.test-cable {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform .2s;
+}
+.test-cable.highlight { transform: scale(1.1); filter: drop-shadow(0 0 12px #4ade80); }
+.plug-body {
+  background: linear-gradient(180deg, #e2e8f0 0%, #94a3b8 100%);
+  width: 70px;
+  height: 50px;
+  border-radius: 4px;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  border-top: 3px solid #f1f5f9;
+}
+.plug-pins {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 6px 4px;
+  height: 100%;
+}
+.plug-pin {
+  background: #d97706;
+  border-radius: 1px;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.cable-tail {
+  font-family: monospace;
+  color: #06b6d4;
+  font-size: 14px;
+  letter-spacing: 1px;
+  background: rgba(6, 182, 212, 0.1);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px dashed #06b6d4;
+}
+.test-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #4ade80;
+  font-weight: 600;
+}
+.test-result.fail { color: #ef4444; }
+
+/* === 步骤8：答题 === */
+.quiz-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.quiz-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid #334155;
+  border-radius: 12px;
+  padding: 28px;
+  max-width: 600px;
+  width: 100%;
+}
+.quiz-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.quiz-progress .badge {
+  background: #3b82f6;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.quiz-question {
+  font-size: 15px;
+  color: #f1f5f9;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.quiz-option {
+  background: #334155;
+  border: 2px solid #475569;
+  color: #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  transition: all .2s;
+}
+.quiz-option:hover:not(:disabled) {
+  background: #475569;
+  border-color: #3b82f6;
+}
+.quiz-option.correct {
+  background: #166534;
+  border-color: #22c55e;
+  color: #fff;
+}
+.quiz-option.wrong {
+  background: #991b1b;
+  border-color: #ef4444;
+  color: #fff;
+}
+.quiz-option:disabled { cursor: not-allowed; }
+.quiz-explain {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+.quiz-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.quiz-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all .2s;
+}
+.quiz-btn:hover { background: #1d4ed8; }
+.quiz-btn.secondary {
+  background: #334155;
+  color: #cbd5e1;
+}
+.quiz-btn.secondary:hover { background: #475569; }
+.quiz-result {
+  text-align: center;
+  padding: 30px;
+}
+.quiz-result h3 {
+  font-size: 22px;
+  color: #4ade80;
+  margin-bottom: 12px;
+}
+.quiz-result h3.fail { color: #ef4444; }
+.quiz-result .score {
+  font-size: 40px;
+  font-weight: 700;
+  color: #3b82f6;
+  margin: 12px 0;
+}
+
+/* === 右栏：操作说明 === */
+.panel {
+  flex: 0 0 30%;
+  background: #1e293b;
+  border-left: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel-tabs {
+  display: flex;
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+  flex-shrink: 0;
+}
+.panel-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+}
+.panel-tab:hover { color: #e2e8f0; }
+.panel-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  min-height: 0;
+}
+.panel-body::-webkit-scrollbar { width: 6px; }
+.panel-body::-webkit-scrollbar-track { background: #0f172a; }
+.panel-body::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+
+.step-info {
+  margin-bottom: 16px;
+}
+.step-info-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.step-info-title .step-num {
+  background: #3b82f6;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+.step-info-meta {
+  font-size: 11px;
+  color: #64748b;
+}
+.step-info-desc {
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.7;
+  margin-top: 12px;
+}
+.tip-box {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+  padding: 10px 12px;
+  margin: 12px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+.warning-box {
+  background: rgba(251, 191, 36, 0.1);
+  border-left: 3px solid #fbbf24;
+  padding: 10px 12px;
+  margin: 12px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+.knowledge-box {
+  background: rgba(22, 163, 74, 0.1);
+  border-left: 3px solid #22c55e;
+  padding: 10px 12px;
+  margin: 12px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+.knowledge-box h4 {
+  color: #4ade80;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.tools-shelf {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+.shelf-tool {
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+.shelf-tool-icon {
+  font-size: 24px;
+}
+
+.next-btn {
+  margin-top: 16px;
+  width: 100%;
+  background: linear-gradient(90deg, #16a34a 0%, #15803d 100%);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all .2s;
+}
+.next-btn:hover { background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); }
+.next-btn:disabled {
+  background: #334155;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* 答题Tab */
+.quiz-tab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.quiz-stat-row {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.quiz-stat {
+  text-align: center;
+}
+.quiz-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #3b82f6;
+}
+.quiz-stat-label {
+  font-size: 11px;
+  color: #94a3b8;
+}
+.quiz-stat.green .quiz-stat-num { color: #22c55e; }
+.quiz-stat.red .quiz-stat-num { color: #ef4444; }
+.quiz-stat.yellow .quiz-stat-num { color: #fbbf24; }
+
+/* 错题本 */
+.errorbook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.errorbook-item {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 12px;
+  color: #cbd5e1;
+  position: relative;
+}
+.errorbook-item .eq-q {
+  color: #f1f5f9;
+  margin-bottom: 4px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.errorbook-item .eq-a {
+  color: #4ade80;
+  font-size: 11px;
+}
+.errorbook-item .eq-del {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 12px;
+}
+.errorbook-item .eq-del:hover { color: #fca5a5; }
+.errorbook-empty {
+  text-align: center;
+  color: #64748b;
+  padding: 30px 0;
+  font-size: 12px;
+}
+.errorbook-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.errorbook-actions .quiz-btn {
+  flex: 1;
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+/* 分数徽章 */
+.score-badge {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge.show { display: flex; }
+.score-badge .score-num {
+  font-size: 18px;
+  color: #fbbf24;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 23, 42, 0.95);
+  color: #fff;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 1000;
+  border: 1px solid #334155;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  display: none;
+}
+.toast.show { display: block; animation: fadeIn .3s; }
+.toast.success { border-color: #16a34a; }
+.toast.error { border-color: #dc2626; }
+.toast.info { border-color: #3b82f6; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -40%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* 响应式 */
+@media (max-width: 1100px) {
+  .video-panel { flex: 0 0 25%; }
+  .panel { flex: 0 0 35%; }
+  .scene-wrap { flex: 1; }
+}
+@media (max-width: 768px) {
+  .main { flex-direction: column; }
+  .video-panel, .panel { flex: 0 0 auto; max-height: 200px; }
+  .scene-wrap { flex: 1; }
+  .tools-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 顶栏 -->
+<div class="topbar">
+  <a class="back-btn" href="index.html">← 返回</a>
+  <div class="topbar-title">T568B网线制作虚拟实训</div>
+  <div class="topbar-mode">
+    <button class="mode-btn active" onclick="setMode('guide')">📘 新手引导</button>
+    <button class="mode-btn secondary" onclick="setMode('exam')">📝 考核模式</button>
+    <button class="mode-btn secondary" onclick="resetAll()">🔄 重新开始</button>
+  </div>
+</div>
+
+<!-- 步骤条 -->
+<div class="steps-bar" id="stepsBar">
+  <button class="step-tag active" data-step="0">1. 工具准备</button>
+  <button class="step-tag" data-step="1">2. 剥线</button>
+  <button class="step-tag" data-step="2">3. 理线</button>
+  <button class="step-tag" data-step="3">4. 剪齐</button>
+  <button class="step-tag" data-step="4">5. 插入水晶头</button>
+  <button class="step-tag" data-step="5">6. 压接</button>
+  <button class="step-tag" data-step="6">7. 测线</button>
+  <button class="step-tag" data-step="7">8. 知识答题</button>
+</div>
+
+<!-- 主体 -->
+<div class="main">
+  <!-- 左：视频 -->
+  <div class="video-panel">
+    <div class="panel-header">
+      <div class="panel-title">网线制作视频教学</div>
+    </div>
+    <div class="video-wrap">
+      <div class="video-player" id="videoPlayer">
+        <video id="videoEl" autoplay loop muted playsinline>
+          <source src="T568B视频1.mp4" type="video/mp4" data-vid="1">
+          <source src="T568B视频2.mp4" type="video/mp4" data-vid="2">
+        </video>
+      </div>
+      <div class="video-controls">
+        <button class="video-btn active" onclick="switchVideo(0)">视频1</button>
+        <button class="video-btn" onclick="switchVideo(1)">视频2</button>
+      </div>
+      <div class="video-info" id="videoInfo">📺 正在播放：T568B网线制作演示1</div>
+    </div>
+  </div>
+
+  <!-- 中：操作区 -->
+  <div class="scene-wrap">
+    <div class="scene-header">
+      <div class="scene-title">T568B网线制作平台</div>
+      <div class="scene-progress">当前步骤：<span id="currentStepNum">1</span> / 8</div>
+    </div>
+    <div class="scene-area" id="sceneArea">
+      <!-- 各步骤内容由JS动态生成 -->
+    </div>
+  </div>
+
+  <!-- 右：说明面板 -->
+  <div class="panel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" data-tab="guide" onclick="switchTab('guide')">📋 操作说明</button>
+      <button class="panel-tab" data-tab="quiz" onclick="switchTab('quiz')">📝 答题练习</button>
+      <button class="panel-tab" data-tab="error" onclick="switchTab('error')">❌ 错题本 <span id="errorCount" style="color:#ef4444;">0</span></button>
+    </div>
+    <div class="panel-body" id="panelBody">
+      <!-- 内容由JS生成 -->
+    </div>
+  </div>
+</div>
+
+<!-- 评分徽章 -->
+<div class="score-badge" id="scoreBadge">
+  <span>当前得分：</span>
+  <span class="score-num" id="scoreNum">0</span>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== 全局状态 ====================
+var state = {
+  currentStep: 0,
+  score: 0,
+  mode: 'guide', // guide / exam
+  selectedTools: [],
+  isDragging: false,
+  draggedWire: null,
+  draggedFrom: null,
+  wireArrangement: new Array(8).fill(null),
+  wiresRemoved: 0,
+  cableCut: false,
+  plugInserted: false,
+  plugCrimped: false,
+  testPassed: false,
+  quizCurrent: 0,
+  quizScore: 0,
+  quizAnswers: [],
+  videoIndex: 0
+};
+
+// T568B色序
+var T568B = [
+  { code: 'WO', name: '白橙', class: 'wire-wo' },
+  { code: 'O',  name: '橙',   class: 'wire-o' },
+  { code: 'WG', name: '白绿', class: 'wire-wg' },
+  { code: 'B',  name: '蓝',   class: 'wire-b' },
+  { code: 'WB', name: '白蓝', class: 'wire-wb' },
+  { code: 'G',  name: '绿',   class: 'wire-g' },
+  { code: 'WBR',name: '白棕', class: 'wire-wbr' },
+  { code: 'BR', name: '棕',   class: 'wire-br' }
+];
+
+// 工具清单
+var TOOLS = [
+  { id: 'cable',  name: '网线',  icon: '🔌' },
+  { id: 'plug',   name: '水晶头', icon: '🧩' },
+  { id: 'stripper', name: '剥线钳', icon: '✂️' },
+  { id: 'crimper',  name: '压线钳', icon: '🔧' },
+  { id: 'tester',   name: '测线仪', icon: '📊' },
+  { id: 'scissors', name: '剪刀',   icon: '✁' }
+];
+
+// 8步详情
+var STEPS = [
+  {
+    title: '工具准备',
+    desc: '网线水晶头制作需要 6 种专业工具。请在中间区域点击所有 6 个工具卡片完成准备。',
+    tip: '💡 提示：依次点击每个工具卡片，被选中的工具会显示绿色 ✓ 标记。',
+    knowledge: '6种工具：网线(原材料)、水晶头(RJ45连接器)、剥线钳(剥外皮)、压线钳(压接+剪线+剥线三合一)、测线仪(测试连通性)、剪刀(辅助剪齐)。'
+  },
+  {
+    title: '剥线',
+    desc: '使用剥线钳剥开网线外皮，露出 8 根彩色线芯。',
+    tip: '💡 提示：将剥线钳拖动到网线外皮上松开即可完成剥线，剥线长度约 2-3cm。',
+    knowledge: '剥线要点：刀口朝外，旋转剥线钳一周；不可切太深（会伤线芯）；标准剥线长度 20-30mm。'
+  },
+  {
+    title: '理线',
+    desc: '按 T568B 标准色序排列 8 根线芯：白橙、橙、白绿、蓝、白蓝、绿、白棕、棕。',
+    tip: '💡 提示：将左侧打乱的 8 根线芯拖动到右侧对应的颜色槽位中。',
+    knowledge: 'T568B 是国际通用网线接线标准，色序为：白橙-橙-白绿-蓝-白蓝-绿-白棕-棕。1-2 脚发送、3-6 脚接收，用于 100M/1000M 以太网。'
+  },
+  {
+    title: '剪齐',
+    desc: '将 8 根线芯剪齐，长度约 1-1.5cm，方便插入水晶头。',
+    tip: '💡 提示：点击剪刀工具 8 次（或一次性点击）完成剪齐。',
+    knowledge: '剪齐要点：保持所有线芯平齐（误差<0.5mm），线芯端面垂直。'
+  },
+  {
+    title: '插入水晶头',
+    desc: '将整理好的线束水平插入 RJ45 水晶头，铜片朝下，线芯顶到水晶头最前端。',
+    tip: '💡 提示：拖动水晶头到整理好的线束上。',
+    knowledge: '插入要点：水晶头有塑料弹片的一面朝下，8 根线芯必须顶到水晶头最前端，从前端看每根线芯都要清晰可见。'
+  },
+  {
+    title: '压接',
+    desc: '将插入线芯的水晶头放入压线钳的 8P 槽位，用力压紧。',
+    tip: '💡 提示：点击"开始压接"按钮启动压线钳，听到"咔哒"声表示压接完成。',
+    knowledge: '压接要点：水晶头必须完全插入压线钳 8P 槽位；用力压到底（不可中途松开）；压接后铜片应刺破线芯绝缘层接触铜芯。'
+  },
+  {
+    title: '测线',
+    desc: '使用测线仪测试网线的 8 根线芯连通性。',
+    tip: '💡 提示：将测线仪拖动到网线上，8 个指示灯依次亮起表示通过。',
+    knowledge: '测线仪原理：主端+远端，通过顺序测试 1-8 号线芯的连通性。如果某根线不亮，说明该线芯未通；乱序则表示线序错误。'
+  },
+  {
+    title: '知识答题',
+    desc: '完成 5 道 T568B 网线制作相关题目，检验学习成果。',
+    tip: '💡 提示：点击选项作答，答错自动加入错题本。',
+    knowledge: '掌握 T568B 色序、信号线定义、POE 供电、千兆/百兆区别等知识。'
+  }
+];
+
+// 题库
+var QUIZ_BANK = [
+  {
+    q: 'T568B 标准网线的色序从左到右依次是？',
+    options: [
+      '白橙、橙、白绿、蓝、白蓝、绿、白棕、棕',
+      '白绿、绿、白橙、蓝、白蓝、橙、白棕、棕',
+      '白橙、橙、白蓝、蓝、白绿、绿、白棕、棕',
+      '白蓝、蓝、白绿、绿、白橙、橙、白棕、棕'
+    ],
+    answer: 0,
+    explain: 'T568B 国际标准色序：白橙-橙-白绿-蓝-白蓝-绿-白棕-棕。T568A 标准才是白绿-绿-白橙-蓝-白蓝-橙-白棕-棕。'
+  },
+  {
+    q: 'T568B 标准中，负责"发送数据"的是哪两个脚位？',
+    options: ['1-2 脚', '3-6 脚', '4-5 脚', '7-8 脚'],
+    answer: 0,
+    explain: 'T568B 的 1-2 脚是发送数据（TX+/TX-），3-6 脚是接收数据（RX+/RX-）。这个对应关系是 100M/1000M 以太网的基础。'
+  },
+  {
+    q: '剥线时剥线钳刀口深度应控制为？',
+    options: [
+      '切到线芯，留出 1/2 长度',
+      '只切外皮，不可切到线芯绝缘层',
+      '切透外皮但不伤线芯（破皮即可）',
+      '无所谓，能剥开就行'
+    ],
+    answer: 2,
+    explain: '剥线时刀口应切透外皮但不伤线芯绝缘层（仅破皮），过深会切断线芯，过浅无法剥开。'
+  },
+  {
+    q: '压接水晶头时，水晶头放入压线钳的哪个槽位？',
+    options: ['6P 槽位（电话水晶头）', '8P 槽位（RJ45 网线水晶头）', '4P 槽位', '任意槽位均可'],
+    answer: 1,
+    explain: 'RJ45 网线水晶头必须放入压线钳的 8P 槽位，6P 槽位是电话水晶头用的。'
+  },
+  {
+    q: '测线仪上 8 个指示灯全部依次亮起表示？',
+    options: [
+      '网线物理连通且线序正确',
+      '网线支持千兆',
+      '网线已经通电',
+      '网线可以传输数据'
+    ],
+    answer: 0,
+    explain: '测线仪仅检测 8 根线芯的物理连通性和线序。是否支持千兆取决于线缆类别（Cat5e/Cat6 等），是否通电要看是否接 POE。'
+  }
+];
+
+// ==================== 工具函数 ====================
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || 'info');
+  setTimeout(function(){ t.className = 'toast ' + (type || 'info'); }, 2200);
+}
+function $(id) { return document.getElementById(id); }
+function updateScore(pts) {
+  state.score += pts;
+  $('scoreNum').textContent = state.score;
+  $('scoreBadge').classList.add('show');
+  setTimeout(function(){ $('scoreBadge').classList.remove('show'); }, 2500);
+}
+
+// ==================== 步骤切换 ====================
+function setStep(n) {
+  state.currentStep = n;
+  // 更新步骤条
+  var tags = document.querySelectorAll('.step-tag');
+  tags.forEach(function(t, i){
+    t.classList.remove('active','completed');
+    if (i < n) t.classList.add('completed');
+    else if (i === n) t.classList.add('active');
+  });
+  // 更新顶部进度
+  $('currentStepNum').textContent = n + 1;
+  // 渲染中栏和右栏
+  renderScene();
+  renderPanel();
+}
+
+document.getElementById('stepsBar').addEventListener('click', function(e){
+  if (e.target.classList.contains('step-tag')) {
+    var step = parseInt(e.target.dataset.step);
+    // 已完成步骤可自由跳转
+    if (step <= state.currentStep || e.target.classList.contains('completed')) {
+      setStep(step);
+    } else {
+      showToast('请先完成当前步骤', 'error');
+    }
+  }
+});
+
+// ==================== 视频切换 ====================
+function switchVideo(idx) {
+  state.videoIndex = idx;
+  var video = $('videoEl');
+  // 仅保留选中的source
+  var sources = video.querySelectorAll('source');
+  sources.forEach(function(s){
+    s.parentNode.removeChild(s);
+  });
+  var newSrc = idx === 0 ? 'T568B视频1.mp4' : 'T568B视频2.mp4';
+  var newSource = document.createElement('source');
+  newSource.src = newSrc;
+  newSource.type = 'video/mp4';
+  video.appendChild(newSource);
+  video.load();
+  video.play().catch(function(){});
+  // 更新按钮样式
+  document.querySelectorAll('.video-btn').forEach(function(b, i){
+    b.classList.toggle('active', i === idx);
+  });
+  $('videoInfo').textContent = '📺 正在播放：T568B网线制作演示' + (idx+1);
+}
+
+// ==================== 模式切换 ====================
+function setMode(mode) {
+  state.mode = mode;
+  var btns = document.querySelectorAll('.mode-btn');
+  btns.forEach(function(b, i){
+    b.classList.remove('active');
+  });
+  if (mode === 'guide') btns[0].classList.add('active');
+  else if (mode === 'exam') {
+    btns[1].classList.add('active');
+    showToast('考核模式开启：每步自动评分，错误操作扣分', 'info');
+  }
+}
+
+function resetAll() {
+  if (!confirm('确定要重新开始吗？所有进度将被清空。')) return;
+  state = {
+    currentStep: 0,
+    score: 0,
+    mode: 'guide',
+    selectedTools: [],
+    isDragging: false,
+    draggedWire: null,
+    draggedFrom: null,
+    wireArrangement: new Array(8).fill(null),
+    wiresRemoved: 0,
+    cableCut: false,
+    plugInserted: false,
+    plugCrimped: false,
+    testPassed: false,
+    quizCurrent: 0,
+    quizScore: 0,
+    quizAnswers: [],
+    videoIndex: 0
+  };
+  $('scoreNum').textContent = '0';
+  setStep(0);
+  showToast('已重置，请重新开始实训', 'info');
+}
+
+// ==================== 中栏渲染 ====================
+function renderScene() {
+  var area = $('sceneArea');
+  area.innerHTML = '';
+  switch (state.currentStep) {
+    case 0: renderStep0_Tools(area); break;
+    case 1: renderStep1_Strip(area); break;
+    case 2: renderStep2_Sort(area); break;
+    case 3: renderStep3_Cut(area); break;
+    case 4: renderStep4_Plug(area); break;
+    case 5: renderStep5_Crimp(area); break;
+    case 6: renderStep6_Test(area); break;
+    case 7: renderStep7_Quiz(area); break;
+  }
+}
+
+// ----- 步骤0：工具准备 -----
+function renderStep0_Tools(area) {
+  var html = '<div class="stage"><div class="tools-grid">';
+  TOOLS.forEach(function(t){
+    var isSel = state.selectedTools.indexOf(t.id) >= 0;
+    html += '<div class="tool-card ' + (isSel ? 'selected' : '') + '" data-tool="' + t.id + '">'
+          + '<div class="tool-card-icon">' + t.icon + '</div>'
+          + '<div class="tool-card-name">' + t.name + '</div>'
+          + '</div>';
+  });
+  html += '</div></div>';
+  area.innerHTML = html;
+  // 绑定点击
+  area.querySelectorAll('.tool-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      var tid = this.dataset.tool;
+      var idx = state.selectedTools.indexOf(tid);
+      if (idx >= 0) {
+        state.selectedTools.splice(idx, 1);
+        this.classList.remove('selected');
+      } else {
+        state.selectedTools.push(tid);
+        this.classList.add('selected');
+        updateScore(5);
+        showToast('已选择：' + TOOLS.find(function(t){return t.id===tid}).name, 'success');
+        if (state.selectedTools.length === 6) {
+          setTimeout(function(){
+            showToast('✓ 工具准备完成！可进入下一步', 'success');
+            state.currentStep = 1;
+            renderPanel();
+            // 自动跳转
+            setTimeout(function(){ setStep(1); }, 1000);
+          }, 500);
+        }
+      }
+    });
+  });
+}
+
+// ----- 步骤1：剥线 -----
+function renderStep1_Strip(area) {
+  var html = '<div class="stage strip-area">'
+    + '<div class="strip-hint">拖动剥线钳到网线上松开</div>'
+    + '<div class="cable-horizontal" id="cableHor">'
+      + '<div class="cable" id="mainCable">'
+        + '<div class="cable-untouched-left"></div>'
+        + '<div class="cable-wires">'
+          + '<div class="wire wire-wo">白橙</div>'
+          + '<div class="wire wire-o">橙</div>'
+          + '<div class="wire wire-wg">白绿</div>'
+          + '<div class="wire wire-b">蓝</div>'
+          + '<div class="wire wire-wb">白蓝</div>'
+          + '<div class="wire wire-g">绿</div>'
+          + '<div class="wire wire-wbr">白棕</div>'
+          + '<div class="wire wire-br">棕</div>'
+        + '</div>'
+      + '</div>'
+    + '</div>'
+    + '<div class="strip-tool" id="stripTool" draggable="true">✂️</div>'
+    + '</div>';
+  area.innerHTML = html;
+  bindDragStrip();
+}
+
+function bindDragStrip() {
+  var tool = $('stripTool');
+  var cable = $('cableHor');
+  var isDragging = false;
+  var offsetX = 0, offsetY = 0;
+
+  tool.addEventListener('mousedown', function(e){
+    isDragging = true;
+    offsetX = e.clientX - tool.getBoundingClientRect().left;
+    offsetY = e.clientY - tool.getBoundingClientRect().top;
+    tool.style.position = 'fixed';
+    tool.style.left = (e.clientX - offsetX) + 'px';
+    tool.style.top = (e.clientY - offsetY) + 'px';
+  });
+  document.addEventListener('mousemove', function(e){
+    if (!isDragging) return;
+    tool.style.left = (e.clientX - offsetX) + 'px';
+    tool.style.top = (e.clientY - offsetY) + 'px';
+  });
+  document.addEventListener('mouseup', function(e){
+    if (!isDragging) return;
+    isDragging = false;
+    // 检测是否拖到网线上
+    var cr = cable.getBoundingClientRect();
+    var tr = tool.getBoundingClientRect();
+    var centerX = tr.left + tr.width/2;
+    var centerY = tr.top + tr.height/2;
+    if (centerX > cr.left && centerX < cr.right && centerY > cr.top && centerY < cr.bottom) {
+      // 命中！执行剥线
+      var c = $('mainCable');
+      c.classList.add('stripped');
+      tool.style.display = 'none';
+      updateScore(20);
+      showToast('✓ 剥线完成！8 根线芯已露出', 'success');
+      setTimeout(function(){
+        showToast('提示：请按 T568B 色序理线', 'info');
+        setStep(2);
+      }, 1200);
+    } else {
+      // 复位
+      tool.style.position = 'absolute';
+      tool.style.left = '';
+      tool.style.top = '';
+    }
+  });
+}
+
+// ----- 步骤2：理线 -----
+function renderStep2_Sort(area) {
+  // 打乱线序
+  var shuffled = T568B.slice().sort(function(){ return Math.random() - 0.5; });
+  var html = '<div class="stage wire-sort-area">'
+    + '<div class="sort-hint">将左侧打乱的线芯拖动到右侧 T568B 色序槽中</div>'
+    + '<div style="display:flex; gap:60px; align-items:center;">'
+      + '<div class="wire-source" id="wireSource">'
+        + '<div class="wire-source-title">打乱的线芯</div>';
+  shuffled.forEach(function(w, i){
+    html += '<div class="wire ' + w.class + '" draggable="true" data-code="' + w.code + '" data-from="source">' + w.name + '</div>';
+  });
+  html += '</div>'
+      + '<div class="wire-slots" id="wireSlots">'
+        + '<div class="slots-title">T568B 色序（1→8）</div>';
+  T568B.forEach(function(w, i){
+    var placed = state.wireArrangement[i];
+    var cls = '';
+    if (placed) {
+      var wire = T568B.find(function(t){ return t.code === placed; });
+      if (wire) {
+        var isCorrect = placed === w.code;
+        cls = isCorrect ? 'correct' : 'wrong';
+        html += '<div class="wire-slot ' + cls + '" data-slot="' + i + '">'
+              + '<span class="slot-label">' + (i+1) + '</span>'
+              + '<div class="wire ' + wire.class + '" draggable="true" data-code="' + wire.code + '" data-from="slot" data-slot="' + i + '">' + wire.name + '</div>'
+              + '</div>';
+      }
+    } else {
+      html += '<div class="wire-slot" data-slot="' + i + '">'
+            + '<span class="slot-label">' + (i+1) + '</span>'
+            + '<span style="color:#475569;">拖动至此</span>'
+            + '</div>';
+    }
+  });
+  html += '</div></div></div>';
+  area.innerHTML = html;
+  bindDragSort();
+}
+
+function bindDragSort() {
+  var dragged = null;
+  document.querySelectorAll('[draggable="true"]').forEach(function(el){
+    el.addEventListener('dragstart', function(e){
+      dragged = this;
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    el.addEventListener('dragend', function(){
+      this.classList.remove('dragging');
+    });
+  });
+  document.querySelectorAll('.wire-slot').forEach(function(slot){
+    slot.addEventListener('dragover', function(e){
+      e.preventDefault();
+      this.classList.add('drag-over');
+    });
+    slot.addEventListener('dragleave', function(){
+      this.classList.remove('drag-over');
+    });
+    slot.addEventListener('drop', function(e){
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      if (!dragged) return;
+      var code = dragged.dataset.code;
+      var slotIdx = parseInt(this.dataset.slot);
+      var expected = T568B[slotIdx].code;
+      state.wireArrangement[slotIdx] = code;
+      if (code === expected) {
+        updateScore(10);
+        // 检查是否全部正确
+        var allCorrect = state.wireArrangement.every(function(c, i){ return c === T568B[i].code; });
+        if (allCorrect) {
+          showToast('✓ T568B 色序排列完成！', 'success');
+          setTimeout(function(){ setStep(3); }, 1000);
+        } else {
+          showToast('位置' + (slotIdx+1) + '正确！', 'success');
+        }
+      } else {
+        // 扣分
+        updateScore(-5);
+        showToast('位置' + (slotIdx+1) + '错误（应为' + T568B[slotIdx].name + '）', 'error');
+      }
+      renderScene();
+    });
+  });
+}
+
+// ----- 步骤3：剪齐 -----
+function renderStep3_Cut(area) {
+  var html = '<div class="stage cut-area">'
+    + '<div class="cut-hint">将剪刀拖动到线芯端部，剪切齐整</div>'
+    + '<div class="cut-cable" id="cutCable">';
+  T568B.forEach(function(w){
+    html += '<div class="wire ' + w.class + (state.cableCut ? ' cut' : ' uncut') + '">' + w.name + '</div>';
+  });
+  html += '</div>'
+    + '<div class="cut-tool" id="cutTool" draggable="true">✁</div>'
+    + '</div>';
+  area.innerHTML = html;
+  bindDragCut();
+}
+
+function bindDragCut() {
+  var tool = $('cutTool');
+  var cable = $('cutCable');
+  var isDragging = false, ox=0, oy=0;
+  tool.addEventListener('mousedown', function(e){
+    isDragging = true;
+    ox = e.clientX - tool.getBoundingClientRect().left;
+    oy = e.clientY - tool.getBoundingClientRect().top;
+    tool.style.position = 'fixed';
+    tool.style.left = (e.clientX - ox) + 'px';
+    tool.style.top = (e.clientY - oy) + 'px';
+  });
+  document.addEventListener('mousemove', function(e){
+    if (!isDragging) return;
+    tool.style.left = (e.clientX - ox) + 'px';
+    tool.style.top = (e.clientY - oy) + 'px';
+  });
+  document.addEventListener('mouseup', function(e){
+    if (!isDragging) return;
+    isDragging = false;
+    var cr = cable.getBoundingClientRect();
+    var tr = tool.getBoundingClientRect();
+    if (tr.left > cr.left - 20 && tr.right < cr.right + 20 && tr.top < cr.bottom && tr.bottom > cr.top) {
+      state.cableCut = true;
+      updateScore(20);
+      showToast('✓ 线芯剪齐完成！', 'success');
+      setTimeout(function(){ setStep(4); }, 1000);
+    } else {
+      tool.style.position = 'absolute';
+      tool.style.left = '';
+      tool.style.top = '';
+    }
+  });
+}
+
+// ----- 步骤4：插入水晶头 -----
+function renderStep4_Plug(area) {
+  var html = '<div class="stage crimp-area">'
+    + '<div class="crimp-hint">将水晶头拖动到整理好的线束上</div>'
+    + '<div class="cable-and-plug">'
+      + '<div class="cable-jacket">网线</div>'
+      + '<div class="bundled-cable" id="bundledCable">';
+  T568B.forEach(function(w){
+    html += '<div class="wire ' + w.class + '">' + w.name + '</div>';
+  });
+  html += '</div>'
+    + '<div class="rj45-plug" id="rj45Plug" draggable="true">'
+      + '<div class="rj45-pin">8·7·6·5<br>4·3·2·1</div>'
+    + '</div>'
+    + '</div>'
+    + '</div>';
+  area.innerHTML = html;
+  bindDragPlug();
+}
+
+function bindDragPlug() {
+  var plug = $('rj45Plug');
+  var cable = $('bundledCable');
+  var isDragging = false, ox=0, oy=0;
+  plug.addEventListener('mousedown', function(e){
+    isDragging = true;
+    ox = e.clientX - plug.getBoundingClientRect().left;
+    oy = e.clientY - plug.getBoundingClientRect().top;
+    plug.style.position = 'fixed';
+    plug.style.left = (e.clientX - ox) + 'px';
+    plug.style.top = (e.clientY - oy) + 'px';
+    plug.style.zIndex = '100';
+  });
+  document.addEventListener('mousemove', function(e){
+    if (!isDragging) return;
+    plug.style.left = (e.clientX - ox) + 'px';
+    plug.style.top = (e.clientY - oy) + 'px';
+  });
+  document.addEventListener('mouseup', function(e){
+    if (!isDragging) return;
+    isDragging = false;
+    var cr = cable.getBoundingClientRect();
+    var pr = plug.getBoundingClientRect();
+    var pcx = pr.left + pr.width/2;
+    var pcy = pr.top + pr.height/2;
+    if (pcx > cr.left - 20 && pcx < cr.right + 20 && pcy > cr.top - 20 && pcy < cr.bottom + 20) {
+      state.plugInserted = true;
+      updateScore(25);
+      showToast('✓ 水晶头插入完成！', 'success');
+      setTimeout(function(){ setStep(5); }, 1000);
+    } else {
+      plug.style.position = 'absolute';
+      plug.style.left = '';
+      plug.style.top = '';
+      plug.style.zIndex = '';
+    }
+  });
+}
+
+// ----- 步骤5：压接 -----
+function renderStep5_Crimp(area) {
+  var html = '<div class="stage press-area">'
+    + '<div class="crimper-stage">'
+      + '<div class="rj45-in-crimper">'
+        + '<div class="rj45-plug">'
+          + '<div class="rj45-pin">8·7·6·5<br>4·3·2·1</div>'
+        + '</div>'
+      + '</div>'
+      + '<div class="crimper" id="crimper">'
+        + '<div class="crimper-head"></div>'
+        + '<div class="crimper-handle"></div>'
+      + '</div>'
+    + '</div>'
+    + '<div class="press-hint" onclick="doCrimp()">🔧 点击开始压接</div>'
+    + '</div>';
+  area.innerHTML = html;
+}
+
+function doCrimp() {
+  if (state.plugCrimped) return;
+  state.plugCrimped = true;
+  var c = $('crimper');
+  c.classList.add('pressing');
+  showToast('正在压接...', 'info');
+  setTimeout(function(){
+    showToast('✓ 压接完成！"咔哒"声响起', 'success');
+    updateScore(25);
+    setTimeout(function(){ setStep(6); }, 1200);
+  }, 800);
+}
+
+// ----- 步骤6：测线 -----
+function renderStep6_Test(area) {
+  if (state.testPassed) {
+    var html = '<div class="stage test-area">'
+      + '<div class="test-result">'
+        + '<div style="font-size:64px;">✅</div>'
+        + '<div>测线通过！8 根线芯全部连通</div>'
+        + '<div style="font-size:12px; color:#94a3b8;">1-2-3-4-5-6-7-8 顺序点亮</div>'
+      + '</div>'
+      + '<div class="press-hint" onclick="setStep(7)">📝 进入知识答题</div>'
+      + '</div>';
+    area.innerHTML = html;
+    return;
+  }
+  var html = '<div class="stage test-area">'
+    + '<div class="test-hint">将测线仪拖动到右侧水晶头上（点击网线接口）</div>'
+    + '<div class="test-stage">'
+      + '<div class="test-cable" id="cablePlug">'
+        + '<div class="plug-body">'
+          + '<div class="plug-pins" id="plugPins">'
+            + '<div class="plug-pin" data-pin="1"></div>'
+            + '<div class="plug-pin" data-pin="2"></div>'
+            + '<div class="plug-pin" data-pin="3"></div>'
+            + '<div class="plug-pin" data-pin="4"></div>'
+            + '<div class="plug-pin" data-pin="5"></div>'
+            + '<div class="plug-pin" data-pin="6"></div>'
+            + '<div class="plug-pin" data-pin="7"></div>'
+            + '<div class="plug-pin" data-pin="8"></div>'
+          + '</div>'
+        + '</div>'
+        + '<div class="cable-tail">▒▒▒▒▒▒</div>'
+      + '</div>'
+    + '</div>'
+    + '<div class="tester" id="tester" draggable="true">'
+      + '<div class="tester-screen">'
+        + 'Cable Tester<br>'
+        + '<span id="testStatus">待连接...</span>'
+      + '</div>'
+      + '<div class="tester-lights" id="testLights">'
+        + '<div class="tester-light" data-pin="1">1</div>'
+        + '<div class="tester-light" data-pin="2">2</div>'
+        + '<div class="tester-light" data-pin="3">3</div>'
+        + '<div class="tester-light" data-pin="4">4</div>'
+        + '<div class="tester-light" data-pin="5">5</div>'
+        + '<div class="tester-light" data-pin="6">6</div>'
+        + '<div class="tester-light" data-pin="7">7</div>'
+        + '<div class="tester-light" data-pin="8">8</div>'
+      + '</div>'
+      + '<div class="tester-label">📊 测线仪</div>'
+    + '</div>'
+    + '</div>';
+  area.innerHTML = html;
+  bindDragTester();
+}
+
+function bindDragTester() {
+  var t = $('tester');
+  var isDragging = false, ox=0, oy=0;
+  t.addEventListener('mousedown', function(e){
+    isDragging = true;
+    ox = e.clientX - t.getBoundingClientRect().left;
+    oy = e.clientY - t.getBoundingClientRect().top;
+    t.style.position = 'fixed';
+    t.style.left = (e.clientX - ox) + 'px';
+    t.style.top = (e.clientY - oy) + 'px';
+    t.style.zIndex = '100';
+  });
+  document.addEventListener('mousemove', function(e){
+    if (!isDragging) return;
+    t.style.left = (e.clientX - ox) + 'px';
+    t.style.top = (e.clientY - oy) + 'px';
+  });
+  document.addEventListener('mouseup', function(e){
+    if (!isDragging) return;
+    isDragging = false;
+    // 简单判定：只要在舞台范围内就算测试
+    var sceneRect = document.getElementById('sceneArea').getBoundingClientRect();
+    var tr = t.getBoundingClientRect();
+    if (tr.left > sceneRect.left && tr.right < sceneRect.right
+        && tr.top > sceneRect.top && tr.bottom < sceneRect.bottom) {
+      t.style.position = 'absolute';
+      t.style.left = '50%';
+      t.style.top = '50%';
+      t.style.transform = 'translate(-50%, -50%)';
+      t.style.zIndex = '';
+      t.style.cursor = 'default';
+      // 启动测试动画
+      $('testStatus').textContent = '测试中...';
+      var pins = [1,2,3,4,5,6,7,8];
+      var i = 0;
+      var timer = setInterval(function(){
+        if (i >= pins.length) {
+          clearInterval(timer);
+          $('testStatus').textContent = '✓ Pass';
+          state.testPassed = true;
+          updateScore(30);
+          showToast('✓ 测线通过！8 根线芯全部连通', 'success');
+          setTimeout(function(){ renderScene(); }, 1500);
+          return;
+        }
+        var light = document.querySelector('[data-pin="' + pins[i] + '"]');
+        if (light) light.classList.add('on');
+        i++;
+      }, 350);
+    } else {
+      t.style.position = 'absolute';
+      t.style.left = '';
+      t.style.top = '';
+      t.style.zIndex = '';
+    }
+  });
+}
+
+// ----- 步骤7：答题 -----
+function renderStep7_Quiz(area) {
+  if (state.quizCurrent >= QUIZ_BANK.length) {
+    // 显示最终结果
+    var html = '<div class="stage quiz-area"><div class="quiz-card quiz-result">'
+      + '<h3 ' + (state.quizScore >= 4 ? '' : 'class="fail"') + '>'
+      + (state.quizScore >= 4 ? '🎉 答题完成！' : '继续努力！') + '</h3>'
+      + '<div class="score">' + state.quizScore + ' / ' + QUIZ_BANK.length + '</div>'
+      + '<div style="color:#94a3b8; margin-top:8px;">最终得分：' + state.score + ' 分</div>'
+      + '<div class="quiz-actions" style="justify-content:center; margin-top:20px;">'
+        + '<button class="quiz-btn secondary" onclick="state.quizCurrent=0;state.quizScore=0;state.quizAnswers=[];renderScene();">🔄 再答一次</button>'
+        + '<button class="quiz-btn" onclick="resetAll()">🏁 完成实训</button>'
+      + '</div>'
+      + '</div></div>';
+    area.innerHTML = html;
+    return;
+  }
+  var q = QUIZ_BANK[state.quizCurrent];
+  var answered = state.quizAnswers[state.quizCurrent];
+  var html = '<div class="stage quiz-area"><div class="quiz-card">'
+    + '<div class="quiz-progress">'
+      + '<span class="badge">第 ' + (state.quizCurrent+1) + ' / ' + QUIZ_BANK.length + ' 题</span>'
+      + '<span>当前得分：' + state.quizScore + '</span>'
+    + '</div>'
+    + '<div class="quiz-question">' + q.q + '</div>'
+    + '<div class="quiz-options">';
+  q.options.forEach(function(opt, i){
+    var cls = '';
+    if (answered !== undefined) {
+      if (i === q.answer) cls = 'correct';
+      else if (i === answered && i !== q.answer) cls = 'wrong';
+    }
+    html += '<button class="quiz-option ' + cls + '" data-idx="' + i + '"' + (answered !== undefined ? ' disabled' : '') + '>' + opt + '</button>';
+  });
+  html += '</div>';
+  if (answered !== undefined) {
+    html += '<div class="quiz-explain">📌 ' + q.explain + '</div>'
+          + '<div class="quiz-actions">'
+            + '<button class="quiz-btn" onclick="nextQuiz()">' + (state.quizCurrent === QUIZ_BANK.length-1 ? '查看结果' : '下一题 →') + '</button>'
+          + '</div>';
+  }
+  html += '</div></div>';
+  area.innerHTML = html;
+  // 绑定选项点击
+  if (answered === undefined) {
+    area.querySelectorAll('.quiz-option').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var idx = parseInt(this.dataset.idx);
+        handleQuizAnswer(idx);
+      });
+    });
+  }
+}
+
+function handleQuizAnswer(idx) {
+  var q = QUIZ_BANK[state.quizCurrent];
+  state.quizAnswers[state.quizCurrent] = idx;
+  if (idx === q.answer) {
+    state.quizScore++;
+    updateScore(15);
+    showToast('✓ 答对了！+15分', 'success');
+  } else {
+    updateScore(-5);
+    addToErrorBook(state.quizCurrent);
+    showToast('答错了，已加入错题本', 'error');
+  }
+  renderScene();
+}
+
+function nextQuiz() {
+  state.quizCurrent++;
+  renderScene();
+}
+
+// ==================== 右栏渲染 ====================
+function renderPanel() {
+  var body = $('panelBody');
+  var tab = document.querySelector('.panel-tab.active').dataset.tab;
+  if (tab === 'guide') renderGuidePanel(body);
+  else if (tab === 'quiz') renderQuizPanel(body);
+  else if (tab === 'error') renderErrorPanel(body);
+}
+
+function renderGuidePanel(body) {
+  var s = STEPS[state.currentStep];
+  var nextBtnDisabled = (state.currentStep === 0 && state.selectedTools.length < 6) ? 'disabled' : '';
+  var html = '<div class="step-info">'
+    + '<div class="step-info-title">'
+      + '<span class="step-num">' + (state.currentStep+1) + '</span>'
+      + s.title
+    + '</div>'
+    + '<div class="step-info-meta">第 ' + (state.currentStep+1) + ' 步 / 共 8 步</div>'
+    + '<div class="step-info-desc">' + s.desc + '</div>'
+    + '<div class="tip-box">💡 ' + s.tip + '</div>'
+    + '<div class="knowledge-box"><h4>📚 知识点</h4>' + s.knowledge + '</div>';
+  if (state.currentStep < 7) {
+    html += '<button class="next-btn" onclick="setStep(' + (state.currentStep+1) + ')" ' + nextBtnDisabled + '>✓ 步骤已完成，进入下一步 →</button>';
+  } else {
+    html += '<button class="next-btn" onclick="resetAll()">🏁 重新开始</button>';
+  }
+  html += '</div>';
+
+  // 工具栏
+  html += '<div class="tools-shelf">';
+  TOOLS.forEach(function(t){
+    html += '<div class="shelf-tool"><div class="shelf-tool-icon">' + t.icon + '</div><div>' + t.name + '</div></div>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function renderQuizPanel(body) {
+  var accuracy = state.quizAnswers.length ? Math.round(state.quizScore / state.quizAnswers.length * 100) : 0;
+  var html = '<div class="quiz-tab-list">'
+    + '<div class="quiz-stat-row">'
+      + '<div class="quiz-stat"><div class="quiz-stat-num">' + state.quizScore + '</div><div class="quiz-stat-label">答对</div></div>'
+      + '<div class="quiz-stat red"><div class="quiz-stat-num">' + (state.quizAnswers.length - state.quizScore) + '</div><div class="quiz-stat-label">答错</div></div>'
+      + '<div class="quiz-stat green"><div class="quiz-stat-num">' + accuracy + '%</div><div class="quiz-stat-label">正确率</div></div>'
+    + '</div>'
+    + '<div class="tip-box">💡 答题步骤在第8步进行。当前 Tab 可以预览题库或回顾错题。</div>'
+    + '<div class="warning-box">⚠️ 答错题目自动加入"错题本"Tab，可在错题本中查看解析。</div>'
+    + '<button class="quiz-btn" onclick="setStep(7)">📝 开始答题</button>'
+    + '</div>';
+  body.innerHTML = html;
+}
+
+// 错题本
+var ERROR_BOOK_KEY = 't568b_errorbook';
+
+function getErrorBook() {
+  try { return JSON.parse(localStorage.getItem(ERROR_BOOK_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function saveErrorBook(list) {
+  localStorage.setItem(ERROR_BOOK_KEY, JSON.stringify(list));
+  $('errorCount').textContent = list.length;
+}
+function addToErrorBook(qIdx) {
+  var list = getErrorBook();
+  if (list.indexOf(qIdx) < 0) list.push(qIdx);
+  saveErrorBook(list);
+}
+function removeFromErrorBook(qIdx) {
+  var list = getErrorBook().filter(function(i){ return i !== qIdx; });
+  saveErrorBook(list);
+}
+function renderErrorPanel(body) {
+  var list = getErrorBook();
+  var html = '<div class="quiz-tab-list">';
+  if (list.length === 0) {
+    html += '<div class="errorbook-empty">📭 暂无错题<br>答错的题目会自动加入这里</div>';
+  } else {
+    html += '<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">共 ' + list.length + ' 道错题</div>'
+          + '<div class="errorbook-list">';
+    list.forEach(function(qIdx){
+      var q = QUIZ_BANK[qIdx];
+      html += '<div class="errorbook-item">'
+            + '<button class="eq-del" onclick="removeFromErrorBook(' + qIdx + ');renderPanel();">✕</button>'
+            + '<div class="eq-q">' + (qIdx+1) + '. ' + q.q + '</div>'
+            + '<div class="eq-a">✓ 正确答案：' + q.options[q.answer] + '</div>'
+            + '<div style="color:#94a3b8; font-size:11px; margin-top:4px;">' + q.explain + '</div>'
+            + '</div>';
+    });
+    html += '</div>'
+          + '<div class="errorbook-actions">'
+            + '<button class="quiz-btn secondary" onclick="clearErrorBook()">🗑 清空</button>'
+            + '<button class="quiz-btn" onclick="redoErrorBook()">🔁 重做错题</button>'
+          + '</div>';
+  }
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function clearErrorBook() {
+  if (confirm('确定清空错题本？')) {
+    saveErrorBook([]);
+    renderPanel();
+    showToast('已清空错题本', 'info');
+  }
+}
+
+function redoErrorBook() {
+  var list = getErrorBook();
+  if (list.length === 0) return;
+  state.quizCurrent = 0;
+  state.quizScore = 0;
+  state.quizAnswers = [];
+  // 用错题本题目替换原题库
+  var newBank = list.map(function(i){ return QUIZ_BANK[i]; });
+  // 简单方案：跳到答题步骤
+  setStep(7);
+  showToast('开始重做 ' + list.length + ' 道错题', 'info');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.panel-tab').forEach(function(t){
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  renderPanel();
+}
+
+// ==================== 初始化 ====================
+window.addEventListener('load', function(){
+  // 初始化错题本计数
+  $('errorCount').textContent = getErrorBook().length;
+  // 视频错误处理
+  var video = $('videoEl');
+  video.addEventListener('error', function(){
+    $('videoPlayer').innerHTML = '<div class="video-placeholder"><div class="video-placeholder-icon">🎬</div>视频加载失败<br>请上传 T568B视频1.mp4 / T568B视频2.mp4</div>';
+  });
+  // 启动
+  setStep(0);
+});
+</script>
+</body>
+</html>
