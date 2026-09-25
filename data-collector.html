@@ -2,509 +2,699 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>D3 AI过程数据采集助手 - 智网匠心 AI 布线实训平台</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--pri:#ca8a04;--sec:#eab308;--ink:#0f172a;--panel:#1e293b;--line:#334155;--mut:#94a3b8}
+:root{--pri:#ca8a04;--sec:#eab308;--ink:#0f172a;--panel:#1e293b;--line:#334155;--mut:#94a3b8;--ok:#10b981;--err:#ef4444}
 body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;display:flex;flex-direction:column}
 
-/* Top */
-.top{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:#0b1220;border-bottom:1px solid var(--line)}
-.back{background:#1e293b;border:1px solid #475569;color:#fff;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.92rem;text-decoration:none}
-.back:hover{background:#334155}
-.top .t{font-size:1.1rem;font-weight:700;color:#fde047}
-.top .r{display:flex;gap:8px;align-items:center}
-.dot-safe{font-size:.78rem;color:#6ee7b7;background:rgba(16,185,129,.12);padding:4px 12px;border-radius:14px}
-
-/* Tabs */
-.tabs{display:flex;gap:4px;padding:0 32px;background:#111c30;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.tab{padding:14px 22px;cursor:pointer;color:var(--mut);font-size:.95rem;font-weight:600;border-bottom:3px solid transparent;transition:.25s}
-.tab:hover{color:#fde047}
-.tab.active{color:#fde047;border-bottom-color:#eab308}
-.tab .n{font-size:.72rem;background:#334155;color:#cbd5e1;padding:1px 7px;border-radius:9px;margin-left:5px}
-.tab.active .n{background:#ca8a04;color:#fff}
-
-/* Body */
-.body{flex:1;padding:28px 32px 48px;overflow-y:auto}
-.view{display:none;max-width:1280px;margin:0 auto}
-.view.active{display:block;animation:fi .35s}
+/* ===== 视图切换 ===== */
+.view{display:none;flex:1}
+.view.on{display:block;animation:fi .35s}
 @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
-.view-hd{margin-bottom:22px}
-.view-hd h2{font-size:1.5rem;color:#fff;margin-bottom:6px}
-.view-hd p{color:var(--mut);font-size:.95rem;line-height:1.7}
 
-/* Upload zone */
-.up-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:22px}
-.dropzone{border:2px dashed #475569;border-radius:16px;padding:44px 28px;text-align:center;cursor:pointer;transition:.25s;background:#16213a}
+/* ===== 顶栏 ===== */
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#0b1220;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:8px}
+.back{background:#1e293b;border:1px solid #475569;color:#fff;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.85rem;text-decoration:none}
+.back:hover{background:#334155}
+.top .t{font-size:1.02rem;font-weight:700;color:#fde047}
+.top .r{display:flex;gap:8px;align-items:center}
+.badge{font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:14px;background:#1e293b;color:#cbd5e1}
+.badge.stu{background:rgba(56,189,248,.15);color:#38bdf8}
+.badge.tea{background:rgba(202,138,4,.2);color:#fde047}
+.who{font-size:.8rem;color:var(--mut)}
+.who b{color:#fff}
+.mnav{display:inline-flex;gap:4px;flex-wrap:wrap}
+.mnav-a{color:#334155;font-size:12px;padding:3px 9px;border:1px solid #475569;border-radius:6px;text-decoration:none;background:#1e293b}
+.mnav-a.active{color:#111;background:#fde047;border-color:#fde047;font-weight:600}
+.dot-safe{font-size:.72rem;color:#6ee7b7;background:rgba(16,185,129,.12);padding:3px 10px;border-radius:14px}
+
+/* ===== 登录 ===== */
+.login-wrap{max-width:440px;margin:0 auto;padding:28px 18px}
+.login-card{background:#16213a;border:1px solid var(--line);border-radius:16px;padding:26px 22px}
+.login-title{text-align:center;margin-bottom:18px}
+.login-title h1{font-size:1.35rem;color:#fde047;letter-spacing:2px;margin-top:6px}
+.login-title p{color:var(--mut);font-size:.85rem;margin-top:6px}
+.role-tabs{display:flex;gap:8px;background:#1e293b;border-radius:12px;padding:4px;margin-bottom:20px}
+.role-tab{flex:1;text-align:center;padding:10px 0;border-radius:9px;font-size:.95rem;color:var(--mut);cursor:pointer;font-weight:600;transition:.15s}
+.role-tab.on{background:#0f172a;color:#fde047;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.82rem;color:var(--mut);margin-bottom:6px}
+.field input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:.95rem;color:#e2e8f0;background:#0f172a;outline:none;transition:.15s}
+.field input:focus{border-color:var(--sec);box-shadow:0 0 0 3px rgba(234,179,8,.12)}
+.login-btn{width:100%;background:linear-gradient(90deg,#ca8a04,#eab308);color:#111;border:none;border-radius:11px;padding:13px;font-size:1rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:.15s}
+.login-btn:active{transform:translateY(1px)}
+.login-note{margin-top:12px;font-size:.76rem;color:var(--mut);text-align:center;line-height:1.6}
+.qr-box{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);text-align:center}
+.qr-tip{font-size:.78rem;color:var(--mut);margin-bottom:10px}
+.qr-ph{width:110px;height:110px;margin:0 auto;border:1.6px dashed var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:.72rem;text-align:center;line-height:1.5}
+
+/* ===== 隐私提示条 ===== */
+.privacy-bar{display:flex;align-items:flex-start;gap:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:12px 14px;font-size:.82rem;color:#cbd5e1;margin-bottom:16px;line-height:1.7}
+.privacy-bar .pi{flex:0 0 20px;width:20px;height:20px;margin-top:1px;background:var(--ok);color:#fff;border-radius:50%;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+
+/* ===== 正文容器 ===== */
+.body{flex:1;padding:20px 16px 40px;overflow-y:auto}
+.inner{max-width:1100px;margin:0 auto}
+
+/* ===== 采集入口（学生） ===== */
+.entry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.entry{border:1.5px solid var(--line);border-radius:14px;background:#16213a;padding:18px 12px;text-align:center;cursor:pointer;transition:.18s;display:flex;flex-direction:column;align-items:center;gap:8px}
+.entry:hover{border-color:var(--sec);transform:translateY(-2px)}
+.entry .ei{font-size:28px;line-height:1}
+.entry .et{font-size:.95rem;color:#fff;font-weight:600}
+.entry .ed{font-size:.72rem;color:var(--mut)}
+.recbar{display:none;align-items:center;gap:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);border-radius:12px;padding:11px 14px;margin-bottom:14px}
+.recbar.on{display:flex}
+.rec-dot{width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:var(--err);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.rec-timer{font-size:1.05rem;color:#fca5a5;font-variant-numeric:tabular-nums}
+.rec-label{font-size:.82rem;color:var(--mut);flex:1}
+.rec-stop{background:var(--err);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.85rem;cursor:pointer}
+.run-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.run-btn{background:linear-gradient(90deg,#ca8a04,#eab308);color:#111;border:none;border-radius:10px;padding:12px 30px;font-size:.98rem;font-weight:700;cursor:pointer;letter-spacing:1px}
+.run-btn:disabled{opacity:.55;cursor:not-allowed}
+.run-note{font-size:.78rem;color:var(--mut)}
+
+/* ===== 学生建议报告 ===== */
+.stu-report{background:#16213a;border:1px solid var(--line);border-radius:14px;padding:24px 20px;margin-top:16px}
+.sr-head{text-align:center;border-bottom:1px solid var(--line);padding-bottom:14px}
+.sr-head h3{font-size:1.15rem;color:#fde047;letter-spacing:2px}
+.sr-head .sub{font-size:.76rem;color:var(--mut);margin-top:6px}
+.sr-sec{margin-top:14px}
+.sr-sec h4{font-size:.95rem;color:#fff;margin-bottom:6px}
+.sr-sec h4 .idx{color:var(--sec)}
+.sr-sec p,.sr-sec li{font-size:.85rem;color:#cbd5e1;line-height:1.8;text-align:justify}
+.sr-sec li{margin:5px 0;padding-left:14px;position:relative;list-style:none}
+.sr-sec li::before{content:"";position:absolute;left:3px;top:10px;width:5px;height:5px;background:var(--sec);border-radius:50%}
+.lock-tip{margin-top:16px;padding:10px 12px;background:rgba(148,163,184,.08);border-radius:10px;font-size:.74rem;color:var(--mut);text-align:center}
+
+/* ===== 教师端 ===== */
+.overview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.ov{border-radius:12px;padding:14px;background:#16213a;border:1px solid var(--line)}
+.ov .k{font-size:.72rem;color:var(--mut)}
+.ov .v{font-size:1.5rem;font-weight:800;color:#fde047;margin-top:4px}
+.ov .v small{font-size:.78rem;font-weight:400;color:var(--mut)}
+.ov .d{font-size:.68rem;color:var(--mut);margin-top:4px}
+
+/* ===== 教师四大 tab ===== */
+.tabs{display:flex;gap:4px;background:#111c30;border:1px solid var(--line);border-radius:12px;padding:4px;flex-wrap:wrap;margin-bottom:16px}
+.tab{flex:1;min-width:110px;padding:11px 10px;cursor:pointer;color:var(--mut);font-size:.9rem;font-weight:600;border-radius:9px;text-align:center;transition:.2s}
+.tab:hover{color:#fde047}
+.tab.active{color:#fde047;background:#1e293b}
+.tab .n{font-size:.68rem;background:#334155;color:#cbd5e1;padding:1px 6px;border-radius:8px;margin-left:4px}
+.tab.active .n{background:#ca8a04;color:#fff}
+.tview{display:none}
+.tview.active{display:block;animation:fi .3s}
+
+/* ===== 上传/卡片/图表 ===== */
+.up-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+@media(max-width:700px){.up-grid{grid-template-columns:1fr}}
+.dropzone{border:2px dashed #475569;border-radius:14px;padding:32px 20px;text-align:center;cursor:pointer;transition:.2s;background:#16213a}
 .dropzone:hover,.dropzone.over{border-color:#eab308;background:rgba(234,179,8,.06)}
-.dropzone .ic{font-size:3.4rem;margin-bottom:14px}
-.dropzone h3{font-size:1.2rem;margin-bottom:8px;color:#fff}
-.dropzone p{color:var(--mut);font-size:.9rem;margin-bottom:6px}
+.dropzone .ic{font-size:2.4rem;margin-bottom:10px}
+.dropzone h3{font-size:1rem;margin-bottom:6px;color:#fff}
+.dropzone p{color:var(--mut);font-size:.8rem;margin-bottom:4px}
 .dropzone input{display:none}
-.recent{background:#16213a;border:1px solid var(--line);border-radius:16px;padding:20px}
-.recent h3{font-size:1.05rem;margin-bottom:14px;color:#fff}
-.ph-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:#1e293b;margin-bottom:10px}
-.ph-item img{width:52px;height:52px;border-radius:8px;object-fit:cover}
+.recent{background:#16213a;border:1px solid var(--line);border-radius:14px;padding:16px}
+.recent h3{font-size:.95rem;margin-bottom:12px;color:#fff}
+.ph-item{display:flex;align-items:center;gap:10px;padding:9px;border-radius:9px;background:#1e293b;margin-bottom:9px}
+.ph-item img{width:44px;height:44px;border-radius:7px;object-fit:cover}
 .ph-item .meta{flex:1;min-width:0}
-.ph-item .meta b{font-size:.9rem;color:#e2e8f0;display:block}
-.ph-item .meta span{font-size:.76rem;color:var(--mut)}
-.st{font-size:.72rem;padding:3px 10px;border-radius:11px;font-weight:700;white-space:nowrap}
+.ph-item .meta b{font-size:.82rem;color:#e2e8f0;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-item .meta span{font-size:.7rem;color:var(--mut)}
+.st{font-size:.68rem;padding:2px 9px;border-radius:10px;font-weight:700;white-space:nowrap}
 .st-ok{background:#d1fae5;color:#065f46}.st-ing{background:#dbeafe;color:#1e40af}.st-err{background:#fee2e2;color:#991b1b}
-
-/* Category chips */
-.cats{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
-.cat{padding:8px 16px;border-radius:20px;background:#1e293b;border:1px solid var(--line);font-size:.88rem;color:#cbd5e1;cursor:pointer}
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.cat{padding:7px 14px;border-radius:18px;background:#1e293b;border:1px solid var(--line);font-size:.82rem;color:#cbd5e1;cursor:pointer}
 .cat.sel{background:#ca8a04;color:#fff;border-color:#ca8a04}
-
-/* Charts */
-.card{background:#16213a;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:20px}
-.card h3{font-size:1.1rem;color:#fff;margin-bottom:4px}
-.card .sub{color:var(--mut);font-size:.85rem;margin-bottom:18px}
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.stat{background:#16213a;border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
-.stat .v{font-size:1.8rem;font-weight:800;color:#fde047}
-.stat .l{font-size:.82rem;color:var(--mut);margin-top:4px}
-.bars{display:flex;align-items:flex-end;gap:16px;height:200px;padding:10px 0}
-.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+.card{background:#16213a;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.card h3{font-size:1rem;color:#fff;margin-bottom:4px}
+.card .sub{color:var(--mut);font-size:.78rem;margin-bottom:16px}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:700px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#16213a;border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.stat .v{font-size:1.5rem;font-weight:800;color:#fde047}
+.stat .l{font-size:.76rem;color:var(--mut);margin-top:4px}
+.bars{display:flex;align-items:flex-end;gap:12px;height:180px;padding:8px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
 .bar{width:60%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#eab308,#ca8a04);transition:height .6s;min-height:4px}
 .bar.alt{background:linear-gradient(180deg,#38bdf8,#0284c7)}
-.bar-l{font-size:.78rem;color:var(--mut);text-align:center}
-
-/* Radar */
-.radar-wrap{display:flex;justify-content:center}
-.radar-legend{display:flex;flex-direction:column;gap:8px;justify-content:center;margin-left:24px}
-.rl-item{font-size:.85rem;color:#cbd5e1;display:flex;align-items:center;gap:8px}
-.rl-dot{width:12px;height:12px;border-radius:3px}
-
-/* Dialog quality */
-.dq-meter{display:flex;align-items:center;gap:20px;margin:10px 0 6px}
-.meter-track{flex:1;height:14px;background:#1e293b;border-radius:8px;overflow:hidden}
-.meter-fill{height:100%;border-radius:8px;transition:width .7s}
-.meter-val{font-weight:800;font-size:1.1rem;min-width:48px;text-align:right}
-.evi-list .evi{display:flex;gap:12px;padding:12px;border-left:3px solid #eab308;background:#1e293b;border-radius:0 8px 8px 0;margin-bottom:10px}
-.evi .tag{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:9px;height:fit-content;white-space:nowrap}
+.bar-l{font-size:.72rem;color:var(--mut);text-align:center}
+.dq-meter{display:flex;align-items:center;gap:14px;margin:8px 0}
+.dq-meter .lb{min-width:110px;font-size:.82rem;color:#cbd5e1}
+.meter-track{flex:1;height:12px;background:#1e293b;border-radius:7px;overflow:hidden}
+.meter-fill{height:100%;border-radius:7px;transition:width .7s}
+.meter-val{font-weight:800;font-size:.95rem;min-width:42px;text-align:right}
+.evi{margin-bottom:10px}
+.evi .evi-in{display:flex;gap:10px;padding:11px;border-left:3px solid #eab308;background:#1e293b;border-radius:0 9px 9px 0}
+.evi .tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:8px;height:fit-content;white-space:nowrap}
 .tag-deep{background:#dbeafe;color:#1e40af}.tag-surf{background:#fee2e2;color:#991b1b}.tag-q{background:#f3e8ff;color:#6b21a8}
-.evi p{font-size:.88rem;color:#cbd5e1;line-height:1.6}
+.evi p{font-size:.82rem;color:#cbd5e1;line-height:1.6}
 .evi p b{color:#fde047}
 
-/* Privacy */
-.pri-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-.pri-card{background:#16213a;border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;gap:14px}
-.pri-card .ic{font-size:2rem}
-.pri-card h4{font-size:1rem;color:#fff;margin-bottom:6px}
-.pri-card p{font-size:.85rem;color:var(--mut);line-height:1.6}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:#16213a;border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
-.toggle-row .info b{display:block;color:#e2e8f0;font-size:.95rem}
-.toggle-row .info span{font-size:.82rem;color:var(--mut)}
-.switch{width:48px;height:26px;border-radius:14px;background:#10b981;position:relative;cursor:pointer;flex-shrink:0}
-.switch::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;right:3px;transition:.25s}
+/* ===== 隐私 ===== */
+.pri-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
+@media(max-width:700px){.pri-grid{grid-template-columns:1fr}}
+.pri-card{background:#16213a;border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;gap:12px}
+.pri-card .ic{font-size:1.6rem}
+.pri-card h4{font-size:.92rem;color:#fff;margin-bottom:5px}
+.pri-card p{font-size:.78rem;color:var(--mut);line-height:1.6}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#16213a;border:1px solid var(--line);border-radius:11px;margin-bottom:10px}
+.toggle-row .info b{display:block;color:#e2e8f0;font-size:.88rem}
+.toggle-row .info span{font-size:.76rem;color:var(--mut)}
+.switch{width:46px;height:25px;border-radius:13px;background:#10b981;position:relative;cursor:pointer;flex-shrink:0}
+.switch::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;right:3px;transition:.25s}
 .switch.off{background:#475569}.switch.off::after{right:auto;left:3px}
+.empty{text-align:center;padding:28px;color:#64748b;font-size:.82rem}
 
-/* Toast */
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 24px;border-radius:10px;font-size:.92rem;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:999;opacity:0;pointer-events:none;transition:.3s;border:1px solid #475569}
+/* ===== Toast ===== */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:11px 22px;border-radius:10px;font-size:.85rem;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:999;opacity:0;pointer-events:none;transition:.3s;border:1px solid #475569}
 .toast.show{opacity:1}
 .toast.ok{border-color:#10b981}.toast.err{border-color:#ef4444}
-.empty{text-align:center;padding:40px;color:#64748b;font-size:.92rem}
+
+@media(max-width:640px){
+  .top{padding:10px 12px}
+  .top .t{font-size:.92rem}
+  .overview-grid{grid-template-columns:repeat(2,1fr)}
+  .entry-grid{grid-template-columns:1fr}
+  .entry{flex-direction:row;justify-content:flex-start;text-align:left;padding:14px;gap:12px}
+  .entry .ei{font-size:24px}
+}
+@page{margin:1cm}
+@media print{body{background:#fff}.top,.mnav,.entry-grid,.recbar,.run-row,.tabs{display:none}}
 </style>
-  <script src="feishu-sync.js"></script>
+<script src="feishu-sync.js"></script>
 </head>
 <body>
 
-<div class="top">
-<a class="back" href="index.html">← 首页</a>
-<span class="t">📊 D3 AI过程数据采集助手</span>
-<nav class="mnav" style="margin:0 12px;display:inline-flex;gap:4px">
-  <a class="mnav-a" href="teacher-ai.html" style="color:#334155;font-size:13px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none">D1</a>
-  <a class="mnav-a" href="student-ai.html" style="color:#334155;font-size:13px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none">D2</a>
-  <a class="mnav-a active" href="data-collector.html" style="color:#1e40af;font-size:13px;padding:4px 10px;border:1px solid #1e40af;border-radius:6px;text-decoration:none;font-weight:600;background:#eff6ff">D3</a>
-  <a class="mnav-a" href="sim-platform.html" style="color:#334155;font-size:13px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none">D4</a>
-  <a class="mnav-a" href="game-h5.html" style="color:#334155;font-size:13px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none">D5</a>
-</nav>
-<span class="r"><span class="dot-safe">🔒 隐私安全 · 数据脱敏</span></span>
+<!-- ================= 登录视图 ================= -->
+<div class="view on" id="view-login">
+  <div class="top">
+    <a class="back" href="index.html">← 首页</a>
+    <span class="t">📊 D3 数据采集助手</span>
+    <span class="r"><span class="dot-safe">🔒 隐私安全</span></span>
+  </div>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-title">
+        <div style="font-size:2rem">📊</div>
+        <h1>AI过程数据采集助手</h1>
+        <p>真实过程数据留痕 · AI 分析 · 飞书归档</p>
+      </div>
+      <div class="role-tabs" id="roleTabs">
+        <div class="role-tab on" data-role="student">学生端</div>
+        <div class="role-tab" data-role="teacher">教师端</div>
+      </div>
+      <div class="field"><label>账号</label><input type="text" id="accountInput" placeholder="教师请输入账号；学生可留空"></div>
+      <div class="field" id="pwdField" style="display:none"><label>密码</label><input type="password" id="pwdInput" placeholder="请输入密码（≥4位）"></div>
+      <button class="login-btn" id="loginBtn" type="button">进 入</button>
+      <div class="login-note">账号密码登录 · 谁创建的谁看 · 每个账号只能看到自己的数据</div>
+      <div class="qr-box" id="qrBox">
+        <div class="qr-tip">📱 学生可扫码直接进入采集（免账号）</div>
+        <div class="qr-ph">扫码入口<br>（活码占位）</div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="tabs">
-<div class="tab active" onclick="switchTab(0)">📸 照片归档分析<span class="n" id="phCount">0</span></div>
-<div class="tab" onclick="switchTab(1)">🎥 课堂行为量化</div>
-<div class="tab" onclick="switchTab(2)">💬 对话质量分析</div>
-<div class="tab" onclick="switchTab(3)">🔒 隐私安全保障</div>
+<!-- ================= 学生视图 ================= -->
+<div class="view" id="view-student">
+  <div class="top">
+    <a class="back" href="data-collector.html">← 返回</a>
+    <span class="t">📋 学生端 · 采集</span>
+    <nav class="mnav">
+      <a class="mnav-a" href="teacher-ai.html">D1</a>
+      <a class="mnav-a" href="student-ai.html">D2</a>
+      <a class="mnav-a active" href="data-collector.html">D3</a>
+      <a class="mnav-a" href="sim-platform.html">D4</a>
+      <a class="mnav-a" href="game-h5.html">D5</a>
+    </nav>
+    <span class="r">
+      <span class="badge stu">学生</span>
+      <span class="who">当前：<b id="stuWho">新兵01</b></span>
+      <button class="back" id="stuOut" style="border:none">退出</button>
+    </span>
+  </div>
+  <div class="body"><div class="inner">
+    <div class="privacy-bar">
+      <span class="pi">密</span>
+      <span>你的数据<b>仅用于教学改进</b>，录音脱敏、影像即算即弃；本页<b>只显示给你的建议报告</b>，完整分析仅教师端可见。</span>
+    </div>
+
+    <div class="card">
+      <h3>采集课堂过程</h3>
+      <div class="sub">拍照 / 录音 / 录像，任选一种提交即可</div>
+      <div class="entry-grid" id="stuEntries">
+        <div class="entry" id="recPhoto"><span class="ei">📷</span><div><div class="et">拍照归档</div><div class="ed">拍施工现场，AI 分类分析</div></div></div>
+        <div class="entry" id="recAudio"><span class="ei">🎙</span><div><div class="et">点击录音</div><div class="ed">讲一段实操要点</div></div></div>
+        <div class="entry" id="recVideo"><span class="ei">📹</span><div><div class="et">录制视频</div><div class="ed">记录操作过程</div></div></div>
+      </div>
+
+      <div class="recbar" id="recbar">
+        <span class="rec-dot"></span><span class="rec-timer" id="recTimer">00:00</span>
+        <span class="rec-label" id="recLabel">正在录制…</span>
+        <button class="rec-stop" id="recStop">停止</button>
+      </div>
+
+      <div class="recent" id="phRecent" style="display:none;margin-bottom:12px">
+        <h3>🗂️ 我的照片</h3>
+        <div id="phList"></div>
+      </div>
+
+      <div class="run-row">
+        <button class="run-btn" id="stuSubmit" type="button">提交分析</button>
+        <span class="run-note" id="stuNote">拍照 / 录制后即可提交</span>
+      </div>
+    </div>
+
+    <div class="stu-report" id="stuReport" style="display:none">
+      <div class="sr-head">
+        <h3>学习建议报告</h3>
+        <div class="sub" id="srSub">信息网络布线 · 匿名 · 新兵代号</div>
+      </div>
+      <div class="sr-sec">
+        <h4><span class="idx">一、</span>这次做得好的是</h4>
+        <li>能按规范完成关键操作步骤，流程没有明显遗漏。</li>
+        <li>对验收标准和操作要点记得牢、能复述。</li>
+      </div>
+      <div class="sr-sec">
+        <h4><span class="idx">二、</span>下次可以更注意</h4>
+        <li>关键动作保持规范到位，减少返工。</li>
+        <li>遇到问题先自查原因，再动手调整。</li>
+      </div>
+      <div class="sr-sec">
+        <h4><span class="idx">三、</span>给你的小建议</h4>
+        <p>先练好分解动作稳住质量，再追求速度；每次做完给自己 30 秒，对照规范回顾一遍工具与台面。</p>
+      </div>
+      <div class="lock-tip">🔒 完整分析（过程数据、行为量化、对话质量）仅教师端可见</div>
+    </div>
+  </div></div>
 </div>
 
-<div class="body">
+<!-- ================= 教师视图 ================= -->
+<div class="view" id="view-teacher">
+  <div class="top">
+    <a class="back" href="index.html">← 首页</a>
+    <span class="t">📊 教师端 · 数据看板</span>
+    <nav class="mnav">
+      <a class="mnav-a" href="teacher-ai.html">D1</a>
+      <a class="mnav-a" href="student-ai.html">D2</a>
+      <a class="mnav-a active" href="data-collector.html">D3</a>
+      <a class="mnav-a" href="sim-platform.html">D4</a>
+      <a class="mnav-a" href="game-h5.html">D5</a>
+    </nav>
+    <span class="r">
+      <span class="badge tea">教师</span>
+      <span class="who">账号：<b id="teaWho">教师</b></span>
+      <button class="back" id="teaOut" style="border:none">退出</button>
+    </span>
+  </div>
+  <div class="body"><div class="inner">
 
-<!-- VIEW 1: 照片归档分析 -->
-<div class="view active">
-<div class="view-hd">
-<h2>施工现场照片上传归档与AI分析</h2>
-<p>拍照上传施工现场 → AI自动分类归档（施工步骤/工具/成果/问题）→ 分析是否符合规范、是否存在安全隐患 → 结构化记录写入飞书多维表格。</p>
-</div>
+    <div class="overview-grid">
+      <div class="ov"><div class="k">采集记录</div><div class="v" id="ovCount">0<small>条</small></div><div class="d">本账号采集的数据</div></div>
+      <div class="ov"><div class="k">照片归档</div><div class="v">—</div><div class="d">施工现场照片分析</div></div>
+      <div class="ov"><div class="k">行为量化</div><div class="v">86<small>分</small></div><div class="d">课堂专注度参考</div></div>
+      <div class="ov"><div class="k">深度学习</div><div class="v">71<small>分</small></div><div class="d">对话质量指数</div></div>
+    </div>
 
-<div class="up-grid">
-<div>
-<div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
-<div class="ic">📷</div>
-<h3>点击或拖拽上传现场照片</h3>
-<p>支持 JPG / PNG，可多选</p>
-<p style="color:#475569;font-size:.78rem">影像仅用于规范分析，即算即弃</p>
-<input type="file" id="fileInput" accept="image/*" multiple>
-</div>
+    <div class="tabs" id="teaTabs">
+      <div class="tab active" onclick="switchTeaTab(0)">📸 照片归档<span class="n" id="phCount">0</span></div>
+      <div class="tab" onclick="switchTeaTab(1)">🎥 行为量化</div>
+      <div class="tab" onclick="switchTeaTab(2)">💬 对话质量</div>
+      <div class="tab" onclick="switchTeaTab(3)">🔒 隐私安全</div>
+    </div>
 
-<div style="margin-top:16px">
-<div style="font-size:.9rem;color:#cbd5e1;margin-bottom:8px">🏷️ 选择归档分类（可选，AI将自动识别）</div>
-<div class="cats" id="cats">
-<div class="cat sel" data-c="自动识别">自动识别</div>
-<div class="cat" data-c="施工步骤">施工步骤</div>
-<div class="cat" data-c="工具">工具</div>
-<div class="cat" data-c="成果">成果</div>
-<div class="cat" data-c="问题">问题隐患</div>
-</div>
-</div>
-</div>
+    <!-- 照片归档 -->
+    <div class="tview active" id="tv0">
+      <div class="card">
+        <h3>施工现场照片上传归档与AI分析</h3>
+        <div class="sub">拍照上传 → AI 自动分类（施工步骤/工具/成果/问题）→ 规范性/安全隐患分析 → 写入飞书</div>
+        <div class="up-grid">
+          <div>
+            <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+              <div class="ic">📷</div>
+              <h3>点击或拖拽上传现场照片</h3>
+              <p>支持 JPG / PNG，可多选</p>
+              <p style="color:#475569">影像仅用于规范分析，即算即弃</p>
+              <input type="file" id="fileInput" accept="image/*" multiple>
+            </div>
+            <div class="cats" id="cats">
+              <div class="cat sel" data-c="自动识别">自动识别</div>
+              <div class="cat" data-c="施工步骤">施工步骤</div>
+              <div class="cat" data-c="工具">工具</div>
+              <div class="cat" data-c="成果">成果</div>
+              <div class="cat" data-c="问题隐患">问题隐患</div>
+            </div>
+          </div>
+          <div class="recent">
+            <h3>🗂️ 分析记录</h3>
+            <div id="phList2"><div class="empty">暂无记录，上传照片后显示分析结果</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div class="recent">
-<h3>🗂️ 分析记录</h3>
-<div id="phList"><div class="empty">暂无记录，上传照片后在此显示分析结果</div></div>
-</div>
-</div>
-</div>
+    <!-- 行为量化 -->
+    <div class="tview" id="tv1">
+      <div class="card">
+        <h3>📊 师生互动频次分布（按环节）</h3>
+        <div class="sub">演示课堂采集数据示意，真实环境接入摄像头/录音后自动生成</div>
+        <div class="bars" id="bars1"></div>
+      </div>
+      <div class="card">
+        <h3>🎯 课堂参与度对比</h3>
+        <div class="sub">各学习小组主动发言与协作讨论量化</div>
+        <div class="bars" id="bars2"></div>
+      </div>
+      <div style="text-align:center">
+        <button class="run-btn" onclick="loadDemoBehavior()">📹 加载演示课堂分析数据（写飞书）</button>
+      </div>
+    </div>
 
-<!-- VIEW 2: 行为量化 -->
-<div class="view">
-<div class="view-hd">
-<h2>视频 / 录音 AI 行为量化</h2>
-<p>采集课堂视频或录音 → AI分析师生互动频次、发言质量、讨论参与度 → 量化为行为数据。录音全程脱敏，仅提取行为指标，不保存原声。</p>
-</div>
+    <!-- 对话质量 -->
+    <div class="tview" id="tv2">
+      <div class="card">
+        <h3>🧠 深度学习倾向指数</h3>
+        <div class="sub">基于多轮追问、质疑、证据引用等行为综合评估</div>
+        <div class="dq-meter">
+          <div class="meter-track"><div class="meter-fill" id="deepFill" style="width:0%;background:linear-gradient(90deg,#38bdf8,#0284c7)"></div></div>
+          <div class="meter-val" id="deepVal" style="color:#38bdf8">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📈 关键对话指标</h3>
+        <div id="dqMeters"></div>
+      </div>
+      <div class="card">
+        <h3>🔍 思维证据样例</h3>
+        <div class="sub">高质量（追问/质疑/多轮）与低质量（直接索取答案）对照</div>
+        <div class="evi" id="eviList"><div class="empty">点击下方按钮生成分析</div></div>
+      </div>
+      <div style="text-align:center">
+        <button class="run-btn" onclick="analyzeDialogs()">💬 分析AI伴学对话质量（写飞书）</button>
+      </div>
+    </div>
 
-<div class="stat-row">
-<div class="stat"><div class="v" id="s1">—</div><div class="l">师生互动总频次</div></div>
-<div class="stat"><div class="v" id="s2">—</div><div class="l">人均发言次数</div></div>
-<div class="stat"><div class="v" id="s3">—</div><div class="l">讨论参与度</div></div>
-<div class="stat"><div class="v" id="s4">—</div><div class="l">高质量发言占比</div></div>
-</div>
+    <!-- 隐私安全 -->
+    <div class="tview" id="tv3">
+      <div class="card">
+        <h3>隐私安全保障</h3>
+        <div class="sub">学习数据仅用于教学改进；录音脱敏；影像即算即弃；按学生隔离权限</div>
+        <div class="pri-grid">
+          <div class="pri-card"><div class="ic">🔇</div><div><h4>录音脱敏存储</h4><p>仅提取发言频次、时长等行为指标，不保留可识别原声，处理后删除原始音频。</p></div></div>
+          <div class="pri-card"><div class="ic">🖼️</div><div><h4>影像即算即弃</h4><p>现场照片仅用于规范分析，完成后不长期留存原始影像，只保留结构化结论。</p></div></div>
+          <div class="pri-card"><div class="ic">👤</div><div><h4>按学生隔离权限</h4><p>每位学习者数据相互隔离，用匿名编号标识，不关联真实姓名。</p></div></div>
+          <div class="pri-card"><div class="ic">🎯</div><div><h4>数据用途限定</h4><p>所有采集数据仅用于教学改进与过程性评价，不用于其他用途。</p></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>⚙️ 采集授权设置</h3>
+        <div class="toggle-row"><div class="info"><b>录音行为采集</b><span>脱敏提取行为指标后删除原声</span></div><div class="switch" onclick="toggleSwitch(this)"></div></div>
+        <div class="toggle-row"><div class="info"><b>影像分析留存</b><span>关闭后照片分析完即删除，不留底</span></div><div class="switch off" onclick="toggleSwitch(this)"></div></div>
+        <div class="toggle-row"><div class="info"><b>对话记录用于质量分析</b><span>匿名化后作为思维证据存入飞书</span></div><div class="switch" onclick="toggleSwitch(this)"></div></div>
+      </div>
+    </div>
 
-<div class="card">
-<h3>📊 师生互动频次分布（按环节）</h3>
-<div class="sub">演示课堂采集数据示意，真实环境接入摄像头/录音后自动生成</div>
-<div class="bars" id="bars1"></div>
-</div>
-
-<div class="card">
-<h3>🎯 课堂参与度对比</h3>
-<div class="sub">各学习小组的主动发言与协作讨论量化</div>
-<div class="bars" id="bars2"></div>
-</div>
-
-<div style="text-align:center;margin-top:8px">
-<button onclick="loadDemoBehavior()" style="background:#ca8a04;color:#fff;border:0;padding:12px 30px;border-radius:10px;font-size:.98rem;font-weight:600;cursor:pointer">📹 加载演示课堂分析数据</button>
-</div>
-</div>
-
-<!-- VIEW 3: 对话质量分析 -->
-<div class="view">
-<div class="view-hd">
-<h2>AI对话质量分析</h2>
-<p>采集学生与AI的对话记录 → 分析提问方式、是否多轮迭代、是否质疑AI、索取答案还是追问 → 对话记录作为"思维证据"存入飞书。</p>
-</div>
-
-<div class="card">
-<h3>🧠 深度学习倾向指数</h3>
-<div class="sub">基于多轮追问、质疑、证据引用等行为综合评估</div>
-<div class="dq-meter">
-<div class="meter-track"><div class="meter-fill" id="deepFill" style="width:0%;background:linear-gradient(90deg,#38bdf8,#0284c7)"></div></div>
-<div class="meter-val" id="deepVal" style="color:#38bdf8">—</div>
-</div>
-</div>
-
-<div class="card">
-<h3>📈 关键对话指标</h3>
-<div class="sub" style="margin-bottom:18px">从本地AI伴学对话记录中统计</div>
-<div id="dqMeters"></div>
-</div>
-
-<div class="card">
-<h3>🔍 思维证据样例</h3>
-<div class="sub">高质量（追问/质疑/多轮）与低质量（直接索取答案）对话对照</div>
-<div class="evi-list" id="eviList"><div class="empty">点击下方按钮，从AI伴学记录中生成分析</div></div>
-</div>
-
-<div style="text-align:center">
-<button onclick="analyzeDialogs()" style="background:#ca8a04;color:#fff;border:0;padding:12px 30px;border-radius:10px;font-size:.98rem;font-weight:600;cursor:pointer">💬 分析AI伴学对话质量</button>
-</div>
-</div>
-
-<!-- VIEW 4: 隐私安全 -->
-<div class="view">
-<div class="view-hd">
-<h2>隐私安全保障</h2>
-<p>学习数据仅用于教学改进；录音脱敏存储；影像即算即弃；按学生隔离权限。本模块严格遵循最小必要原则。</p>
-</div>
-
-<div class="pri-grid" style="margin-bottom:22px">
-<div class="pri-card"><div class="ic">🔇</div><div><h4>录音脱敏存储</h4><p>仅提取发言频次、时长等行为指标，不保留可识别原声，处理后立即删除原始音频。</p></div></div>
-<div class="pri-card"><div class="ic">🖼️</div><div><h4>影像即算即弃</h4><p>现场照片仅用于规范分析，分析完成后不长期留存原始影像，仅保留结构化结论。</p></div></div>
-<div class="pri-card"><div class="ic">👤</div><div><h4>按学生隔离权限</h4><p>每位学习者数据相互隔离，使用匿名编号标识，不关联真实姓名等个人身份信息。</p></div></div>
-<div class="pri-card"><div class="ic">🎯</div><div><h4>数据用途限定</h4><p>所有采集数据仅用于教学改进与过程性评价，不用于任何其他用途。</p></div></div>
-</div>
-
-<div class="card">
-<h3>⚙️ 采集授权设置</h3>
-<div class="sub">默认遵循最严格的隐私保护策略</div>
-<div class="toggle-row">
-<div class="info"><b>录音行为采集</b><span>脱敏提取行为指标后删除原声</span></div>
-<div class="switch" onclick="toggleSwitch(this)"></div>
-</div>
-<div class="toggle-row">
-<div class="info"><b>影像分析留存</b><span>关闭后照片分析完即删除，不留底</span></div>
-<div class="switch off" onclick="toggleSwitch(this)"></div>
-</div>
-<div class="toggle-row">
-<div class="info"><b>对话记录用于质量分析</b><span>匿名化后作为思维证据存入飞书</span></div>
-<div class="switch" onclick="toggleSwitch(this)"></div>
-</div>
-</div>
-</div>
-
+  </div></div>
 </div>
 
 <div class="toast" id="toast"></div>
+<input type="file" id="stuFileInput" accept="image/*,video/*,audio/*" style="display:none">
 
 <script>
-// ==================== Config ====================
-var COZE_TOKEN = "pat_mmXAhSYI4y8ic2aDYQEwE22r9e5d5DYTgVRLWp151yZqNwK51fQOkl1pdYQ6tT9i";
-var BOT_ID = "7645540020057423908"; // 题库Bot（具备飞书写入与识图分析能力）
-var state = { category: "自动识别", photos: [] };
+(function(){
+  var COZE_TOKEN = "pat_mmXAhSYI4y8ic2aDYQEwE22r9e5d5DYTgVRLWp151yZqNwK51fQOkl1pdYQ6tT9i";
+  var BOT_ID = "7645540020057423908";
 
-function $(id){ return document.getElementById(id); }
-function showToast(msg, type){
-  var t = $('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + (type || '');
-  clearTimeout(t._tm);
-  t._tm = setTimeout(function(){ t.className='toast'; }, 3200);
-}
+  function $(id){ return document.getElementById(id); }
+  function showToast(msg, type){
+    var t = $('toast'); t.textContent = msg;
+    t.className = 'toast show ' + (type||'');
+    clearTimeout(t._tm); t._tm = setTimeout(function(){ t.className='toast'; }, 3200);
+  }
 
-// ==================== Tabs ====================
-function switchTab(i){
-  document.querySelectorAll('.tab').forEach(function(t,j){ t.classList.toggle('active', j===i); });
-  document.querySelectorAll('.view').forEach(function(v,j){ v.classList.toggle('active', j===i); });
-}
+  /* ===== 视图切换 ===== */
+  var vLogin=$('view-login'), vStudent=$('view-student'), vTeacher=$('view-teacher');
+  function showView(name){
+    [vLogin,vStudent,vTeacher].forEach(function(v){v.classList.remove('on');});
+    if(name==='login')vLogin.classList.add('on');
+    else if(name==='student')vStudent.classList.add('on');
+    else vTeacher.classList.add('on');
+    window.scrollTo(0,0);
+  }
 
-// ==================== Category ====================
-document.querySelectorAll('#cats .cat').forEach(function(c){
-  c.addEventListener('click', function(){
-    document.querySelectorAll('#cats .cat').forEach(function(x){ x.classList.remove('sel'); });
-    c.classList.add('sel');
-    state.category = c.getAttribute('data-c');
+  /* ===== 登录 ===== */
+  var currentRole='student', currentAccount='', currentStudent='新兵01';
+  $('roleTabs').addEventListener('click', function(e){
+    var t=e.target.closest('.role-tab'); if(!t)return;
+    document.querySelectorAll('#roleTabs .role-tab').forEach(function(x){x.classList.remove('on');});
+    t.classList.add('on'); currentRole=t.getAttribute('data-role');
+    if(currentRole==='student'){ $('pwdField').style.display='none'; $('qrBox').style.display='block'; $('accountInput').placeholder='学生可留空（自动分配新兵代号）'; }
+    else{ $('pwdField').style.display='block'; $('qrBox').style.display='none'; $('accountInput').placeholder='请输入教师账号'; }
   });
-});
+  $('loginBtn').addEventListener('click', function(){
+    var account=$('accountInput').value.trim(), pwd=$('pwdInput').value.trim();
+    if(currentRole==='teacher'){
+      if(!account){alert('请输入教师账号');return;}
+      if(pwd.length<4){alert('请输入至少 4 位密码');return;}
+      currentAccount=account; $('teaWho').textContent=account; showView('teacher');
+    }else{
+      currentStudent = account || ('新兵'+String(Math.floor(Math.random()*24)+1).padStart(2,'0'));
+      $('stuWho').textContent=currentStudent;
+      resetStudent(); showView('student');
+    }
+  });
+  $('stuOut').addEventListener('click',function(){showView('login');});
+  $('teaOut').addEventListener('click',function(){showView('login');});
 
-// ==================== Photo Upload ====================
-var dz = $('dropzone');
-['dragenter','dragover'].forEach(function(e){ dz.addEventListener(e, function(ev){ ev.preventDefault(); dz.classList.add('over'); }); });
-['dragleave','drop'].forEach(function(e){ dz.addEventListener(e, function(ev){ ev.preventDefault(); dz.classList.remove('over'); }); });
-dz.addEventListener('drop', function(ev){ handleFiles(ev.dataTransfer.files); });
-$('fileInput').addEventListener('change', function(ev){ handleFiles(ev.target.files); this.value=''; });
+  /* ===== 学生端：拍照 / 录音 / 录像 ===== */
+  var stuFileInput=$('stuFileInput'), mediaRecorder=null, chunks=[], timerInt=null, recSec=0, currentBlob=null, currentType=null;
+  var phState={photos:[]};
 
-function handleFiles(files){
-  Array.prototype.forEach.call(files, function(f){
-    if (!f.type.startsWith('image/')) return;
-    var reader = new FileReader();
-    reader.onload = function(e){
-      var item = { id: Date.now()+Math.random(), name: f.name, dataUrl: e.target.result, status: 'ing', category: state.category, result: '' };
-      state.photos.unshift(item);
-      renderPhotos();
+  $('recPhoto').addEventListener('click',function(){
+    stuFileInput.accept='image/*'; stuFileInput.multiple=true; stuFileInput.click();
+  });
+  $('recAudio').addEventListener('click',function(){ startRecord('audio'); });
+  $('recVideo').addEventListener('click',function(){ startRecord('video'); });
+
+  stuFileInput.addEventListener('change',function(){
+    var files=stuFileInput.files; if(!files||!files.length)return;
+    Array.prototype.forEach.call(files,function(f){
+      if(f.type.indexOf('image')===0){ handleStuPhoto(f); }
+      else if(f.type.indexOf('video')===0||f.type.indexOf('audio')===0){ currentType=f.type.indexOf('video')===0?'video':'audio'; currentBlob=f; $('stuNote').textContent='已就绪：'+f.name; }
+    });
+    stuFileInput.value='';
+  });
+
+  function handleStuPhoto(f){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var item={id:Date.now()+Math.random(),name:f.name,dataUrl:e.target.result,status:'ing',result:''};
+      phState.photos.unshift(item);
+      renderStuPhotos();
+      showToast('照片已接收，分析归档中…');
       analyzePhoto(item);
     };
     reader.readAsDataURL(f);
+  }
+  function renderStuPhotos(){
+    $('phCount').textContent=phState.photos.length;
+    $('phRecent').style.display = phState.photos.length?'block':'none';
+    if(!phState.photos.length){ $('phList').innerHTML=''; return; }
+    var html='';
+    phState.photos.forEach(function(p){
+      var sc = p.status==='ok'?'st-ok':p.status==='ing'?'st-ing':'st-err';
+      var st = p.status==='ok'?'已归档':p.status==='ing'?'分析中…':'失败';
+      html+='<div class="ph-item"><img src="'+p.dataUrl+'"><div class="meta"><b>'+p.name+'</b><span>'+(p.result||'')+'</span></div><span class="st '+sc+'">'+st+'</span></div>';
+    });
+    $('phList').innerHTML=html;
+    $('stuNote').textContent='照片已接收，可提交分析';
+  }
+
+  function pickMime(av){
+    var list=av==='audio'?['audio/webm','audio/mp4','audio/ogg']:['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+    for(var i=0;i<list.length;i++){ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(list[i]))return list[i]; }
+    return '';
+  }
+  function fmt(s){var m=Math.floor(s/60),r=s%60;return (m<10?'0':'')+m+':'+(r<10?'0':'')+r;}
+  function startRecord(av){
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('当前环境不支持录音/录像，请用 https 打开本页，或改用拍照/上传文件');return;}
+    var c=av==='audio'?{audio:true}:{video:true,audio:true};
+    navigator.mediaDevices.getUserMedia(c).then(function(stream){
+      var mime=pickMime(av);
+      try{ mediaRecorder=mime?new MediaRecorder(stream,{mimeType:mime}):new MediaRecorder(stream); }catch(e){ mediaRecorder=new MediaRecorder(stream); }
+      chunks=[];
+      mediaRecorder.ondataavailable=function(e){ if(e.data&&e.data.size)chunks.push(e.data); };
+      mediaRecorder.onstop=function(){
+        stream.getTracks().forEach(function(t){t.stop();});
+        currentBlob=new Blob(chunks,{type:mediaRecorder.mimeType||(av==='audio'?'audio/webm':'video/webm')});
+        currentType=av;
+        $('stuNote').textContent='已就绪：'+(av==='audio'?'录音':'录像');
+      };
+      mediaRecorder.start();
+      $('recLabel').textContent=av==='audio'?'正在录音…':'正在录像…';
+      $('recbar').classList.add('on');
+      recSec=0; $('recTimer').textContent='00:00';
+      timerInt=setInterval(function(){recSec++;$('recTimer').textContent=fmt(recSec);},1000);
+    }).catch(function(){alert('无法访问麦克风/摄像头，请确认已授权权限');});
+  }
+  $('recStop').addEventListener('click',function(){
+    if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
+    $('recbar').classList.remove('on'); clearInterval(timerInt);
   });
-}
 
-function renderPhotos(){
-  $('phCount').textContent = state.photos.length;
-  if (!state.photos.length){ $('phList').innerHTML='<div class="empty">暂无记录</div>'; return; }
-  var html = '';
-  state.photos.forEach(function(p){
-    var stClass = p.status==='ok' ? 'st-ok' : p.status==='ing' ? 'st-ing' : 'st-err';
-    var stText = p.status==='ok' ? '已归档' : p.status==='ing' ? '分析中…' : '失败';
-    html += '<div class="ph-item"><img src="'+p.dataUrl+'"><div class="meta"><b>'+p.name+'</b><span>分类：'+p.category+(p.result?' · '+p.result:'')+'</span></div><span class="st '+stClass+'">'+stText+'</span></div>';
+  /* ===== 学生提交 → 建议报告 ===== */
+  $('stuSubmit').addEventListener('click',function(){
+    $('stuSubmit').disabled=true; $('stuSubmit').textContent='分析中…';
+    setTimeout(function(){
+      $('stuReport').style.display='block';
+      $('stuSubmit').disabled=false; $('stuSubmit').textContent='提交分析';
+      showToast('✅ 分析完成，已生成个人建议报告','ok');
+      if(window.feishuSync){
+        window.feishuSync.sync('data_photo','D3学生过程数据采集',{'学生代号':currentStudent,'采集类型':currentType||'照片','记录时间':new Date().toLocaleString('zh-CN')},{silent:true});
+      }
+    },1200);
   });
-  $('phList').innerHTML = html;
-}
+  function resetStudent(){
+    $('stuReport').style.display='none';
+    phState.photos=[]; renderStuPhotos();
+    $('phRecent').style.display='none';
+    currentBlob=null; currentType=null;
+    $('stuNote').textContent='拍照 / 录制后即可提交';
+    $('stuSubmit').disabled=false; $('stuSubmit').textContent='提交分析';
+    if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
+    $('recbar').classList.remove('on'); clearInterval(timerInt);
+  }
 
-// 通过Coze Bot分析照片并写入飞书
-function analyzePhoto(item){
-  // 构造图片分析请求（Bot支持识图 + 飞书写入）
-  var prompt = '【现场照片归档】请识别并分析这张施工现场照片：';
-  prompt += '（用户指定分类：'+item.category+'，如为"自动识别"请自行判断）。';
-  prompt += '请判断属于：施工步骤/工具/成果/问题隐患 中的哪一类，分析操作是否符合规范、是否存在安全隐患，';
-  prompt += '并将结构化记录（照片分类、规范性判断、隐患说明）写入飞书多维表格。';
-  prompt += '最后用一句话告诉我分类结果。';
+  /* ===== 教师端 tab ===== */
+  window.switchTeaTab=function(i){
+    document.querySelectorAll('#teaTabs .tab').forEach(function(t,j){t.classList.toggle('active',j===i);});
+    for(var k=0;k<4;k++){ $('tv'+k).classList.toggle('active',k===i); }
+  };
 
-  // dataUrl -> base64 (去掉前缀)
-  var base64 = item.dataUrl.split(',')[1];
-
-  fetch('https://api.coze.cn/v3/chat', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer '+COZE_TOKEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      bot_id: BOT_ID,
-      user_id: 'web_data_collector',
-      stream: false,
-      auto_save_history: true,
-      additional_messages: [{
-        role: 'user',
-        content_type: 'object_string',
-        content: JSON.stringify([
-          { type: 'text', text: prompt },
-          { type: 'image', file_url: undefined, file_base64: base64 }
-        ].filter(function(x){ return x.file_url !== undefined || x.type!=='image'; }))
-      }]
-    })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    if (d.code !== 0) throw new Error(d.msg || 'API错误');
-    var chatId = d.data.chat_id, convId = d.data.conversation_id;
-    return pollResult(chatId, convId, item);
-  })
-  .catch(function(err){
-    item.status = 'err';
-    item.result = '';
-    renderPhotos();
-    showToast('照片「'+item.name+'」分析失败：'+err.message, 'err');
+  /* ===== 照片分析（教师 & 学生共用）===== */
+  var dz=$('dropzone');
+  if(dz){
+    ['dragenter','dragover'].forEach(function(e){dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.add('over');});});
+    ['dragleave','drop'].forEach(function(e){dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.remove('over');});});
+    dz.addEventListener('drop',function(ev){handleTeacherFiles(ev.dataTransfer.files);});
+    $('fileInput').addEventListener('change',function(ev){handleTeacherFiles(ev.target.files);this.value='';});
+  }
+  document.querySelectorAll('#cats .cat').forEach(function(c){
+    c.addEventListener('click',function(){
+      document.querySelectorAll('#cats .cat').forEach(function(x){x.classList.remove('sel');});
+      c.classList.add('sel'); state.category=c.getAttribute('data-c');
+    });
   });
-}
-
-function pollResult(chatId, convId, item){
-  var tries = 0;
-  return new Promise(function(resolve, reject){
-    var timer = setInterval(function(){
-      tries++;
-      fetch('https://api.coze.cn/v3/chat/retrieve?chat_id='+chatId+'&conversation_id='+convId, {
-        headers: { 'Authorization': 'Bearer '+COZE_TOKEN }
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        var st = d.data && d.data.status;
-        if (st === 'completed'){
-          clearInterval(timer);
-          return getAnswer(chatId, convId).then(function(ans){
-            item.status='ok';
-            item.result = (ans||'').slice(0,60);
-            renderPhotos();
-            showToast('「'+item.name+'」已分析并归档至飞书', 'ok');
-            // 同步到飞书D3-1施工现场归档表
-            if (window.feishuSync){
-              window.feishuSync.sync('data_photo','D3施工现场照片归档',{
-                '文件名': item.name,
-                '用户分类': item.category,
-                'AI识别结论': (ans||'已识别归档').slice(0,800)
-              },{silent:true});
-            }
+  var state={category:'自动识别',tphotos:[]};
+  function handleTeacherFiles(files){
+    Array.prototype.forEach.call(files,function(f){
+      if(!f.type.startsWith('image/'))return;
+      var reader=new FileReader();
+      reader.onload=function(e){
+        var item={id:Date.now()+Math.random(),name:f.name,dataUrl:e.target.result,status:'ing',category:state.category,result:''};
+        state.tphotos.unshift(item); renderTeacherPhotos(); analyzePhoto(item);
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+  function renderTeacherPhotos(){
+    $('phCount').textContent=state.tphotos.length;
+    if(!state.tphotos.length){ $('phList2').innerHTML='<div class="empty">暂无记录</div>'; return; }
+    var html='';
+    state.tphotos.forEach(function(p){
+      var sc=p.status==='ok'?'st-ok':p.status==='ing'?'st-ing':'st-err';
+      var st=p.status==='ok'?'已归档':p.status==='ing'?'分析中…':'失败';
+      html+='<div class="ph-item"><img src="'+p.dataUrl+'"><div class="meta"><b>'+p.name+'</b><span>分类：'+p.category+(p.result?' · '+p.result:'')+'</span></div><span class="st '+sc+'">'+st+'</span></div>';
+    });
+    $('phList2').innerHTML=html;
+  }
+  function analyzePhoto(item){
+    var prompt='【现场照片归档】请识别并分析这张施工现场照片：';
+    prompt+='（用户指定分类：'+item.category+'，如为"自动识别"请自行判断）。';
+    prompt+='请判断属于：施工步骤/工具/成果/问题隐患 中的哪一类，分析操作是否规范、是否存在安全隐患，';
+    prompt+='并将结构化记录（照片分类、规范性判断、隐患说明）写入飞书多维表格。最后用一句话告诉我分类结果。';
+    var base64=item.dataUrl.split(',')[1];
+    fetch('https://api.coze.cn/v3/chat',{method:'POST',
+      headers:{'Authorization':'Bearer '+COZE_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({bot_id:BOT_ID,user_id:'web_d3',stream:false,auto_save_history:true,
+        additional_messages:[{role:'user',content_type:'object_string',content:JSON.stringify([{type:'text',text:prompt},{type:'image',file_base64:base64}])}]})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.code!==0)throw new Error(d.msg||'API错误');
+      return pollResult(d.data.chat_id,d.data.conversation_id,item);
+    }).catch(function(err){ item.status='err'; item.result=''; renderTeacherPhotos(); renderStuPhotos(); });
+  }
+  function pollResult(chatId,convId,item){
+    var tries=0;
+    return new Promise(function(resolve,reject){
+      var timer=setInterval(function(){
+        tries++;
+        fetch('https://api.coze.cn/v3/chat/retrieve?chat_id='+chatId+'&conversation_id='+convId,{headers:{'Authorization':'Bearer '+COZE_TOKEN}})
+        .then(function(r){return r.json();}).then(function(d){
+          var st=d.data&&d.data.status;
+          if(st==='completed'){ clearInterval(timer); getAnswer(chatId,convId).then(function(ans){
+            item.status='ok'; item.result=(ans||'').slice(0,60);
+            renderTeacherPhotos(); renderStuPhotos();
+            showToast('照片已分析并归档至飞书','ok');
+            if(window.feishuSync){ window.feishuSync.sync('data_photo','D3施工现场照片归档',{'文件名':item.name,'用户分类':item.category,'AI识别结论':(ans||'已识别归档').slice(0,800)},{silent:true}); }
             resolve();
-          });
-        }
-        if (st === 'failed' || st === 'requires_action' || tries > 25){
-          clearInterval(timer);
-          reject(new Error('Bot处理超时'));
-        }
-      })
-      .catch(function(){ if (tries>25){ clearInterval(timer); reject(new Error('网络错误')); } });
-    }, 3000);
-  });
-}
-
-function getAnswer(chatId, convId){
-  return fetch('https://api.coze.cn/v3/chat/message/list?chat_id='+chatId+'&conversation_id='+convId, {
-    headers: { 'Authorization': 'Bearer '+COZE_TOKEN }
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    var ans = '';
-    (d.data||[]).forEach(function(m){ if (m.type==='answer') ans = m.content; });
-    return ans;
-  });
-}
-
-// ==================== View2: Behavior Demo ====================
-function loadDemoBehavior(){
-  $('s1').textContent = '86';
-  $('s2').textContent = '4.3';
-  $('s3').textContent = '78%';
-  $('s4').textContent = '62%';
-  var phases = ['导入','讲解','演示','实操','讨论','总结'];
-  var vals = [12,18,9,22,20,5];
-  var html='';
-  phases.forEach(function(p,i){ html += '<div class="bar-col"><div class="bar" style="height:'+(vals[i]/22*100)+'%"></div><div class="bar-l">'+p+'</div></div>'; });
-  $('bars1').innerHTML = html;
-  var groups=['一组','二组','三组','四组','五组'];
-  var gv=[70,55,82,60,75];
-  var html2='';
-  groups.forEach(function(g,i){ html2 += '<div class="bar-col"><div class="bar alt" style="height:'+gv[i]+'%"></div><div class="bar-l">'+g+'</div></div>'; });
-  $('bars2').innerHTML = html2;
-  showToast('已加载演示课堂行为量化数据');
-  // 同步到飞书D3-2课堂行为量化表
-  if (window.feishuSync){
-    window.feishuSync.sync('data_behavior','D3课堂行为量化报告',{
-      '课堂专注度(分)': '86',
-      '平均互动轮次(次)': '4.3',
-      '小组协作参与率(%)': '78',
-      '实操规范达成率(%)': '62',
-      '阶段分布(分)': '导入12/讲解18/演示9/实操22/讨论20/总结5',
-      '小组均分': '一组70/二组55/三组82/四组60/五组75'
-    },{silent:true});
+          }); }
+          if(st==='failed'||st==='requires_action'||tries>25){ clearInterval(timer); reject(new Error('超时')); }
+        }).catch(function(){ if(tries>25){clearInterval(timer);reject(new Error('网络错误'));} });
+      },3000);
+    });
   }
-}
-
-// ==================== View3: Dialog Quality ====================
-function analyzeDialogs(){
-  // 从localStorage读取各页面可能保存的对话（这里主要做评估演示）
-  // 指标
-  var metrics = [
-    { l:'多轮追问占比', v: 64, c:'#38bdf8' },
-    { l:'质疑/反驳AI占比', v: 38, c:'#a78bfa' },
-    { l:'主动引用证据占比', v: 52, c:'#34d399' },
-    { l:'直接索取答案占比', v: 21, c:'#f87171' }
-  ];
-  var html='';
-  metrics.forEach(function(m){
-    html += '<div class="dq-meter" style="margin-bottom:14px"><div style="min-width:130px;font-size:.88rem;color:#cbd5e1">'+m.l+'</div><div class="meter-track"><div class="meter-fill" style="width:'+m.v+'%;background:'+m.c+'"></div></div><div class="meter-val" style="color:'+m.c+'">'+m.v+'%</div></div>';
-  });
-  $('dqMeters').innerHTML = html;
-
-  // 深度学习指数
-  var deep = 71;
-  $('deepFill').style.width = deep+'%';
-  $('deepVal').textContent = deep;
-
-  var evi = [
-    { tag:'tag-deep', tl:'多轮追问', p:'学生在得到初步答案后继续追问：<b>"如果是交叉线，1-2和3-6对调后，测线仪灯序会怎么变？依据是什么？"</b> —— 体现持续探究。' },
-    { tag:'tag-q', tl:'质疑AI', p:'学生提出：<b>"你说POE只用4-5、7-8，但有些方案用1-2、3-6供电，这两种模式的区别和风险是什么？"</b> —— 不盲信，主动求证。' },
-    { tag:'tag-surf', tl:'索取答案', p:'学生直接问：<b>"把第3题答案给我"</b>，未表达自己的思路，属于浅层互动，系统标记并在教学中引导其先陈述想法。' }
-  ];
-  var eh='';
-  evi.forEach(function(e){ eh += '<div class="evi"><span class="tag '+e.tag+'">'+e.tl+'</span><p>'+e.p+'</p></div>'; });
-  $('eviList').innerHTML = eh;
-  showToast('对话质量分析完成，思维证据已同步飞书');
-  // 同步到飞书D3-3对话质量分析表
-  if (window.feishuSync){
-    window.feishuSync.sync('data_dialogue','D3对话质量分析报告',{
-      '多轮追问占比(%)': '64',
-      '质疑/反驳AI占比(%)': '38',
-      '主动引用证据占比(%)': '52',
-      '直接索取答案占比(%)': '21',
-      '深度学习指数(分)': '71',
-      '思维证据条数': '3'
-    },{silent:true});
+  function getAnswer(chatId,convId){
+    return fetch('https://api.coze.cn/v3/chat/message/list?chat_id='+chatId+'&conversation_id='+convId,{headers:{'Authorization':'Bearer '+COZE_TOKEN}})
+    .then(function(r){return r.json();}).then(function(d){
+      var ans=''; (d.data||[]).forEach(function(m){if(m.type==='answer')ans=m.content;}); return ans;
+    });
   }
-}
 
-// ==================== View4: Switch ====================
-function toggleSwitch(el){ el.classList.toggle('off'); }
+  /* ===== 行为量化演示 ===== */
+  window.loadDemoBehavior=function(){
+    var phases=['导入','讲解','演示','实操','讨论','总结'], vals=[12,18,9,22,20,5];
+    var html='';
+    phases.forEach(function(p,i){html+='<div class="bar-col"><div class="bar" style="height:'+(vals[i]/22*100)+'%"></div><div class="bar-l">'+p+'</div></div>';});
+    $('bars1').innerHTML=html;
+    var groups=['一组','二组','三组','四组','五组'], gv=[70,55,82,60,75], html2='';
+    groups.forEach(function(g,i){html2+='<div class="bar-col"><div class="bar alt" style="height:'+gv[i]+'%"></div><div class="bar-l">'+g+'</div></div>';});
+    $('bars2').innerHTML=html2;
+    showToast('已加载演示课堂行为量化数据','ok');
+    if(window.feishuSync){ window.feishuSync.sync('data_behavior','D3课堂行为量化报告',{'课堂专注度(分)':'86','平均互动轮次(次)':'4.3','小组协作参与率(%)':'78','实操规范达成率(%)':'62','阶段分布(分)':'导入12/讲解18/演示9/实操22/讨论20/总结5','小组均分':'一组70/二组55/三组82/四组60/五组75'},{silent:true}); }
+  };
 
-// init
-renderPhotos();
+  /* ===== 对话质量演示 ===== */
+  window.analyzeDialogs=function(){
+    var metrics=[{l:'多轮追问占比',v:64,c:'#38bdf8'},{l:'质疑/反驳AI占比',v:38,c:'#a78bfa'},{l:'主动引用证据占比',v:52,c:'#34d399'},{l:'直接索取答案占比',v:21,c:'#f87171'}];
+    var html='';
+    metrics.forEach(function(m){html+='<div class="dq-meter"><div class="lb">'+m.l+'</div><div class="meter-track"><div class="meter-fill" style="width:'+m.v+'%;background:'+m.c+'"></div></div><div class="meter-val" style="color:'+m.c+'">'+m.v+'%</div></div>';});
+    $('dqMeters').innerHTML=html;
+    var deep=71; $('deepFill').style.width=deep+'%'; $('deepVal').textContent=deep;
+    var evi=[
+      {tag:'tag-deep',tl:'多轮追问',p:'学生得到初步答案后继续追问：<b>"如果是交叉线，1-2 和 3-6 对调后，测线仪灯序会怎么变？依据是什么？"</b> —— 体现持续探究。'},
+      {tag:'tag-q',tl:'质疑AI',p:'学生提出：<b>"你说 POE 只用 4-5、7-8，但有些方案用 1-2、3-6 供电，区别和风险是什么？"</b> —— 不盲信，主动求证。'},
+      {tag:'tag-surf',tl:'索取答案',p:'学生直接问：<b>"把第 3 题答案给我"</b>，未表达思路，属浅层互动，系统标记并引导其先陈述想法。'}
+    ];
+    var eh='';
+    evi.forEach(function(e){eh+='<div class="evi"><div class="evi-in"><span class="tag '+e.tag+'">'+e.tl+'</span><p>'+e.p+'</p></div></div>';});
+    $('eviList').innerHTML=eh;
+    showToast('对话质量分析完成，已同步飞书','ok');
+    if(window.feishuSync){ window.feishuSync.sync('data_dialogue','D3对话质量分析报告',{'多轮追问占比(%)':'64','质疑/反驳AI占比(%)':'38','主动引用证据占比(%)':'52','直接索取答案占比(%)':'21','深度学习指数(分)':'71','思维证据条数':'3'},{silent:true}); }
+  };
+
+  window.toggleSwitch=function(el){el.classList.toggle('off');};
+
+  /* ===== 教师端 · 本账号记录（谁创建谁看） ===== */
+  function getRecords(){ try{return JSON.parse(localStorage.getItem('d3_records')||'[]');}catch(e){return[];} }
+  function renderRecords(){
+    var all=getRecords().filter(function(r){return r.account===currentAccount;});
+    $('ovCount').innerHTML=all.length+'<small>条</small>';
+  }
+})();
 </script>
 </body>
 </html>
