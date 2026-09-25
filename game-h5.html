@@ -23,6 +23,7 @@ p{color:#94a3b8;line-height:1.9;font-size:1.05rem;margin-bottom:24px}
 .feat span{color:#94a3b8;font-size:.85rem}
 .badge{display:inline-block;padding:6px 16px;border-radius:20px;background:#fef3c7;color:#92400e;font-weight:600;font-size:.9rem}
 </style>
+  <script src="feishu-sync.js"></script>
 </head>
 <body>
 <div class="top">
@@ -49,6 +50,32 @@ p{color:#94a3b8;line-height:1.9;font-size:1.05rem;margin-bottom:24px}
 <div class="feat"><b>⏱️ 攻关难关卡</b><span>限时/限材料，失败可反复挑战</span></div>
 </div>
 <span class="badge">⏳ 模块开发对接中，完成后在此呈现</span>
+<p style="color:#9ca3af;font-size:12px;margin-top:16px">D5 成品接入后，闯关成绩将自动同步到飞书数据中心</p>
+<script>
+// 接收 D5 成品通过 postMessage 发来的游戏数据，自动同步到飞书
+window.addEventListener('message', function(e){
+  var d = e.data;
+  if(!d || !d.type) return;
+  if(d.type === 'game_result' && window.feishuSync){
+    feishuSync.sync('game', d.level || '闯关成绩', {
+      '关卡名称': d.levelName || '-',
+      '星数/评级': d.stars ? (d.stars+'星') : (d.grade||'-'),
+      '得分': d.score||'-',
+      '用时': d.time ? (d.time+'秒') : '-',
+      '正确率': d.accuracy ? (d.accuracy+'%') : '-',
+      '失败次数': d.fails||0
+    });
+  }
+  if(d.type === 'game_action' && window.feishuSync){
+    feishuSync.sync('game', '闯关操作记录', {
+      '操作': d.action || '-',
+      '详情': d.detail || '-',
+      '关卡': d.levelName || '-'
+    }, {silent:true});
+  }
+});
+console.log('[D5] postMessage监听已就绪，外部成品可通过 window.parent.postMessage({type:"game_result",...}) 回传数据');
+</script>
 </div>
 </div>
 </body>

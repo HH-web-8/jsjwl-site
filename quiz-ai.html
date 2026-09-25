@@ -112,6 +112,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
   .ai-side{flex:1;min-width:auto}
 }
 </style>
+  <script src="feishu-sync.js"></script>
 </head>
 <body>
 <div class="topbar">
@@ -284,7 +285,18 @@ function nextBatch(){
   qIdx+=BATCH;submitted=false;
   if(qIdx>=curQs.length){
     document.getElementById('quizBody').innerHTML=`<div class="empty-state"><div class="icon">🎉</div><h3 style="color:#2d3748;margin-bottom:8px">练习完成！</h3><p style="font-size:20px;color:#744210">最终得分：${score}/${total}</p></div>`;
-    document.getElementById('nextBtn').style.display='none';return;
+    document.getElementById('nextBtn').style.display='none';
+    // 实时同步练习成绩到飞书
+    if(window.feishuSync){
+      var rate = total>0?Math.round(score/total*100):0;
+      feishuSync.sync('quiz','题库练习成绩',{
+        '最终得分': score+'/'+total,
+        '正确率': rate+'%',
+        '题目来源': curQs[0] && curQs[0].ai?'AI生成':'内置题库',
+        '题目数量': total+' 题'
+      });
+    }
+    return;
   }
   document.getElementById('submitBtn').style.display='';document.getElementById('nextBtn').style.display='none';
   showBatch();

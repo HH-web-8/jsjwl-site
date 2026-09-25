@@ -214,6 +214,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .drag-slot.drag-over{border-color:var(--blue);background:rgba(59,130,246,.05)}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
 </style>
+  <script src="feishu-sync.js"></script>
 </head>
 <body>
 
@@ -1241,6 +1242,18 @@ function finishInspection(){
   state.score = finalScore;
   state.stepScores[7] = finalScore;
   state.completed.push(7);
+
+  // 实时同步成绩到飞书
+  if(window.feishuSync){
+    feishuSync.sync('fiber', '光纤熔接实训成绩', {
+      '最终得分': finalScore,
+      '评级': grade,
+      '熔接损耗': loss.toFixed(3)+' dB',
+      '操作错误次数': state.errors+' 次',
+      '完成步骤': state.completed.length+'/'+STEPS.length,
+      '操作模式': state.mode==='exam'?'考核模式':'新手引导'
+    });
+  }
 
   fb.innerHTML = '<div class="feedback ok">✅ 质量检查完成！</div>';
 

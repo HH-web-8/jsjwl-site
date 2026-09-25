@@ -1386,6 +1386,7 @@ body {
   .tools-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
 }
 </style>
+  <script src="feishu-sync.js"></script>
 </head>
 <body>
 
@@ -2113,6 +2114,17 @@ function renderStep6_Test(area) {
       + '<div class="press-hint" onclick="setStep(7)">📝 进入知识答题</div>'
       + '</div>';
     area.innerHTML = html;
+    // 实时同步实训成绩到飞书
+    if(window.feishuSync){
+      var wireOrderCorrect = state.wireOrderCorrect ? '8/8正确' : (state.wireResults ? state.wireResults.filter(Boolean).length+'/8正确' : '8/8正确');
+      feishuSync.sync('cabling', 'T568B端接实训成绩', {
+        '最终得分': state.score+' 分',
+        '答题得分': state.quizScore+'/'+QUIZ_BANK.length,
+        '理线结果': wireOrderCorrect,
+        '测线结果': state.testPassed ? '通过(8灯全亮)' : '未完成/失败',
+        '错误次数': state.errors+' 次'
+      });
+    }
     return;
   }
   var html = '<div class="stage test-area">'
