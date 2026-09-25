@@ -1243,16 +1243,16 @@ function finishInspection(){
   state.stepScores[7] = finalScore;
   state.completed.push(7);
 
-  // 实时同步成绩到飞书
+  // 实时同步成绩到飞书「AI赋能教学数据中枢·D4-1光纤熔接实训成绩表」
   if(window.feishuSync){
-    feishuSync.sync('fiber', '光纤熔接实训成绩', {
-      '最终得分': finalScore,
+    feishuSync.sync('fiber_score', '8步实训完成成绩', {
+      '最终得分(分)': finalScore,
       '评级': grade,
-      '熔接损耗': loss.toFixed(3)+' dB',
-      '操作错误次数': state.errors+' 次',
+      '熔接损耗(dB)': loss.toFixed(3),
+      '操作错误次数(次)': state.errors,
       '完成步骤': state.completed.length+'/'+STEPS.length,
       '操作模式': state.mode==='exam'?'考核模式':'新手引导'
-    });
+    },{silent:true});
   }
 
   fb.innerHTML = '<div class="feedback ok">✅ 质量检查完成！</div>';

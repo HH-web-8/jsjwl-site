@@ -286,15 +286,17 @@ function nextBatch(){
   if(qIdx>=curQs.length){
     document.getElementById('quizBody').innerHTML=`<div class="empty-state"><div class="icon">🎉</div><h3 style="color:#2d3748;margin-bottom:8px">练习完成！</h3><p style="font-size:20px;color:#744210">最终得分：${score}/${total}</p></div>`;
     document.getElementById('nextBtn').style.display='none';
-    // 实时同步练习成绩到飞书
+    // 实时同步练习成绩到飞书「AI赋能教学数据中枢·题库练习成绩表」
     if(window.feishuSync){
       var rate = total>0?Math.round(score/total*100):0;
-      feishuSync.sync('quiz','题库练习成绩',{
-        '最终得分': score+'/'+total,
-        '正确率': rate+'%',
+      feishuSync.sync('quiz_score','题库练习提交成绩',{
+        '最终得分(分)': score+'/'+total,
+        '正确率(%)': rate,
         '题目来源': curQs[0] && curQs[0].ai?'AI生成':'内置题库',
-        '题目数量': total+' 题'
-      });
+        '题目数量(题)': total,
+        '课程分类': currentCourse||'全部',
+        '难度': currentDifficulty||'全部'
+      },{silent:true});
     }
     return;
   }
@@ -391,148 +393,33 @@ function showWrong(){
 function closeWrong(){document.getElementById('wrongModal').classList.remove('show')}
 function clearWrong(){wrongList=[];localStorage.setItem('wrongList','[]');updateWrongBadge();closeWrong()}
 
-/* ========== 飞书自动同步功能（通过Coze API自动写入） ========== */
-let feishuSyncQueue = [];
-let feishuSyncing = false;
+/* ========== 飞书自动同步功能（通过统一feishuSync写入AI赋能教学数据中枢） ========== */
 
-/* 答错题自动触发飞书同步 */
+/* 答错题自动触发飞书同步（写入D5错题记录表） */
 function autoSyncToFeishu(wrongItem) {
-  feishuSyncQueue.push(wrongItem);
-  // 显示同步提示
-  showToast('📤 正在同步错题到飞书...', 'syncing');
-  processFeishuQueue();
+  if(!window.feishuSync) return;
+  const courseMap = {net:'计算机网络基础',route:'路由与交换技术',cab:'综合布线技术',sec:'网络安全技术',linux:'Linux系统管理',prog:'程序设计基础',server:'Windows服务器配置'};
+  const diffMap = {easy:'初级',mid:'中级',hard:'高级'};
+  const opts = wrongItem.o ? wrongItem.o.map((o,i)=>(String.fromCharCode(65+i)+'. '+o)).join(' | ') : '';
+  const ans = wrongItem.o ? String.fromCharCode(65+wrongItem.a)+'. '+wrongItem.o[wrongItem.a] : '';
+  window.feishuSync.sync('wrong_book','错题自动记录',{
+    '题目': wrongItem.q,
+    '选项': opts,
+    '正确答案': ans,
+    '解析': wrongItem.e || '暂无解析',
+    '课程分类': courseMap[wrongItem.c]||wrongItem.c||'未分类',
+    '难度': diffMap[wrongItem.d]||wrongItem.d||'未知',
+    '题目来源': wrongItem.ai?'AI生成':'内置题库'
+  },{silent:true});
 }
 
 /* 批量手动同步（从错题本弹窗触发） */
 function manualSyncAllToFeishu() {
   if (!wrongList.length) { alert('暂无错题需要同步'); return; }
   closeWrong();
-  showToast('📤 正在批量同步错题到飞书...', 'syncing');
-  wrongList.forEach(w => {
-    // 避免重复添加已在队列中的
-    if (!feishuSyncQueue.find(q => q.q === w.q)) {
-      feishuSyncQueue.push(w);
-    }
-  });
-  processFeishuQueue();
+  wrongList.forEach(w => autoSyncToFeishu(w));
+  showToast('✅ 已批量同步 '+wrongList.length+' 道错题到飞书数据中枢','success');
 }
-
-/* 处理飞书同步队列 */
-async function processFeishuQueue() {
-  if (feishuSyncing || feishuSyncQueue.length === 0) return;
-  feishuSyncing = true;
-  const item = feishuSyncQueue.shift();
-  try {
-    const result = await callCozeApiForFeishu(item);
-    if (result) {
-      showToast('✅ 错题已自动同步到飞书', 'success');
-    } else {
-      showToast('⚠️ 飞书同步失败，稍后重试', 'error');
-      // 失败的重新放回队列
-      feishuSyncQueue.unshift(item);
-    }
-  } catch (e) {
-    console.error('飞书同步异常:', e);
-    showToast('⚠️ 飞书同步异常', 'error');
-    feishuSyncQueue.unshift(item);
-  }
-  feishuSyncing = false;
-  // 继续处理队列
-  if (feishuSyncQueue.length > 0) {
-    setTimeout(processFeishuQueue, 2000); // 间隔2秒避免频率限制
-  }
-}
-
-/* 调用Coze Chat API发送格式化消息给Bot，Bot自动写入飞书 */
-async function callCozeApiForFeishu(wrongItem) {
-  const now = new Date().toLocaleString('zh-CN');
-  const courseMap = {net:'计算机网络基础',route:'路由与交换技术',cab:'综合布线技术',sec:'网络安全技术',linux:'Linux系统管理',prog:'程序设计基础',server:'Windows服务器配置'};
-  const diffMap = {easy:'初级',mid:'中级',hard:'高级'};
-  const course = courseMap[wrongItem.c] || wrongItem.c || '未分类';
-  const diff = diffMap[wrongItem.d] || wrongItem.d || '未知';
-
-  // 构建格式化消息 - 与Bot训练的格式一致
-  let msg = `【错题同步】\n`;
-  msg += `时间：${now}\n`;
-  msg += `课程：${course}\n`;
-  msg += `难度：${diff}\n`;
-  msg += `题目：${wrongItem.q}\n`;
-  if (wrongItem.o && wrongItem.o.length) {
-    wrongItem.o.forEach((opt, i) => {
-      msg += `${String.fromCharCode(65 + i)}. ${opt}\n`;
-    });
-  }
-  msg += `正确答案：${String.fromCharCode(65 + wrongItem.a)}. ${wrongItem.o ? wrongItem.o[wrongItem.a] : ''}\n`;
-  msg += `解析：${wrongItem.e || '暂无解析'}\n`;
-  msg += `\n请将以上错题记录到飞书错题记录表中。`;
-
-  const body = {
-    bot_id: '7645540020057423908',
-    user_id: 'feishu_sync_' + (localStorage.getItem('feishuUid') || ('u_' + Math.random().toString(36).substr(2, 8))),
-    stream: false,
-    auto_save_history: true,
-    additional_messages: [{
-      role: 'user',
-      content: msg,
-      content_type: 'text'
-    }]
-  };
-
-  const resp = await fetch('https://api.coze.cn/v3/chat', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + AI_TOKEN,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (!resp.ok) {
-    console.error('飞书同步API错误:', resp.status);
-    return false;
-  }
-
-  const data = await resp.json();
-  if (data.code === 0 && data.data) {
-    // 非流式模式下，chat创建后需要轮询等待完成
-    const chatId = data.data.id;
-    const convId = data.data.conversation_id;
-    return await pollChatResult(chatId, convId);
-  }
-  return false;
-}
-
-/* 轮询等待Chat完成并获取结果 */
-async function pollChatResult(chatId, convId) {
-  const maxAttempts = 15; // 最多等待75秒
-  for (let i = 0; i < maxAttempts; i++) {
-    await new Promise(r => setTimeout(r, 5000)); // 每5秒查询一次
-    try {
-      const resp = await fetch(
-        `https://api.coze.cn/v3/chat/retrieve?chat_id=${chatId}&conversation_id=${convId}`,
-        {
-          headers: { 'Authorization': 'Bearer ' + AI_TOKEN }
-        }
-      );
-      const data = await resp.json();
-      if (data.code === 0 && data.data) {
-        const status = data.data.status;
-        if (status === 'completed') {
-          return true;
-        } else if (status === 'failed') {
-          console.error('飞书同步Bot处理失败');
-          return false;
-        }
-        // 继续等待 (in_progress / created)
-      }
-    } catch (e) {
-      console.error('轮询飞书同步状态异常:', e);
-    }
-  }
-  console.error('飞书同步超时');
-  return false;
-}
-
 /* Toast提示 */
 function showToast(msg, type) {
   let el = document.getElementById('feishuToast');

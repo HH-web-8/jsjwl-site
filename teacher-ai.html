@@ -278,70 +278,37 @@ function formatMsg(text){
   return html;
 }
 
-/* ========== 飞书自动同步功能 ========== */
+/* ========== 飞书自动同步功能（写入AI赋能教学数据中枢） ========== */
 const TEACHER_COURSE_MAP={cable:'综合布线系统',net:'网络基础',route:'路由交换技术',security:'网络安全',server:'服务器配置',wireless:'无线网络',program:'网络编程',fiber:'光纤技术',linux:'Linux系统管理'};
+const TEACHER_TYPE_MAP={prep:{key:'teacher_prep',label:'备课资源',table:'D1-1备课资源表'},analyze:{key:'teacher_analyze',label:'学情分析',table:'D1-2学情分析表'},quiz:{key:'teacher_quiz',label:'智能组卷',table:'D1-3智能组卷表'},reflect:{key:'teacher_reflect',label:'教学反思',table:'D1-4教学反思表'}};
 let feishuContent='';
-let feishuSyncing=false;
 
 function openFeishuModal(btn){
   const bubble=btn.closest('.msg-bubble');
-  feishuContent=bubble.textContent.replace('📤 同步到飞书','').trim().slice(0,1200);
+  feishuContent=bubble.textContent.replace('📤 同步到飞书','').trim().slice(0,2000);
   document.getElementById('feishuOverlay').classList.add('show');
   document.getElementById('fsCourse').value='net';
+  document.getElementById('fsType').value='prep';
   document.getElementById('fsNote').value='';
 }
 function closeFeishu(){document.getElementById('feishuOverlay').classList.remove('show');}
 
 async function doSyncFeishu(){
-  if(feishuSyncing)return;
-  feishuSyncing=true;
   closeFeishu();
-  showToast('📤 正在同步备课内容到飞书...','syncing');
   const course=document.getElementById('fsCourse').value;
   const courseName=TEACHER_COURSE_MAP[course]||course;
+  const type=document.getElementById('fsType').value;
+  const typeInfo=TEACHER_TYPE_MAP[type]||TEACHER_TYPE_MAP.prep;
   const note=document.getElementById('fsNote').value.trim();
-  const now=new Date().toLocaleString('zh-CN');
-  const msg=`【备课记录同步】\n时间：${now}\n来源：D1 AI教学助手\n课程：${courseName}\n备课内容：\n${feishuContent}${note?'\n补充说明：'+note:''}\n\n请将此备课记录写入飞书多维表格。`;
-
-  try{
-    const body={
-      bot_id:BOT_ID,
-      user_id:'feishu_sync_'+(localStorage.getItem('feishuUid')||('u_'+Math.random().toString(36).substr(2,8))),
-      stream:false,
-      auto_save_history:true,
-      additional_messages:[{role:'user',content:msg,content_type:'text'}]
-    };
-    const resp=await fetch(API_URL,{method:'POST',headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(!resp.ok)throw new Error('API错误:'+resp.status);
-    const data=await resp.json();
-    if(data.code===0&&data.data){
-      const chatId=data.data.id;
-      const convId=data.data.conversation_id;
-      const success=await pollChatResult(chatId,convId);
-      showToast(success?'✅ 备课内容已同步到飞书':'⚠️ 同步可能失败，请稍后检查','success');
-    }else{
-      showToast('⚠️ 飞书同步失败','error');
-    }
-  }catch(e){
-    console.error('飞书同步异常:',e);
-    showToast('⚠️ 飞书同步异常','error');
-  }
-  feishuSyncing=false;
-}
-
-async function pollChatResult(chatId,convId){
-  for(let i=0;i<15;i++){
-    await new Promise(r=>setTimeout(r,5000));
-    try{
-      const resp=await fetch(`https://api.coze.cn/v3/chat/retrieve?chat_id=${chatId}&conversation_id=${convId}`,{headers:{'Authorization':'Bearer '+TOKEN}});
-      const data=await resp.json();
-      if(data.code===0&&data.data){
-        if(data.data.status==='completed')return true;
-        if(data.data.status==='failed')return false;
-      }
-    }catch(e){console.error('轮询异常:',e);}
-  }
-  return false;
+  if(!window.feishuSync){showToast('⚠️ 飞书同步模块未加载','error');return;}
+  showToast('📤 正在同步到'+typeInfo.table+'...','syncing');
+  window.feishuSync.sync(typeInfo.key,'D1教学助手-'+typeInfo.label,{
+    '所属课程': courseName,
+    '内容类型': typeInfo.label,
+    'AI生成内容': feishuContent,
+    '补充说明': note||'无'
+  },{silent:false});
+  setTimeout(()=>{showToast('✅ 已同步到飞书'+typeInfo.table,'success');},1500);
 }
 
 function showToast(msg,type){
@@ -356,7 +323,14 @@ function showToast(msg,type){
 
 <div class="feishu-overlay" id="feishuOverlay">
   <div class="feishu-modal-box">
-    <h3>📤 同步备课内容到飞书</h3>
+    <h3>📤 同步到飞书数据中枢</h3>
+    <label>内容类型</label>
+    <select id="fsType">
+      <option value="prep">📚 备课资源 → D1-1备课资源表</option>
+      <option value="analyze">📊 学情分析 → D1-2学情分析表</option>
+      <option value="quiz">📝 智能组卷 → D1-3智能组卷表</option>
+      <option value="reflect">🔍 教学反思 → D1-4教学反思表</option>
+    </select>
     <label>课程</label>
     <select id="fsCourse">
       <option value="net">网络基础</option>

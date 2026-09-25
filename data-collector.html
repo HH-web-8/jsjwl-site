@@ -391,9 +391,17 @@ function pollResult(chatId, convId, item){
           clearInterval(timer);
           return getAnswer(chatId, convId).then(function(ans){
             item.status='ok';
-            item.result = (ans||'').slice(0,28);
+            item.result = (ans||'').slice(0,60);
             renderPhotos();
             showToast('「'+item.name+'」已分析并归档至飞书', 'ok');
+            // 同步到飞书D3-1施工现场归档表
+            if (window.feishuSync){
+              window.feishuSync.sync('data_photo','D3施工现场照片归档',{
+                '文件名': item.name,
+                '用户分类': item.category,
+                'AI识别结论': (ans||'已识别归档').slice(0,800)
+              },{silent:true});
+            }
             resolve();
           });
         }
@@ -436,6 +444,17 @@ function loadDemoBehavior(){
   groups.forEach(function(g,i){ html2 += '<div class="bar-col"><div class="bar alt" style="height:'+gv[i]+'%"></div><div class="bar-l">'+g+'</div></div>'; });
   $('bars2').innerHTML = html2;
   showToast('已加载演示课堂行为量化数据');
+  // 同步到飞书D3-2课堂行为量化表
+  if (window.feishuSync){
+    window.feishuSync.sync('data_behavior','D3课堂行为量化报告',{
+      '课堂专注度(分)': '86',
+      '平均互动轮次(次)': '4.3',
+      '小组协作参与率(%)': '78',
+      '实操规范达成率(%)': '62',
+      '阶段分布(分)': '导入12/讲解18/演示9/实操22/讨论20/总结5',
+      '小组均分': '一组70/二组55/三组82/四组60/五组75'
+    },{silent:true});
+  }
 }
 
 // ==================== View3: Dialog Quality ====================
@@ -467,7 +486,18 @@ function analyzeDialogs(){
   var eh='';
   evi.forEach(function(e){ eh += '<div class="evi"><span class="tag '+e.tag+'">'+e.tl+'</span><p>'+e.p+'</p></div>'; });
   $('eviList').innerHTML = eh;
-  showToast('对话质量分析完成，思维证据可回传飞书');
+  showToast('对话质量分析完成，思维证据已同步飞书');
+  // 同步到飞书D3-3对话质量分析表
+  if (window.feishuSync){
+    window.feishuSync.sync('data_dialogue','D3对话质量分析报告',{
+      '多轮追问占比(%)': '64',
+      '质疑/反驳AI占比(%)': '38',
+      '主动引用证据占比(%)': '52',
+      '直接索取答案占比(%)': '21',
+      '深度学习指数(分)': '71',
+      '思维证据条数': '3'
+    },{silent:true});
+  }
 }
 
 // ==================== View4: Switch ====================
