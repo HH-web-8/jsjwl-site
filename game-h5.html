@@ -6,82 +6,105 @@
 <title>D5 趣味闯关H5 - 智网匠心 AI 布线实训平台</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;min-height:100vh;display:flex;flex-direction:column}
-.top{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid #334155}
-.back{background:#1e293b;border:1px solid #475569;color:#fff;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.95rem;text-decoration:none}
+html,body{height:100%;overflow:hidden}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#0f172a;color:#fff;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-bottom:1px solid #334155;background:#0f172a;flex-shrink:0;z-index:10}
+.back{background:#1e293b;border:1px solid #475569;color:#fff;padding:6px 16px;border-radius:8px;cursor:pointer;font-size:.9rem;text-decoration:none;white-space:nowrap}
 .back:hover{background:#334155}
-.title{font-size:1.15rem;font-weight:700;color:#fb923c}
-.body{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
-.box{text-align:center;max-width:560px}
-.icon{font-size:5rem;margin-bottom:20px;animation:bounce 2s infinite}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-h1{font-size:2rem;margin-bottom:16px;color:#fff}
-p{color:#94a3b8;line-height:1.9;font-size:1.05rem;margin-bottom:24px}
-.feats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:28px 0}
-.feat{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);border-radius:12px;padding:16px;text-align:left}
-.feat b{color:#fb923c;display:block;margin-bottom:4px;font-size:1rem}
-.feat span{color:#94a3b8;font-size:.85rem}
-.badge{display:inline-block;padding:6px 16px;border-radius:20px;background:#fef3c7;color:#92400e;font-weight:600;font-size:.9rem}
+.title{font-size:1.05rem;font-weight:700;color:#fb923c;white-space:nowrap;margin:0 16px}
+.top nav{margin:0 12px;display:inline-flex;gap:4px;flex:0 0 auto}
+.top nav a{color:#cbd5e1;font-size:13px;padding:4px 10px;border:1px solid #475569;border-radius:6px;text-decoration:none;white-space:nowrap}
+.top nav a.active{color:#c2410c;border-color:#c2410c;background:#fff7ed;font-weight:600}
+.iframe-wrap{flex:1;position:relative;background:#fff}
+.iframe-wrap iframe{width:100%;height:100%;border:0;display:block}
+.loading-tip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#64748b;font-size:.95rem;text-align:center}
+.loading-tip .sp{display:inline-block;width:24px;height:24px;border:3px solid #e2e8f0;border-top-color:#fb923c;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fullscreen-btn{position:absolute;top:12px;right:12px;background:rgba(15,23,42,.7);color:#fff;border:1px solid #475569;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;z-index:5;backdrop-filter:blur(4px)}
+.fullscreen-btn:hover{background:rgba(249,115,22,.85);border-color:#fb923c}
 </style>
-  <script src="feishu-sync.js"></script>
+<script src="feishu-sync.js"></script>
 </head>
 <body>
 <div class="top">
-<a class="back" href="index.html">← 首页</a>
-<span class="title">🎮 D5 趣味闯关H5</span>
-<nav style="margin:0 12px;display:inline-flex;gap:4px;flex:1">
-  <a href="teacher-ai.html" style="color:#334155;font-size:13px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none">D1</a>
-  <a href="student-ai.html" style="color:#334155;font-size:13px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none">D2</a>
-  <a href="data-collector.html" style="color:#334155;font-size:13px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none">D3</a>
-  <a href="sim-platform.html" style="color:#334155;font-size:13px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none">D4</a>
-  <a href="game-h5.html" style="color:#c2410c;font-size:13px;padding:4px 10px;border:1px solid #c2410c;border-radius:6px;text-decoration:none;font-weight:600;background:#fff7ed">D5</a>
-</nav>
-<span style="width:30px"></span>
+  <a class="back" href="index.html">← 首页</a>
+  <span class="title">🎮 D5 趣味闯关H5</span>
+  <nav>
+    <a href="teacher-ai.html">D1</a>
+    <a href="student-ai.html">D2</a>
+    <a href="data-collector.html">D3</a>
+    <a href="sim-platform.html">D4</a>
+    <a href="game-h5.html" class="active">D5</a>
+  </nav>
+  <span style="width:60px"></span>
 </div>
-<div class="body">
-<div class="box">
-<div class="icon">🎮</div>
-<h1>D5 趣味闯关H5</h1>
-<p>以游戏化方式替代枯燥记忆，让学生在闯关中掌握布线工具、知识点与绿色施工规范。</p>
-<div class="feats">
-<div class="feat"><b>🧰 工具认知闯关</b><span>布线工具识别与使用规范考核</span></div>
-<div class="feat"><b>📚 知识闯关</b><span>知识点图谱动态出题，三星评价</span></div>
-<div class="feat"><b>♻️ 垃圾分类式闯关</b><span>线头/护套皮/废晶头分类，6S绿色施工</span></div>
-<div class="feat"><b>⏱️ 攻关难关卡</b><span>限时/限材料，失败可反复挑战</span></div>
+<div class="iframe-wrap" id="wrap">
+  <div class="loading-tip" id="loading"><div class="sp"></div><br>正在加载趣味闯关...</div>
+  <button class="fullscreen-btn" onclick="toggleFs()" title="全屏">⛶ 全屏</button>
+  <iframe id="gameFrame" src="https://55xr5xh7pm.coze.site/" allow="autoplay; fullscreen; clipboard-read; clipboard-write; camera; microphone" allowfullscreen onload="document.getElementById('loading').style.display='none'"></iframe>
 </div>
-<span class="badge">⏳ 模块开发对接中，完成后在此呈现</span>
-<p style="color:#9ca3af;font-size:12px;margin-top:16px">D5 成品接入后，闯关成绩将自动同步到飞书数据中枢「AI赋能教学数据中枢」</p>
+
 <script>
-// 接收 D5 成品通过 postMessage 发来的游戏数据，自动同步到飞书「AI赋能教学数据中枢」
+// D5 趣味闯关URL（可后续替换）
+var D5_URL = 'https://55xr5xh7pm.coze.site/';
+document.getElementById('gameFrame').src = D5_URL;
+
+// 全屏切换
+function toggleFs(){
+  var el = document.documentElement;
+  if(!document.fullscreenElement){
+    (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el);
+  }else{
+    (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document);
+  }
+}
+
+// 接收 D5 通过 postMessage 发来的游戏数据，自动同步到飞书「AI赋能教学数据中枢」
 window.addEventListener('message', function(e){
+  // 只接受来自D5域名的消息（安全校验）
   var d = e.data;
+  if(!d) return;
+  // 兼容字符串JSON
+  if(typeof d === 'string'){
+    try{ d = JSON.parse(d); }catch(err){ return; }
+  }
   if(!d || !d.type) return;
+  console.log('[D5] 收到消息:', d.type, d);
+
   // 闯关总成绩 → D5 闯关成绩表
   if(d.type === 'game_result' && window.feishuSync){
     feishuSync.sync('game_score', d.subType==='garbage' ? '垃圾分类闯关成绩' : (d.levelName||'闯关成绩'), {
-      '关卡名称': d.levelName || d.level || '-',
-      '星数/评级': d.stars ? (d.stars+'星') : (d.grade||'-'),
-      '得分': d.score||'-',
-      '用时(秒)': d.time||'-',
-      '正确率(%)': d.accuracy||'-',
-      '失败次数': d.fails||0
+      '关卡名称': d.levelName || d.level || d.stage || '-',
+      '星数/评级': d.stars ? (d.stars+'星') : (d.grade||d.rank||'-'),
+      '得分': d.score!=null ? d.score : '-',
+      '用时(秒)': d.time||d.duration||'-',
+      '正确率(%)': d.accuracy!=null ? d.accuracy : '-',
+      '失败次数': d.fails||d.failCount||0
     });
   }
   // 垃圾分类子模式 → D5 垃圾分类闯关表
-  if((d.type === 'garbage_result' || (d.type==='game_result' && d.subType==='garbage')) && window.feishuSync){
+  if((d.type === 'garbage_result' || d.type === 'trash_result' || (d.type==='game_result' && d.subType==='garbage')) && window.feishuSync){
     feishuSync.sync('game_garbage', '垃圾分类闯关成绩', {
-      '关卡': d.levelName||d.level||'-',
-      '得分': d.score||'-',
-      '正确数': d.correct||'-',
-      '错误数': d.wrong||'-',
-      '分类正确率(%)': d.accuracy||'-',
-      '用时(秒)': d.time||'-'
+      '关卡': d.levelName||d.level||d.stage||'-',
+      '得分': d.score!=null ? d.score : '-',
+      '正确数': d.correct!=null ? d.correct : '-',
+      '错误数': d.wrong!=null ? d.wrong : '-',
+      '分类正确率(%)': d.accuracy!=null ? d.accuracy : '-',
+      '用时(秒)': d.time||d.duration||'-',
+      '易混淆类别': d.confuse||'-'
     });
   }
-});
-console.log('[D5] postMessage监听已就绪，外部成品可通过 window.parent.postMessage({type:"game_result",...}) 或 {type:"garbage_result",...} 回传数据');
+  // 通用完成消息（兼容更多格式）
+  if((d.type === 'level_complete' || d.type === 'stage_clear') && window.feishuSync){
+    feishuSync.sync('game_score', '关卡完成', {
+      '关卡名称': d.levelName||d.level||d.stage||'-',
+      '得分': d.score!=null?d.score:'-',
+      '用时(秒)': d.time||d.duration||'-',
+      '星数/评级': d.stars?(d.stars+'星'):(d.grade||'-')
+    });
+  }
+}, false);
+console.log('[D5] 已接入 '+D5_URL+'，postMessage监听已就绪');
 </script>
-</div>
-</div>
 </body>
 </html>
