@@ -50,7 +50,14 @@ a{text-decoration:none;color:inherit}
 .mc-o::before{background:linear-gradient(90deg,#ea580c,#f97316)}
 .mcard.mc-soon{opacity:.85}
 .mcard.mc-soon:hover{transform:none}
-.micon{font-size:3rem;margin-bottom:14px}
+.micon{width:180px;height:180px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.micon img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(14,165,233,.18))}
+.mcard:hover .micon{transform:scale(1.06) translateY(-4px)}
+.mcard.mc-b:hover .micon img{filter:drop-shadow(0 8px 20px rgba(37,99,235,.35))}
+.mcard.mc-g:hover .micon img{filter:drop-shadow(0 8px 20px rgba(5,150,105,.35))}
+.mcard.mc-y:hover .micon img{filter:drop-shadow(0 8px 20px rgba(202,138,4,.35))}
+.mcard.mc-p:hover .micon img{filter:drop-shadow(0 8px 20px rgba(124,58,237,.35))}
+.mcard.mc-o:hover .micon img{filter:drop-shadow(0 8px 20px rgba(234,88,12,.4))}
 .minfo h3{font-size:1.22rem;font-weight:700;margin-bottom:10px;color:var(--txt)}
 .minfo p{color:var(--txl);font-size:.95rem;line-height:1.6;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;min-height:60px}
 .mtag-new{position:absolute;top:10px;right:10px;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#92400e}
@@ -301,27 +308,27 @@ a{text-decoration:none;color:inherit}
 <div class="mgrid">
 <a class="mcard mc-b" href="teacher-ai.html">
 <span class="mtag-new">教师侧</span>
-<div class="micon">🤖</div>
+<div class="micon"><img src="mod-d1.jpg" alt="D1 AI教学助手"></div>
 <div class="minfo"><h3>D1 AI教学助手</h3><p>智能备课生成、视频讲义截取、多源学情分析、智能组卷分层作业、教学反思与教研沉淀。</p><span class="mbtn">进入模块 →</span></div>
 </a>
 <a class="mcard mc-g" href="student-ai.html">
 <span class="mtag-new">学生侧</span>
-<div class="micon">👧</div>
+<div class="micon"><img src="mod-d2.jpg" alt="D2 AI学姐伴学"></div>
 <div class="minfo"><h3>D2 AI学姐伴学</h3><p>对话式预习伴学、思维镜子答疑、红队方案陪审、故障情景陪练、全程情感激励引导。</p><span class="mbtn">进入模块 →</span></div>
 </a>
 <a class="mcard mc-y" href="data-collector.html">
 <span class="mtag-new">核心亮点</span>
-<div class="micon">📊</div>
+<div class="micon"><img src="mod-d3.png" alt="D3 AI过程数据采集"></div>
 <div class="minfo"><h3>D3 AI过程数据采集</h3><p>施工照片归档分析、课堂行为量化、对话质量分析、数据回传飞书、隐私安全保障。</p><span class="mbtn">进入模块 →</span></div>
 </a>
 <a class="mcard mc-p" href="sim-platform.html">
 <span class="mtag-new">实训侧</span>
-<div class="micon">🔬</div>
+<div class="micon"><img src="mod-d4.jpg" alt="D4 AI虚拟实训平台"></div>
 <div class="minfo"><h3>D4 AI虚拟实训平台</h3><p>任务三维勘察、光纤熔接3D、T568B端接实操、先虚后实施工仿真、三级故障模拟。</p><span class="mbtn">进入模块 →</span></div>
 </a>
 <a class="mcard mc-o" href="game-h5.html">
 <span class="mtag-new">已上线</span>
-<div class="micon">🎮</div>
+<div class="micon"><img src="mod-d5.png" alt="D5 趣味闯关H5"></div>
 <div class="minfo"><h3>D5 趣味闯关H5</h3><p>工具认知闯关、知识图谱闯关、垃圾分类式闯关、限时限材料攻关，游戏化巩固提升。</p><span class="mbtn">立即体验 →</span></div>
 </a>
 </div>
