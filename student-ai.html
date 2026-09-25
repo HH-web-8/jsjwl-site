@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>学生AI答疑助手 - 山东工业技师学院线上课堂</title>
+<title>D2 AI学姐伴学 - AI网络布线教学实训平台</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0fdf4;height:100vh;display:flex;flex-direction:column}
@@ -83,23 +83,24 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0fdf4;h
 <body>
 <div class="topbar">
   <a href="index.html">&larr; 返回首页</a>
-  <h1>学生AI答疑助手</h1>
+  <h1>D2 AI学姐伴学</h1>
   <span class="bot-tag">在线</span>
 </div>
 <div class="chat-wrap">
   <div class="msgs" id="msgs">
     <div class="welcome">
-      <h2>计算机网络应用专业学生答疑小助手</h2>
-      <p>遇到专业问题随时提问，涵盖网络设备配置、综合布线、网络安全等17门课程知识点</p>
+      <h2>D2 AI学姐伴学（学生侧）</h2>
+      <p>对话式预习伴学、思维镜子式支架答疑、红队方案陪审、故障情景陪练，全程情感激励，陪你把知识学透</p>
       <div class="welcome-tags">
-        <span class="welcome-tag" onclick="sendQuick('OSI七层模型每层的功能是什么？')">OSI七层模型</span>
-        <span class="welcome-tag" onclick="sendQuick('子网掩码255.255.255.0怎么计算可用主机数？')">子网掩码计算</span>
-        <span class="welcome-tag" onclick="sendQuick('双绞线T568B线序是什么？')">T568B线序</span>
+        <span class="welcome-tag" onclick="sendQuick('我要预习：请用生活化类比帮我理解数据链路和信号衰减，并配一道跟练题，在我卡住时追问引导我')">📖 预习伴学</span>
+        <span class="welcome-tag" onclick="sendQuick('请用思维镜子模式：我先说出我的想法，你不要直接判对错，而是追问我哪些是猜测、缺什么证据、还能追问什么')">🪞 思维镜子</span>
+        <span class="welcome-tag" onclick="sendQuick('请启动方案陪审：分别从执行者、使用者、逻辑审查者三个角色，各提3个问题质疑我的方案')">⚖️ 方案陪审</span>
+        <span class="welcome-tag" onclick="sendQuick('故障情景陪练：我描述一个网络故障，你引导我推测原因、给出排查顺序，让我自己得出结论')">🛠️ 故障陪练</span>
       </div>
     </div>
   </div>
   <div class="input-area">
-    <input id="input" type="text" placeholder="输入你的专业问题..." onkeydown="if(event.key==='Enter')send()">
+    <input id="input" type="text" placeholder="告诉学姐你的想法或问题..." onkeydown="if(event.key==='Enter')send()">
     <button id="sendBtn" onclick="send()">发送</button>
   </div>
   <div class="bottom-bar">
@@ -241,7 +242,7 @@ async function doSyncFeishu(){
   const note=document.getElementById('fsNote').value.trim();
   const courseName=COURSE_MAP[course]||course;
   const now=new Date().toLocaleString('zh-CN');
-  const msg=`【咨询记录同步】\n时间：${now}\n来源：学生AI答疑助手\n课程：${courseName}\n问题类型：${reason}\n咨询内容：\n${feishuContent}${note?'\n补充说明：'+note:''}\n\n请将此记录写入飞书多维表格。`;
+  const msg=`【咨询记录同步】\n时间：${now}\n来源：D2 AI学姐伴学\n课程：${courseName}\n问题类型：${reason}\n咨询内容：\n${feishuContent}${note?'\n补充说明：'+note:''}\n\n请将此记录写入飞书多维表格。`;
 
   try{
     const body={

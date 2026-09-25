@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>教师AI备课助手 - 山东工业技师学院线上课堂</title>
+<title>D1 AI教学助手 - AI网络布线教学实训平台</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;height:100vh;display:flex;flex-direction:column}
@@ -78,23 +78,24 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 <body>
 <div class="topbar">
   <a href="index.html">&larr; 返回首页</a>
-  <h1>教师AI备课助手</h1>
+  <h1>D1 AI教学助手</h1>
   <span class="bot-tag">在线</span>
 </div>
 <div class="chat-wrap">
   <div class="msgs" id="msgs">
     <div class="welcome">
-      <h2>计算机网络应用专业教师助手</h2>
-      <p>输入课程主题，按工学一体化标准自动生成完整教案+配套PPT文字内容，覆盖17门专业课程</p>
+      <h2>D1 AI教学助手（教师侧）</h2>
+      <p>智能备课资源生成、视频讲义截取、多源学情分析、智能组卷与分层作业、教学反思与教研沉淀，AI赋能教学全流程</p>
       <div class="welcome-tags">
-        <span class="welcome-tag" onclick="sendQuick('帮我生成《网络设备配置与管理》课程的教案')">网络设备配置教案</span>
-        <span class="welcome-tag" onclick="sendQuick('生成《综合布线技术》课程的PPT大纲')">综合布线PPT</span>
-        <span class="welcome-tag" onclick="sendQuick('帮我设计《网络安全技术》课堂活动')">网络安全课堂活动</span>
+        <span class="welcome-tag" onclick="sendQuick('请帮我生成一份网络设备配置课程的教案（含教学目标、重难点、教学过程）')">📚 智能备课</span>
+        <span class="welcome-tag" onclick="sendQuick('请读取多源学习数据，生成学情动态图、横向对比图和纵向成长曲线分析，并指出本节课的课堂难点')">📊 学情分析</span>
+        <span class="welcome-tag" onclick="sendQuick('请按知识点覆盖度、难度梯度和题型配比，帮我组一套试卷并标注AI介入层次')">📝 智能组卷</span>
+        <span class="welcome-tag" onclick="sendQuick('我将上传一段授课视频，请从多个维度分析授课行为，给出教学改进建议并沉淀教研案例')">🔍 教学反思</span>
       </div>
     </div>
   </div>
   <div class="input-area">
-    <input id="input" type="text" placeholder="输入课程主题或教学需求..." onkeydown="if(event.key==='Enter')send()">
+    <input id="input" type="text" placeholder="描述备课、学情分析、组卷或教学反思需求..." onkeydown="if(event.key==='Enter')send()">
     <button id="sendBtn" onclick="send()">发送</button>
   </div>
   <div class="bottom-bar">
@@ -285,7 +286,7 @@ async function doSyncFeishu(){
   const courseName=TEACHER_COURSE_MAP[course]||course;
   const note=document.getElementById('fsNote').value.trim();
   const now=new Date().toLocaleString('zh-CN');
-  const msg=`【备课记录同步】\n时间：${now}\n来源：教师AI备课助手\n课程：${courseName}\n备课内容：\n${feishuContent}${note?'\n补充说明：'+note:''}\n\n请将此备课记录写入飞书多维表格。`;
+  const msg=`【备课记录同步】\n时间：${now}\n来源：D1 AI教学助手\n课程：${courseName}\n备课内容：\n${feishuContent}${note?'\n补充说明：'+note:''}\n\n请将此备课记录写入飞书多维表格。`;
 
   try{
     const body={
