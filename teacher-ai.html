@@ -77,10 +77,24 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0f4f8;h
 </head>
 <body>
 <div class="topbar">
-  <a href="index.html">&larr; 返回首页</a>
+  <a href="index.html">&larr; 首页</a>
   <h1>D1 AI教学助手</h1>
+  <nav class="mnav">
+    <a class="mnav-a active" href="teacher-ai.html">D1</a>
+    <a class="mnav-a" href="student-ai.html">D2</a>
+    <a class="mnav-a" href="data-collector.html">D3</a>
+    <a class="mnav-a" href="sim-platform.html">D4</a>
+    <a class="mnav-a" href="game-h5.html">D5</a>
+  </nav>
   <span class="bot-tag">在线</span>
 </div>
+<style>
+.mnav{display:flex;gap:4px;margin:0 12px}
+.mnav-a{color:#fff;text-decoration:none;font-size:13px;padding:4px 10px;border:1px solid rgba(255,255,255,.2);border-radius:6px;transition:all .2s}
+.mnav-a:hover{background:rgba(255,255,255,.18)}
+.mnav-a.active{background:rgba(255,255,255,.25);border-color:#fff;font-weight:600}
+@media(max-width:700px){.mnav{display:none}}
+</style>
 <div class="chat-wrap">
   <div class="msgs" id="msgs">
     <div class="welcome">
