@@ -41,8 +41,8 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 .video-panel-head{padding:12px 16px;border-bottom:1px solid var(--bg3);font-size:.9rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px}
 .video-panel-head .icon{color:var(--cyan)}
 .video-panel-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;background:var(--bg);position:relative;overflow:hidden}
-.video-player{width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--radius);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
-.video-player video{width:100%;height:100%;object-fit:contain}
+.video-player{flex:1 1 auto;min-height:0;width:100%;background:#000;border-radius:var(--radius);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.video-player video{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
 .video-info{padding:10px 14px;font-size:.78rem;color:var(--txt3);border-top:1px solid var(--bg3);line-height:1.5}
 .video-info span{color:var(--cyan);font-weight:600}
 /* Middle: 3D Scene */
@@ -241,16 +241,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="video-panel-body">
       <div class="video-player" id="videoPlayer">
         <video id="videoEl" autoplay muted loop playsinline>
-          <source src="光纤熔接视频1.mp4" type="video/mp4">
+          <source src="fiber-video-1.mp4" type="video/mp4">
         </video>
       </div>
       <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center">
-        <button id="btnVideo1" onclick="switchVideo(1)" style="padding:4px 12px;border-radius:4px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.75rem;cursor:pointer;font-weight:600">视频1</button>
-        <button id="btnVideo2" onclick="switchVideo(2)" style="padding:4px 12px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.75rem;cursor:pointer">视频2</button>
+        <button id="btnVideo1" onclick="switchVideo(1)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.72rem;cursor:pointer;font-weight:600">视频1</button>
+        <button id="btnVideo2" onclick="switchVideo(2)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">视频2</button>
+        <button id="btnVideo3" onclick="switchVideo(3)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">视频3</button>
       </div>
     </div>
     <div class="video-info">
-      当前播放：<span id="videoStepName">光纤熔接实操教学1</span>
+      当前播放：<span id="videoStepName">熔接机与切割刀功能介绍</span>
     </div>
   </div>
 
@@ -331,17 +332,22 @@ function renderStepBar(){
 function switchVideo(n){
   var v=document.getElementById('videoEl');
   var name=document.getElementById('videoStepName');
-  var b1=document.getElementById('btnVideo1');
-  var b2=document.getElementById('btnVideo2');
-  v.src=n===1?'光纤熔接视频1.mp4':'光纤熔接视频2.mp4';
+  var map={
+    1:{src:'fiber-video-1.mp4',title:'熔接机与切割刀功能介绍'},
+    2:{src:'fiber-video-2.mp4',title:'光纤熔接'},
+    3:{src:'fiber-video-3.mp4',title:'光纤盘纤工艺'}
+  };
+  v.src=map[n].src;
   v.load();v.play();
-  name.textContent=n===1?'光纤熔接实操教学1':'光纤熔接实操教学2';
-  b1.style.background=n===1?'var(--cyan)':'var(--bg2)';
-  b1.style.color=n===1?'#000':'var(--txt)';
-  b1.style.borderColor=n===1?'var(--cyan)':'var(--bg3)';
-  b2.style.background=n===2?'var(--cyan)':'var(--bg2)';
-  b2.style.color=n===2?'#000':'var(--txt)';
-  b2.style.borderColor=n===2?'var(--cyan)':'var(--bg3)';
+  name.textContent=map[n].title;
+  for(var i=1;i<=3;i++){
+    var b=document.getElementById('btnVideo'+i);
+    var active=(i===n);
+    b.style.background=active?'var(--cyan)':'var(--bg2)';
+    b.style.color=active?'#000':'var(--txt)';
+    b.style.borderColor=active?'var(--cyan)':'var(--bg3)';
+    b.style.fontWeight=active?'600':'400';
+  }
 }
 
 function goStep(idx){
