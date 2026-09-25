@@ -241,13 +241,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="video-panel-body">
       <div class="video-player" id="videoPlayer">
         <video id="videoEl" autoplay muted loop playsinline>
-          <source src="fiber-video-1.mp4" type="video/mp4">
+          <source src="fiber-video2.mp4" type="video/mp4">
         </video>
       </div>
-      <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center">
-        <button id="btnVideo1" onclick="switchVideo(1)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.72rem;cursor:pointer;font-weight:600">视频1</button>
-        <button id="btnVideo2" onclick="switchVideo(2)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">视频2</button>
-        <button id="btnVideo3" onclick="switchVideo(3)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">视频3</button>
+      <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center;flex-wrap:wrap">
+        <button id="btnVideo1" onclick="switchVideo(1)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">设备介绍</button>
+        <button id="btnVideo2" onclick="switchVideo(2)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.72rem;cursor:pointer;font-weight:600">光纤熔接</button>
+        <button id="btnVideo3" onclick="switchVideo(3)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">盘纤工艺</button>
       </div>
     </div>
     <div class="video-info">
@@ -333,9 +333,9 @@ function switchVideo(n){
   var v=document.getElementById('videoEl');
   var name=document.getElementById('videoStepName');
   var map={
-    1:{src:'fiber-video-1.mp4',title:'熔接机与切割刀功能介绍'},
-    2:{src:'fiber-video-2.mp4',title:'光纤熔接'},
-    3:{src:'fiber-video-3.mp4',title:'光纤盘纤工艺'}
+    1:{src:'fiber-video1.mp4',title:'熔接机与切割刀功能介绍'},
+    2:{src:'fiber-video2.mp4',title:'光纤熔接完整流程'},
+    3:{src:'fiber-video3.mp4',title:'光纤盘纤工艺'}
   };
   v.src=map[n].src;
   v.load();v.play();
