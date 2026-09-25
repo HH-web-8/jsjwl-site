@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D4 AI虚拟实训平台 - AI网络布线教学实训平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:#0f172a}
+.back{background:#1e293b;border:1px solid #475569;color:#fff;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.95rem;text-decoration:none}
+.back:hover{background:#334155}
+.title{font-size:1.15rem;font-weight:700;color:#a78bfa}
+.spacer{width:90px}
+.hd{text-align:center;padding:48px 24px 32px;background:linear-gradient(135deg,#0f172a,#312e81);color:#fff}
+.hd h1{font-size:2.2rem;margin-bottom:10px}
+.hd p{color:rgba(255,255,255,.75);font-size:1.05rem}
+.ct{max-width:1200px;margin:0 auto;padding:40px 32px 64px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{background:#fff;border-radius:16px;padding:28px 24px;text-align:center;border:1px solid #e2e8f0;position:relative;transition:all .3s;text-decoration:none;color:inherit;display:block}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0;background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.card.ready:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(124,58,237,.15)}
+.card.soon{opacity:.85}
+.card .ico{font-size:3rem;margin-bottom:14px}
+.card h3{font-size:1.2rem;margin-bottom:8px}
+.card p{color:#64748b;font-size:.9rem;line-height:1.6;min-height:44px}
+.badge{position:absolute;top:12px;right:14px;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:12px}
+.b-ok{background:#d1fae5;color:#065f46}
+.b-dev{background:#e2e8f0;color:#64748b}
+.arrow{margin-top:14px;color:#7c3aed;font-weight:600;font-size:.92rem}
+.card.soon .arrow{color:#94a3b8}
+</style>
+</head>
+<body>
+<div class="top">
+<a class="back" href="index.html">← 返回首页</a>
+<span class="title">🔬 D4 AI虚拟实训平台</span>
+<span class="spacer"></span>
+</div>
+<header class="hd">
+<h1>AI虚拟实训平台</h1>
+<p>先虚后实 · 沉浸式3D交互 · 降低损耗与安全隐患 · 操作数据回传飞书</p>
+</header>
+<div class="ct">
+<div class="grid">
+
+<a class="card ready" href="fiber-splicing.html">
+<span class="badge b-ok">已上线</span>
+<div class="ico">⚡</div>
+<h3>光纤熔接3D实训</h3>
+<p>8步完整交互，含剥线、清洁、切割、熔接、加热、质量检查与智能评分。</p>
+<div class="arrow">进入实训 →</div>
+</a>
+
+<a class="card ready" href="cabling-t568b.html">
+<span class="badge b-ok">已上线</span>
+<div class="ico">🔌</div>
+<h3>T568B双绞线端接</h3>
+<p>拖拽理线、剪齐、插入水晶头、压接、测线仪测试全流程模拟与答题。</p>
+<div class="arrow">进入实训 →</div>
+</a>
+
+<div class="card soon">
+<span class="badge b-dev">开发中</span>
+<div class="ico">🗺️</div>
+<h3>任务三维勘察</h3>
+<p>现场漫游视频+全景视角热点标注，学生带任务单自主勘察信息点位与桥架走向。</p>
+<div class="arrow">敬请期待</div>
+</div>
+
+<div class="card soon">
+<span class="badge b-dev">开发中</span>
+<div class="ico">🎬</div>
+<h3>特殊场景施工视频</h3>
+<p>规范示范+环境应变+特殊现场，呈现实训室无法实操的规范做法。</p>
+<div class="arrow">敬请期待</div>
+</div>
+
+<div class="card soon">
+<span class="badge b-dev">开发中</span>
+<div class="ico">📡</div>
+<h3>先虚后实施工仿真</h3>
+<p>3D虚拟网络布线，数据回传飞书，生成实训能力雷达图并与真机成绩对照。</p>
+<div class="arrow">敬请期待</div>
+</div>
+
+<div class="card soon">
+<span class="badge b-dev">开发中</span>
+<div class="ico">🛠️</div>
+<h3>复杂故障模拟</h3>
+<p>基础单一/进阶复合/危机限时抢修三级故障，AI辅助生成，操作数据回传飞书。</p>
+<div class="arrow">敬请期待</div>
+</div>
+
+</div>
+</div>
+</body>
+</html>
