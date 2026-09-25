@@ -212,6 +212,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .drag-slot{border:2px dashed var(--bg3);border-radius:8px;min-height:42px;padding:8px 14px;margin:4px 0;transition:all .2s;font-size:.82rem;color:var(--txt3)}
 .drag-slot.filled{border-style:solid;border-color:var(--green)}
 .drag-slot.drag-over{border-color:var(--blue);background:rgba(59,130,246,.05)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
 </style>
 </head>
 <body>
@@ -244,10 +245,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
           <source src="fiber-video2.mp4" type="video/mp4">
         </video>
       </div>
-      <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center;flex-wrap:wrap">
+      <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center;align-items:center;flex-wrap:wrap">
         <button id="btnVideo1" onclick="switchVideo(1)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">设备介绍</button>
         <button id="btnVideo2" onclick="switchVideo(2)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.72rem;cursor:pointer;font-weight:600">光纤熔接</button>
         <button id="btnVideo3" onclick="switchVideo(3)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">盘纤工艺</button>
+        <button id="btnMute" onclick="toggleVideoSound()" title="点击开启/关闭声音" style="margin-left:6px;padding:4px 10px;border-radius:4px;border:1px solid #f59e0b;background:#92400e;color:#fde68a;font-size:.75rem;cursor:pointer;animation:pulse 1.5s infinite">🔇 点击开声音</button>
       </div>
     </div>
     <div class="video-info">
@@ -329,6 +331,28 @@ function renderStepBar(){
 }
 
 /* Video switch */
+var _videoMuted=true;
+function toggleVideoSound(){
+  var v=document.getElementById('videoEl');
+  var btn=document.getElementById('btnMute');
+  _videoMuted=!_videoMuted;
+  v.muted=_videoMuted;
+  if(!_videoMuted){
+    v.volume=1.0;
+    btn.innerHTML='🔊 声音开';
+    btn.style.background='#065f46';
+    btn.style.borderColor='#10b981';
+    btn.style.color='#a7f3d0';
+    btn.style.animation='none';
+    // 部分浏览器需要用户触发后才能播放带声
+    v.play().catch(function(){});
+  }else{
+    btn.innerHTML='🔇 静音';
+    btn.style.background='#92400e';
+    btn.style.borderColor='#f59e0b';
+    btn.style.color='#fde68a';
+  }
+}
 function switchVideo(n){
   var v=document.getElementById('videoEl');
   var name=document.getElementById('videoStepName');
@@ -338,6 +362,7 @@ function switchVideo(n){
     3:{src:'fiber-video3.mp4',title:'光纤盘纤工艺'}
   };
   v.src=map[n].src;
+  v.muted=_videoMuted;
   v.load();v.play();
   name.textContent=map[n].title;
   for(var i=1;i<=3;i++){
