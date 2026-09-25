@@ -29,6 +29,65 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;c
 .b-dev{background:#e2e8f0;color:#64748b}
 .arrow{margin-top:14px;color:#7c3aed;font-weight:600;font-size:.92rem}
 .card.soon .arrow{color:#94a3b8}
+
+/* 数据外露看板 */
+.dashboard{margin-top:48px;background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:20px;padding:32px;color:#fff;position:relative;overflow:hidden}
+.dashboard::before{content:"";position:absolute;top:0;right:0;width:320px;height:320px;background:radial-gradient(circle,rgba(167,139,250,.2),transparent 70%);pointer-events:none}
+.dashboard::after{content:"";position:absolute;bottom:-60px;left:-40px;width:260px;height:260px;background:radial-gradient(circle,rgba(14,165,233,.18),transparent 70%);pointer-events:none}
+.db-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;position:relative;z-index:1}
+.db-hd h2{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:10px}
+.db-hd h2::before{content:"";width:4px;height:20px;background:linear-gradient(180deg,#a78bfa,#3b82f6);border-radius:2px}
+.db-live{display:flex;align-items:center;gap:8px;font-size:.85rem;color:#86efac}
+.db-live .dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 1.6s infinite;box-shadow:0 0 0 0 rgba(34,197,94,.7)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;position:relative;z-index:1}
+.db-stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;backdrop-filter:blur(8px);transition:all .3s}
+.db-stat:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.db-stat .lbl{font-size:.8rem;color:#94a3b8;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.db-stat .val{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.db-stat .sub{font-size:.75rem;color:#64748b;margin-top:6px}
+.db-stat.s2 .val{background:linear-gradient(135deg,#34d399,#60a5fa);-webkit-background-clip:text;background-clip:text}
+.db-stat.s3 .val{background:linear-gradient(135deg,#fbbf24,#f97316);-webkit-background-clip:text;background-clip:text}
+.db-stat.s4 .val{background:linear-gradient(135deg,#f472b6,#a78bfa);-webkit-background-clip:text;background-clip:text}
+
+.db-body{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;position:relative;z-index:1}
+.db-panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px}
+.db-panel h3{font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:#e2e8f0}
+.db-panel h3 .tag{font-size:.65rem;padding:2px 8px;border-radius:10px;background:rgba(34,197,94,.18);color:#86efac;font-weight:500}
+.records{max-height:320px;overflow-y:auto}
+.records::-webkit-scrollbar{width:4px}
+.records::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.rec{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.rec:last-child{border-bottom:0}
+.rec .ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.rec.fiber .ico{background:rgba(59,130,246,.18);color:#60a5fa}
+.rec.cable .ico{background:rgba(34,197,94,.18);color:#34d399}
+.rec.quiz .ico{background:rgba(251,191,36,.18);color:#fbbf24}
+.rec.game .ico{background:rgba(249,115,22,.18);color:#fb923c}
+.rec .info .t{font-size:.88rem;color:#e2e8f0;font-weight:500}
+.rec .info .m{font-size:.72rem;color:#94a3b8;margin-top:2px}
+.rec .sc{font-size:1.05rem;font-weight:700;text-align:right}
+.rec .sc.good{color:#34d399}
+.rec .sc.mid{color:#fbbf24}
+.rec .sc.bad{color:#f87171}
+.empty{text-align:center;color:#64748b;font-size:.85rem;padding:30px 0}
+
+/* 数据流 */
+.flow-list{display:flex;flex-direction:column;gap:10px}
+.flow{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:10px;font-size:.82rem}
+.flow .pt{width:6px;height:6px;border-radius:50%}
+.flow.ok .pt{background:#22c55e;box-shadow:0 0 8px #22c55e}
+.flow.wait .pt{background:#fbbf24;animation:pulse 1.5s infinite}
+.flow.err .pt{background:#f87171}
+.flow .ft{color:#cbd5e1;flex:1}
+.flow .ft small{display:block;color:#64748b;font-size:.7rem;margin-top:2px}
+.flow .tm{color:#64748b;font-size:.72rem;font-variant-numeric:tabular-nums}
+.flow.ok .tm::before{content:"✓ ";color:#22c55e}
+
+@media(max-width:900px){
+  .db-stats{grid-template-columns:repeat(2,1fr)}
+  .db-body{grid-template-columns:1fr}
+}
 </style>
   <script src="feishu-sync.js"></script>
 <script src="site-auth.js"></script>
@@ -75,6 +134,41 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;c
 <h3>任务三维勘察</h3>
 <p>现场漫游视频+全景视角热点标注，学生带任务单自主勘察信息点位与桥架走向。</p>
 <div class="arrow">敬请期待</div>
+
+<!-- 实训数据看板（实时外露） -->
+<div class="dashboard">
+  <div class="db-hd">
+    <h2>📡 实训数据中枢 · 实时外露</h2>
+    <div class="db-live"><span class="dot"></span>数据实时同步至飞书</div>
+  </div>
+
+  <div class="db-stats" id="dbStats">
+    <div class="db-stat"><div class="lbl">📊 累计实训次数</div><div class="val" id="stTotal">0</div><div class="sub">全平台累计实训场次</div></div>
+    <div class="db-stat s2"><div class="lbl">✅ 综合达标率</div><div class="val" id="stPass">0%</div><div class="sub">光纤+T568B合格线以上</div></div>
+    <div class="db-stat s3"><div class="lbl">⚡ 平均实训用时</div><div class="val" id="stTime">--</div><div class="sub">秒/次 · 越短越熟练</div></div>
+    <div class="db-stat s4"><div class="lbl">🏆 最高得分</div><div class="val" id="stBest">0</div><div class="sub">当前浏览器用户最佳</div></div>
+  </div>
+
+  <div class="db-body">
+    <!-- 左：最新实训记录 -->
+    <div class="db-panel">
+      <h3>📋 最新实训记录 <span class="tag">实时滚动</span></h3>
+      <div class="records" id="recList">
+        <div class="empty">暂无实训数据，完成一次光纤熔接或T568B端接即可看到记录 →</div>
+      </div>
+    </div>
+
+    <!-- 右：数据流同步状态 -->
+    <div class="db-panel">
+      <h3>☁️ 飞书数据同步流</h3>
+      <div class="flow-list" id="flowList">
+        <div class="flow ok"><span class="pt"></span><div class="ft">飞书中枢已连通<small>目标Base：AI赋能教学数据中枢</small></div><div class="tm" id="connTime"></div></div>
+        <div class="flow wait"><span class="pt"></span><div class="ft">等待实训数据...<small>完成实训后自动写入对应表格</small></div><div class="tm">--</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <div class="card soon">
@@ -103,5 +197,85 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;c
 
 </div>
 </div>
+
+<script>
+// 实训数据看板渲染
+(function(){
+  function loadRecords(){
+    try{ return JSON.parse(localStorage.getItem('sim_records')||'[]'); }catch(e){return [];}
+  }
+  function fmtTime(s){
+    if(!s||s<0)return '--';
+    if(s<60)return s+'s';
+    var m=Math.floor(s/60),sec=s%60;
+    return m+'m'+(sec<10?'0':'')+sec+'s';
+  }
+  function timeAgo(ts){
+    var d=Date.now()-ts;
+    if(d<60000)return '刚刚';
+    if(d<3600000)return Math.floor(d/60000)+'分钟前';
+    if(d<86400000)return Math.floor(d/3600000)+'小时前';
+    return Math.floor(d/86400000)+'天前';
+  }
+  function gradeColor(g){
+    if(g==='S'||g==='优秀'||g==='excellent')return 'good';
+    if(g==='A'||g==='B'||g==='良好'||g==='合格')return g==='A'?'good':'mid';
+    return 'bad';
+  }
+  function render(){
+    var list=loadRecords();
+    var total=list.length;
+    var passList=list.filter(function(r){return r.score>=60;});
+    var pass=total?Math.round(passList.length/total*100):0;
+    var avgTime=total?Math.round(list.reduce(function(s,r){return s+(r.time||0);},0)/total):0;
+    var best=total?Math.max.apply(null,list.map(function(r){return r.score||0;})):0;
+
+    document.getElementById('stTotal').textContent=total;
+    document.getElementById('stPass').textContent=pass+'%';
+    document.getElementById('stTime').textContent=avgTime?fmtTime(avgTime).replace('m','分').replace('s','秒'):'--';
+    document.getElementById('stBest').textContent=best;
+
+    var recBox=document.getElementById('recList');
+    if(!total){
+      recBox.innerHTML='<div class="empty">暂无实训数据，完成一次光纤熔接或T568B端接即可看到记录 →</div>';
+    }else{
+      var html='';
+      list.slice(0,8).forEach(function(r){
+        var ico=r.type==='fiber'?'⚡':(r.type==='cable'?'🔌':'📋');
+        var cls=r.type;
+        var gc=gradeColor(r.grade);
+        var meta='';
+        if(r.type==='fiber')meta='熔接损耗'+(r.loss||'--')+'dB · 错误'+(r.errors||0)+'次';
+        else if(r.type==='cable')meta='线序'+(r.wire||'--')+' · 错误'+(r.errors||0)+'次';
+        html+='<div class="rec '+cls+'"><div class="ico">'+ico+'</div><div class="info"><div class="t">'+r.name+' · '+r.grade+'级</div><div class="m">'+meta+' · '+fmtTime(r.time)+' · '+timeAgo(r.ts)+'</div></div><div class="sc '+gc+'">'+r.score+'</div></div>';
+      });
+      recBox.innerHTML=html;
+    }
+
+    // 数据流（最新几条）
+    var flowBox=document.getElementById('flowList');
+    var flows=[
+      {s:'ok',t:'飞书中枢已连通',sub:'目标Base：AI赋能教学数据中枢',tm:'●'}
+    ];
+    if(total){
+      flows.push({s:'ok',t:'已同步 '+total+' 条实训记录',sub:'光纤熔接+T568B端接成绩已入库',tm:'✓'});
+      var last=list[0];
+      flows.push({s:'wait',t:'等待新的实训数据...',sub:'最后记录：'+last.name+' '+last.score+'分',tm:timeAgo(last.ts)});
+    }else{
+      flows.push({s:'wait',t:'等待实训数据...',sub:'完成实训后自动写入对应表格',tm:'--'});
+    }
+    flowBox.innerHTML=flows.map(function(f){
+      return '<div class="flow '+f.s+'"><span class="pt"></span><div class="ft">'+f.t+'<small>'+f.sub+'</small></div><div class="tm">'+f.tm+'</div></div>';
+    }).join('');
+    document.getElementById('connTime').textContent='';
+  }
+  render();
+  // 监听storage事件，跨页面实时更新
+  window.addEventListener('storage',function(e){if(e.key==='sim_records')render();});
+  // 每5秒刷新一次（同页面内完成实训返回时）
+  setInterval(render,5000);
+})();
+</script>
+
 </body>
 </html>

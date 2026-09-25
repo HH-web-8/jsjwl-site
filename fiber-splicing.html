@@ -311,6 +311,7 @@ var state = {
   mode: 'newbie',
   errors: 0,
   score: 100,
+  startTime: Date.now(),
   stepScores: [],
   stepErrors: [],
   completed: [],
@@ -1256,6 +1257,16 @@ function finishInspection(){
     },{silent:true});
   }
 
+  // 写入本地实训记录供数据看板读取
+  (function(){
+    try{
+      var list=JSON.parse(localStorage.getItem('sim_records')||'[]');
+      list.unshift({type:'fiber',name:'光纤熔接3D',score:finalScore,grade:grade,errors:state.errors,loss:loss.toFixed(3),time:state.startTime?Math.round((Date.now()-state.startTime)/1000):0,ts:Date.now()});
+      if(list.length>50)list=list.slice(0,50);
+      localStorage.setItem('sim_records',JSON.stringify(list));
+    }catch(e){}
+  })();
+
   fb.innerHTML = '<div class="feedback ok">✅ 质量检查完成！</div>';
 
   // Show score page
@@ -1294,7 +1305,7 @@ function finishInspection(){
 }
 
 function restartTraining(){
-  state = {step:0,mode:state.mode,errors:0,score:100,stepScores:[],stepErrors:[],completed:[],stepData:{}};
+  state = {step:0,mode:state.mode,errors:0,score:100,startTime:Date.now(),stepScores:[],stepErrors:[],completed:[],stepData:{}};
   renderStepBar();
   renderPanel();
   updateScene();

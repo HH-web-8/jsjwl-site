@@ -1486,6 +1486,7 @@ body {
 var state = {
   currentStep: 0,
   score: 0,
+  startTime: Date.now(),
   mode: 'guide', // guide / exam
   selectedTools: [],
   isDragging: false,
@@ -1726,6 +1727,7 @@ function resetAll() {
   state = {
     currentStep: 0,
     score: 0,
+    startTime: Date.now(),
     mode: 'guide',
     selectedTools: [],
     isDragging: false,
@@ -2126,6 +2128,14 @@ function renderStep6_Test(area) {
         '错误次数(次)': state.errors,
         '操作模式': state.examMode?'考核模式':'新手引导'
       },{silent:true});
+      // 写入本地实训记录供数据看板读取
+      try{
+        var _list=JSON.parse(localStorage.getItem('sim_records')||'[]');
+        var _dur=state.startTime?Math.round((Date.now()-state.startTime)/1000):0;
+        _list.unshift({type:'cable',name:'T568B端接',score:state.score,grade:state.score>=90?'S':(state.score>=75?'A':(state.score>=60?'B':'C')),errors:state.errors,wire:wireOrderCorrect+'/8',time:_dur,ts:Date.now()});
+        if(_list.length>50)_list=_list.slice(0,50);
+        localStorage.setItem('sim_records',JSON.stringify(_list));
+      }catch(e){}
     }
     return;
   }
