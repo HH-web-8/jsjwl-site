@@ -351,7 +351,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="assets/three-r128.min.js" onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';document.head.appendChild(s);"></script>
 <script>
 // ============================================================
 // 光纤熔接 3D 虚拟实训 · 12步双光纤流程 + 真机故障系统
@@ -1653,7 +1653,13 @@ enterStep=function(n){
 };
 
 /* ---------- 启动 ---------- */
+var _bootRetry=0;
 function boot(){
+ if(typeof THREE==='undefined'){
+  if(_bootRetry++<50){setTimeout(boot,150);return}
+  __fatal('3D引擎 three.js 加载失败（本地与CDN均不可用），请检查网络后刷新重试');
+  return;
+ }
  try{
   init3D();
  }catch(e){
