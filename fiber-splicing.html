@@ -527,6 +527,7 @@ function moveTo(obj,x,y,z,dur,done){var f={x:obj.position.x,y:obj.position.y,z:o
 function rotTo(obj,axis,val,dur,done){var f=obj.rotation[axis];tw(dur,function(k){obj.rotation[axis]=lerp(f,val,k)},done)}
 
 function mat(c,o){o=o||{};var m=new THREE.MeshStandardMaterial({color:c,roughness:o.r!==undefined?o.r:0.55,metalness:o.m!==undefined?o.m:0.2});
+ if(o.env!==undefined)m.envMapIntensity=o.env;
  if(o.t){m.transparent=true;m.opacity=(o.op!==undefined?o.op:0.4)}
  if(o.e){m.emissive=new THREE.Color(o.e);m.emissiveIntensity=o.ei||1}
  return m}
@@ -537,37 +538,93 @@ function reg(mesh,act){
  if(mesh.material&&mesh.material.emissive){mesh.userData._ee=mesh.material.emissive.getHex();mesh.userData._ei=mesh.material.emissiveIntensity}
  return mesh}
 
+/* ---------- 程序生成：环境贴图/桌面/丝印/背景 ---------- */
+function makeEnvMap(){
+ var cv=document.createElement('canvas');cv.width=1024;cv.height=512;
+ var c=cv.getContext('2d');
+ var g=c.createLinearGradient(0,0,0,512);
+ g.addColorStop(0,'#e8f0f8');g.addColorStop(0.42,'#8a9cb0');g.addColorStop(0.52,'#3a4350');g.addColorStop(1,'#171b22');
+ c.fillStyle=g;c.fillRect(0,0,1024,512);
+ c.fillStyle='rgba(255,251,244,0.95)';c.fillRect(90,34,300,92);c.fillRect(640,26,250,76);
+ c.fillStyle='rgba(200,224,255,0.85)';c.fillRect(436,58,140,118);
+ c.fillStyle='rgba(150,170,190,0.45)';c.fillRect(0,286,1024,58);
+ function blob(x,y,r,col){var rg=c.createRadialGradient(x,y,4,x,y,r);rg.addColorStop(0,col);rg.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=rg;c.fillRect(x-r,y-r,r*2,r*2)}
+ blob(880,150,130,'rgba(255,205,130,0.85)');
+ blob(170,210,105,'rgba(150,200,255,0.75)');
+ blob(560,120,90,'rgba(255,240,220,0.55)');
+ var tex=new THREE.Texture(cv);
+ tex.mapping=THREE.EquirectangularReflectionMapping;
+ tex.needsUpdate=true;
+ try{
+  var pm=new THREE.PMREMGenerator(renderer);
+  var rt=pm.fromEquirectangular(tex);pm.dispose();
+  return rt.texture;
+ }catch(e){return tex}
+}
+function makeDeskTex(){
+ var cv=document.createElement('canvas');cv.width=512;cv.height=256;
+ var c=cv.getContext('2d');
+ c.fillStyle='#1d2733';c.fillRect(0,0,512,256);
+ c.strokeStyle='rgba(90,120,150,0.35)';c.lineWidth=1;
+ for(var x=0;x<=512;x+=32){c.beginPath();c.moveTo(x,0);c.lineTo(x,256);c.stroke()}
+ for(var y=0;y<=256;y+=32){c.beginPath();c.moveTo(0,y);c.lineTo(512,y);c.stroke()}
+ c.strokeStyle='rgba(255,196,60,0.45)';c.lineWidth=3;c.strokeRect(7,7,498,242);
+ var tex=new THREE.CanvasTexture(cv);
+ tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(2,1);
+ return tex;
+}
+function makeSilkTex(){
+ var cv=document.createElement('canvas');cv.width=512;cv.height=160;
+ var c=cv.getContext('2d');
+ c.fillStyle='rgba(235,242,250,0.92)';
+ c.font='bold 52px Arial';c.textAlign='center';
+ c.fillText('FUSION SPLICER',256,72);
+ c.font='24px Arial';c.fillStyle='rgba(180,196,214,0.85)';
+ c.fillText('SM FIBER · ARC 178-CLASS',256,116);
+ c.strokeStyle='rgba(180,196,214,0.5)';c.lineWidth=2;
+ c.beginPath();c.moveTo(60,140);c.lineTo(452,140);c.stroke();
+ return new THREE.CanvasTexture(cv);
+}
+function makeBgTex(){
+ var cv=document.createElement('canvas');cv.width=512;cv.height=512;
+ var c=cv.getContext('2d');
+ var g=c.createLinearGradient(0,0,0,512);
+ g.addColorStop(0,'#101d33');g.addColorStop(0.55,'#0a1424');g.addColorStop(1,'#05090f');
+ c.fillStyle=g;c.fillRect(0,0,512,512);
+ return new THREE.CanvasTexture(cv);
+}
+
 /* ---------- 藤仓88S 熔接机 ---------- */
 function buildSplicer(){
  var g=new THREE.Group();g.position.set(0,0,-0.9);scene.add(g);SP.grp=g;
  var base=box(1.75,0.52,1.55,0x23272e,{r:0.5,m:0.35});base.position.y=0.26;g.add(base);
- var plate=box(1.68,0.07,1.48,0x9aa2ab,{r:0.32,m:0.7});plate.position.y=0.555;g.add(plate);
+ var plate=box(1.68,0.07,1.48,0x9aa2ab,{r:0.2,m:0.95,env:1.5});plate.position.y=0.555;g.add(plate);
  var wa=box(0.62,0.05,0.16,0x1b1f26,{r:0.4,m:0.3});wa.position.set(0,0.6,0.05);g.add(wa);
  var gl1=box(0.24,0.012,0.02,0x0b0d12);gl1.position.set(-0.18,0.632,0.05);g.add(gl1);
  var gl2=box(0.24,0.012,0.02,0x0b0d12);gl2.position.set(0.18,0.632,0.05);g.add(gl2);
  // 电极对
  var eh1=box(0.05,0.1,0.06,0x555c66,{m:0.8,r:0.3});eh1.position.set(-0.075,0.66,-0.06);g.add(eh1);
  var eh2=box(0.05,0.1,0.06,0x555c66,{m:0.8,r:0.3});eh2.position.set(0.075,0.66,-0.06);g.add(eh2);
- var e1=cyl(0.004,0.013,0.075,0xd8dee6,{m:0.9,r:0.25});e1.rotation.z=Math.PI/2;e1.position.set(-0.033,0.685,-0.06);g.add(e1);
- var e2=cyl(0.013,0.004,0.075,0xd8dee6,{m:0.9,r:0.25});e2.rotation.z=-Math.PI/2;e2.position.set(0.033,0.685,-0.06);g.add(e2);
+ var e1=cyl(0.003,0.014,0.078,0xe8edf2,{m:1,r:0.13,env:1.9});e1.rotation.z=Math.PI/2;e1.position.set(-0.033,0.685,-0.06);g.add(e1);
+ var e2=cyl(0.014,0.003,0.078,0xe8edf2,{m:1,r:0.13,env:1.9});e2.rotation.z=-Math.PI/2;e2.position.set(0.033,0.685,-0.06);g.add(e2);
  SP.elecL=e1;SP.elecR=e2;SP.arcLight=new THREE.PointLight(0x9fd0ff,0,1.4);SP.arcLight.position.set(0,0.78,-0.06);g.add(SP.arcLight);
  // 压板
  function mkClamp(x){
   var p=new THREE.Group();p.position.set(x,0.645,0.2);
   var arm=box(0.13,0.025,0.22,0x3a4150,{m:0.7,r:0.35});arm.position.set(0,0.02,-0.11);p.add(arm);
   var pad=box(0.1,0.02,0.12,0x22262c,{m:0.5,r:0.5});pad.position.set(0,0.006,-0.13);p.add(pad);
-  var knob=cyl(0.022,0.022,0.035,0xc0c7cf,{m:0.85,r:0.3});knob.position.set(0,0.05,-0.16);p.add(knob);
+  var knob=cyl(0.022,0.022,0.035,0xc0c7cf,{m:0.95,r:0.18,env:1.5});knob.position.set(0,0.05,-0.16);p.add(knob);
   p.rotation.x=0.72;g.add(p);return p}
  SP.clampL=mkClamp(-0.18);SP.clampR=mkClamp(0.18);
  reg(SP.clampL.children[1],'clampL');reg(SP.clampR.children[1],'clampR');
  // 防风罩（透明PC盖，铰链后缘）
  var wsp=new THREE.Group();wsp.position.set(0,0.72,-0.55);
- var shieldM=new THREE.MeshPhysicalMaterial({color:0xcfe0e8,transparent:true,opacity:0.26,roughness:0.06,metalness:0,transmission:0.72});
+ var shieldM=new THREE.MeshPhysicalMaterial({color:0xcfe0e8,transparent:true,opacity:0.26,roughness:0.06,metalness:0,transmission:0.72,envMapIntensity:1.4,clearcoat:1,clearcoatRoughness:0.1});
  var shield=new THREE.Mesh(new THREE.BoxGeometry(1.52,0.018,1.05),shieldM);shield.position.set(0,0,0.52);shield.castShadow=false;
  var fr1=box(1.52,0.032,0.032,0x2a3038,{m:0.7,r:0.3});fr1.position.set(0,0,1.04);
  var fr2=box(0.032,0.032,1.05,0x2a3038,{m:0.7,r:0.3});fr2.position.set(-0.76,0,0.52);
  var fr3=fr2.clone();fr3.position.x=0.76;
- var lift=box(0.18,0.05,0.07,0xc0c7cf,{m:0.8,r:0.3});lift.position.set(0,0.05,1.0);
+ var lift=box(0.18,0.05,0.07,0xc0c7cf,{m:0.95,r:0.2,env:1.4});lift.position.set(0,0.05,1.0);
  wsp.add(shield);wsp.add(fr1);wsp.add(fr2);wsp.add(fr3);wsp.add(lift);
  wsp.rotation.x=-1.92;g.add(wsp);SP.shield=wsp;reg(lift,'shield');
  // 屏幕（常开约110°，CanvasTexture显示）
@@ -575,9 +632,12 @@ function buildSplicer(){
  var bez=box(0.94,0.62,0.05,0x1a1e24,{r:0.4,m:0.4});bez.position.y=0.31;ssp.add(bez);
  var scn=document.createElement('canvas');scn.width=256;scn.height=160;SP.scrCtx=scn.getContext('2d');
  SP.scrTex=new THREE.CanvasTexture(scn);
- var scr=new THREE.Mesh(new THREE.PlaneGeometry(0.82,0.52),new THREE.MeshBasicMaterial({map:SP.scrTex}));
+ var scr=new THREE.Mesh(new THREE.PlaneGeometry(0.82,0.52),new THREE.MeshBasicMaterial({map:SP.scrTex,toneMapped:false}));
  scr.position.set(0,0.31,0.03);ssp.add(scr);
  g.add(ssp);
+ // 机身丝印
+ var silk=new THREE.Mesh(new THREE.PlaneGeometry(0.62,0.2),new THREE.MeshBasicMaterial({map:makeSilkTex(),transparent:true,toneMapped:false}));
+ silk.rotation.x=-Math.PI/2;silk.position.set(0,0.595,0.55);g.add(silk);
  // 电源键+指示灯
  var pk=cyl(0.05,0.05,0.035,0x11141a,{r:0.4,m:0.3});pk.rotation.x=Math.PI/2;pk.position.set(-0.72,0.3,0.79);g.add(pk);reg(pk,'powerKey');
  var lamp=cyl(0.02,0.02,0.014,0x0e1116,{e:0x22c55e,ei:0});lamp.rotation.x=Math.PI/2;lamp.position.set(-0.72,0.42,0.79);g.add(lamp);SP.lamp=lamp;
@@ -587,7 +647,7 @@ function buildSplicer(){
  var odp=new THREE.Group();odp.position.set(1.12,0.315,0.24);
  var door=box(0.34,0.018,0.5,0x3a4150,{m:0.7,r:0.35});door.position.set(0,0,-0.22);odp.add(door);
  odp.rotation.x=-1.4;g.add(odp);SP.ovDoor=odp;reg(door,'ovenDoor');
- var glow=new THREE.Mesh(new THREE.PlaneGeometry(0.26,0.38),new THREE.MeshBasicMaterial({color:0xff7a2a,transparent:true,opacity:0}));
+ var glow=new THREE.Mesh(new THREE.PlaneGeometry(0.26,0.38),new THREE.MeshBasicMaterial({color:0xff7a2a,transparent:true,opacity:0,toneMapped:false}));
  glow.rotation.x=-Math.PI/2;glow.position.set(1.12,0.33,0);g.add(glow);SP.glow=glow;
  SP.ovLight=new THREE.PointLight(0xff8c3a,0,1.8);SP.ovLight.position.set(1.12,0.55,0);g.add(SP.ovLight);
  // 熔接点锚
@@ -600,7 +660,7 @@ function buildSplicer(){
 function buildCleaver(){
  var g=new THREE.Group();g.position.set(-2.2,0,-0.3);g.rotation.y=-0.3;scene.add(g);CT.grp=g;
  var base=box(1.4,0.24,0.9,0x39404d,{r:0.45,m:0.3});base.position.y=0.12;g.add(base);
- var plate=box(1.34,0.05,0.85,0x9aa2ac,{r:0.28,m:0.75});plate.position.y=0.265;g.add(plate);
+ var plate=box(1.34,0.05,0.85,0x9aa2ac,{r:0.2,m:0.95,env:1.5});plate.position.y=0.265;g.add(plate);
  // 夹持机构（前）
  var fcp=new THREE.Group();fcp.position.set(0,0.3,0.26);
  var fc=box(0.55,0.05,0.15,0x22262c,{m:0.6,r:0.4});fc.position.set(0,0.025,-0.05);fcp.add(fc);
@@ -612,12 +672,12 @@ function buildCleaver(){
  // 压柄
  var hp=new THREE.Group();hp.position.set(0,0.4,-0.34);
  var arm=box(1.05,0.05,0.14,0x8f97a1,{m:0.75,r:0.3});arm.position.set(0,0.045,0.42);hp.add(arm);
- var grip=box(1.12,0.06,0.075,0xc7ced6,{m:0.8,r:0.25});grip.position.set(0,0.045,0.92);hp.add(grip);
+ var grip=box(1.12,0.06,0.075,0xc7ced6,{m:0.95,r:0.18,env:1.5});grip.position.set(0,0.045,0.92);hp.add(grip);
  hp.rotation.x=-0.5;g.add(hp);CT.handle=hp;reg(grip,'ctHandle');
  // 废料盒
  var bin=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.14,0.5),mat(0x141922,{t:1,op:0.55,r:0.3}));bin.position.set(0.84,0.32,0.05);g.add(bin);
  CT.bin=new THREE.Object3D();CT.bin.position.set(0.84,0.36,0.05);g.add(CT.bin);
- var bl=box(0.9,0.012,0.025,0x0a0c10);bl.position.set(0,0.295,0.0);g.add(bl);
+ var bl=box(0.9,0.012,0.025,0xb8c2cc,{m:0.95,r:0.12,env:1.7});bl.position.set(0,0.295,0.0);g.add(bl);
  // 切割光纤锚位（刀片上方）
  CT.fiberPose=new THREE.Object3D();CT.fiberPose.position.set(-0.12,0.36,-0.02);CT.fiberPose.rotation.y=0;g.add(CT.fiberPose);
 }
@@ -653,7 +713,7 @@ function buildTools(){
 function makeFibers(){
  for(var i=0;i<2;i++){
   var g=new THREE.Group();
-  var glass=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,1,10),mat(0xcfe8ff,{t:1,op:0.62,r:0.1,m:0}));
+  var glass=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,1,10),new THREE.MeshPhysicalMaterial({color:0xdff2ff,transparent:true,opacity:0.7,roughness:0.04,metalness:0,transmission:0.82,clearcoat:1,clearcoatRoughness:0.06,envMapIntensity:1.9}));
   glass.rotation.z=Math.PI/2;glass.castShadow=false;
   var jacket=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,1,12),mat(0xdec27a,{t:1,op:0.88,r:0.55,m:0}));
   jacket.rotation.z=Math.PI/2;
@@ -763,16 +823,24 @@ function init3D(){
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
  renderer.setSize(wrapEl.clientWidth,wrapEl.clientHeight);
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- scene=new THREE.Scene();scene.background=new THREE.Color(0x0d1524);scene.fog=new THREE.Fog(0x0d1524,9,24);
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;
+ renderer.toneMappingExposure=1.12;
+ renderer.outputEncoding=THREE.sRGBEncoding;
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1220);scene.fog=new THREE.Fog(0x0b1220,10,34);
  camera=new THREE.PerspectiveCamera(46,wrapEl.clientWidth/wrapEl.clientHeight,0.05,60);
- scene.add(new THREE.HemisphereLight(0x8fb4dd,0x141a26,0.9));
- var dl=new THREE.DirectionalLight(0xfff1de,0.95);dl.position.set(3.5,6,4);dl.castShadow=true;
+ scene.environment=makeEnvMap();
+ scene.add(new THREE.HemisphereLight(0x8fb4dd,0x141a26,0.32));
+ var dl=new THREE.DirectionalLight(0xfff1de,1.05);dl.position.set(3.5,6,4);dl.castShadow=true;
  dl.shadow.mapSize.set(1024,1024);
  dl.shadow.camera.left=-5;dl.shadow.camera.right=5;dl.shadow.camera.top=5;dl.shadow.camera.bottom=-5;dl.shadow.camera.far=20;dl.shadow.bias=-0.0015;
  scene.add(dl);
- var fl=new THREE.DirectionalLight(0x6fa0ff,0.22);fl.position.set(-4,3,-3);scene.add(fl);
- var table=box(12.5,0.2,6.4,0x2c3440,{r:0.7,m:0.15});table.position.y=-0.1;table.castShadow=false;scene.add(table);
+ var fl=new THREE.DirectionalLight(0x6fa0ff,0.3);fl.position.set(-4,3,-3);scene.add(fl);
+ var table=box(12.5,0.2,6.4,0x1d2733,{r:0.85,m:0.1});table.position.y=-0.1;table.castShadow=false;scene.add(table);
  var edge=box(12.7,0.06,6.6,0x3a4452,{r:0.6,m:0.2});edge.position.y=-0.23;scene.add(edge);
+ var pad=new THREE.Mesh(new THREE.PlaneGeometry(11.6,5.7),new THREE.MeshStandardMaterial({map:makeDeskTex(),roughness:0.82,metalness:0.06}));
+ pad.rotation.x=-Math.PI/2;pad.position.y=0.002;pad.receiveShadow=true;scene.add(pad);
+ var bgs=new THREE.Mesh(new THREE.SphereGeometry(26,24,16),new THREE.MeshBasicMaterial({map:makeBgTex(),side:THREE.BackSide,fog:false}));
+ scene.add(bgs);
  buildSplicer();buildCleaver();buildTools();makeFibers();
  _clock=new THREE.Clock();
  window.addEventListener('resize',onResize);
