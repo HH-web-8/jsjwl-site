@@ -7,7 +7,6 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--gold:#fbbf24;--txt:#e2e8f0;--txt2:#94a3b8;--txt3:#64748b;--radius:12px}
-@font-face{font-family:'iconfont';src:unset}
 body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--txt);overflow:hidden;height:100vh;width:100vw}
 
 /* === TOP BAR === */
@@ -21,22 +20,26 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 .mode-btn{padding:5px 14px;border-radius:6px;font-size:.82rem;cursor:pointer;transition:all .2s;color:var(--txt3);border:none;background:none}
 .mode-btn.active{background:var(--blue);color:#fff}
 
-/* === STEP INDICATOR === */
-.step-bar{position:fixed;top:56px;left:0;right:0;height:52px;background:rgba(30,41,59,.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;gap:4px;z-index:99;border-bottom:1px solid rgba(51,65,85,.5)}
-.step-item{display:flex;align-items:center;gap:4px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all .2s}
-.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:2px solid var(--bg3);color:var(--txt3);transition:all .3s}
+/* === STEP BAR (12步) === */
+.step-bar{position:fixed;top:56px;left:0;right:0;height:52px;background:rgba(30,41,59,.9);backdrop-filter:blur(8px);display:flex;align-items:center;gap:2px;z-index:99;border-bottom:1px solid rgba(51,65,85,.5);overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;justify-content:flex-start;padding:0 8px}
+.step-bar::-webkit-scrollbar{height:3px}
+.step-bar::-webkit-scrollbar-thumb{background:var(--bg3)}
+.step-item{display:flex;align-items:center;gap:4px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:all .2s;flex-shrink:0}
+.step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;border:2px solid var(--bg3);color:var(--txt3);transition:all .3s}
 .step-item.active .step-num{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 12px rgba(59,130,246,.4)}
 .step-item.done .step-num{background:var(--green);border-color:var(--green);color:#fff}
-.step-item.error .step-num{border-color:var(--red)}
-.step-lbl{font-size:.72rem;color:var(--txt3);max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.step-num.f1{border-color:#3b82f6}
+.step-num.f2{border-color:#10b981}
+.step-item.active .step-num.f1{background:#3b82f6;border-color:#3b82f6}
+.step-item.active .step-num.f2{background:#10b981;border-color:#10b981}
+.step-lbl{font-size:.7rem;color:var(--txt3);max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .step-item.active .step-lbl{color:var(--blue)}
 .step-item.done .step-lbl{color:var(--green)}
-.step-connector{width:16px;height:2px;background:var(--bg3);border-radius:1px}
+.step-connector{width:10px;height:2px;background:var(--bg3);border-radius:1px;flex-shrink:0}
 .step-connector.done{background:var(--green)}
 
 /* === MAIN LAYOUT === */
 .main{position:fixed;top:108px;left:0;right:0;bottom:0;display:flex}
-/* Left: Video Panel */
 .video-panel{width:20%;min-width:180px;background:var(--bg2);border-right:1px solid var(--bg3);display:flex;flex-direction:column;overflow:hidden}
 .video-panel-head{padding:12px 16px;border-bottom:1px solid var(--bg3);font-size:.9rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px}
 .video-panel-head .icon{color:var(--cyan)}
@@ -45,174 +48,210 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 .video-player video{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
 .video-info{padding:10px 14px;font-size:.78rem;color:var(--txt3);border-top:1px solid var(--bg3);line-height:1.5}
 .video-info span{color:var(--cyan);font-weight:600}
+
 /* Middle: 3D Scene */
-.scene-wrap{flex:5;min-width:200px;position:relative;overflow:hidden}
-#three-canvas{width:100%;height:100%;display:block}
-.scene-label{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(239,68,68,.85);color:#fff;font-size:.75rem;font-weight:700;padding:4px 14px;border-radius:12px;pointer-events:none;z-index:5;letter-spacing:.5px}
+.scene-wrap{flex:5;min-width:200px;position:relative;overflow:hidden;background:#0d1524}
+#three-canvas{width:100%;height:100%;display:block;touch-action:none}
+.scene-label{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(56,189,248,.18);border:1px solid rgba(56,189,248,.4);color:#7dd3fc;font-size:.75rem;font-weight:600;padding:4px 14px;border-radius:12px;pointer-events:none;z-index:6;letter-spacing:.5px}
+
+/* 3D标签层 */
+#labelLayer{position:absolute;inset:0;pointer-events:none;z-index:7;overflow:hidden}
+.obj-label{position:absolute;transform:translate(-50%,-130%);background:rgba(15,23,42,.88);border:1px solid #38bdf8;color:#bae6fd;font-size:.7rem;padding:3px 9px;border-radius:10px;white-space:nowrap;pointer-events:none;animation:lblPulse 1.6s infinite}
+@keyframes lblPulse{0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,.35)}50%{box-shadow:0 0 0 5px rgba(56,189,248,0)}}
+
+/* 提示浮条 */
+#toastBox{position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%}
+.toast{background:rgba(15,23,42,.94);border:1px solid var(--bg3);border-left:4px solid var(--cyan);color:var(--txt);font-size:.82rem;padding:9px 16px;border-radius:8px;animation:toastIn .25s;max-width:100%;box-shadow:0 4px 18px rgba(0,0,0,.4);line-height:1.5}
+.toast.warn{border-left-color:var(--amber);color:#fde68a}
+.toast.err{border-left-color:var(--red);color:#fca5a5}
+.toast.ok{border-left-color:var(--green);color:#6ee7b7}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* === 熔接机屏幕面板（DOM仿88S屏） === */
+.scr-panel{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:min(560px,96%);background:#081527;border:2px solid #1e3a5f;border-radius:12px;z-index:8;box-shadow:0 6px 28px rgba(0,0,0,.55);font-family:Consolas,"Courier New",monospace;overflow:hidden}
+.scr-top{display:flex;justify-content:space-between;padding:5px 12px;font-size:.68rem;color:#5eead4;border-bottom:1px solid #123055;letter-spacing:1px}
+.scr-top .scr-warn{color:#fbbf24}
+.scr-views{display:flex;gap:4px;padding:6px 8px 2px}
+.scr-vwrap{flex:1;position:relative;background:#050e1d;border:1px solid #123055;border-radius:6px;overflow:hidden}
+.scr-vwrap canvas{width:100%;display:block}
+.scr-vlbl{position:absolute;top:2px;left:6px;font-size:.65rem;color:#3b82f6;font-weight:700}
+.scr-msg{padding:4px 12px 6px;font-size:.78rem;color:#93c5fd;min-height:26px;display:flex;align-items:center;gap:8px;letter-spacing:.5px}
+.scr-msg.err{color:#fca5a5;font-weight:700}
+.scr-msg.warn{color:#fbbf24}
+.scr-msg.ok{color:#6ee7b7}
+.scr-keys{display:flex;gap:6px;padding:0 8px 8px}
+.scrkey{flex:1;background:#122a4d;border:1px solid #2a527f;color:#93c5fd;font-size:.75rem;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;font-family:inherit;letter-spacing:1px;transition:all .15s}
+.scrkey:hover{background:#1a3a66;color:#bfdbfe}
+.scrkey:active{transform:scale(.96)}
+.scrkey.danger{border-color:#7f1d1d;color:#fca5a5;background:#2a1015}
+.scrkey[disabled]{opacity:.35;cursor:not-allowed}
 
 /* === RIGHT PANEL === */
-.panel{width:30%;min-width:260px;background:var(--bg2);border-left:1px solid var(--bg3);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
-.panel.collapsed{width:48px}
-.panel-toggle{display:none}
-.panel-head{padding:16px 20px;border-bottom:1px solid var(--bg3)}
-.panel-head h2{font-size:1.15rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px}
-.panel-head h2 .badge{font-size:.7rem;padding:2px 8px;border-radius:10px;background:var(--blue);color:#fff}
-.panel-body{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
+.panel{width:30%;min-width:270px;background:var(--bg2);border-left:1px solid var(--bg3);display:flex;flex-direction:column;overflow:hidden}
+.panel-head{padding:12px 18px;border-bottom:1px solid var(--bg3)}
+.panel-head h2{font-size:1.02rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel-head h2 .badge{font-size:.68rem;padding:2px 8px;border-radius:10px;background:var(--blue);color:#fff}
+.panel-stats{display:flex;gap:14px;margin-top:6px;font-size:.72rem;color:var(--txt3)}
+.panel-stats b{color:var(--txt2)}
+.panel-body{flex:1;overflow-y:auto;padding:16px 18px;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
 .panel-body::-webkit-scrollbar{width:4px}
 .panel-body::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:2px}
 
-/* === STEP CONTENT === */
+/* 步骤内容 */
 .step-section{animation:fadeSlide .3s ease}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.instruction{color:var(--txt);line-height:1.8;font-size:.92rem;margin-bottom:16px}
+.instruction{color:var(--txt);line-height:1.8;font-size:.9rem;margin-bottom:12px}
 .instruction b{color:var(--cyan)}
-.tip-box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:14px 16px;margin:12px 0;font-size:.85rem;color:#93c5fd;line-height:1.6}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chip{background:var(--bg);border:1px solid var(--bg3);border-radius:8px;padding:5px 10px;font-size:.74rem;color:var(--txt2)}
+.chip b{color:var(--txt)}
+.chip.good{border-color:rgba(16,185,129,.5);color:#6ee7b7}
+.chip.bad{border-color:rgba(239,68,68,.5);color:#fca5a5}
+.chip.warn{border-color:rgba(245,158,11,.5);color:#fcd34d}
+.tip-box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:12px 14px;margin:12px 0;font-size:.82rem;color:#93c5fd;line-height:1.7}
 .tip-box.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:#fcd34d}
 .tip-box.danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);color:#fca5a5}
 .tip-box.success{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2);color:#6ee7b7}
-
-/* === TOOL SHELF === */
-.tool-shelf{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
-.tool-card{background:var(--bg);border:2px solid var(--bg3);border-radius:var(--radius);padding:12px 8px;cursor:pointer;transition:all .25s;text-align:center;position:relative}
-.tool-card:hover{border-color:var(--txt3);transform:translateY(-2px)}
-.tool-card.selected{border-color:var(--blue);background:rgba(59,130,246,.1);box-shadow:0 0 16px rgba(59,130,246,.2)}
-.tool-card.correct{border-color:var(--green);background:rgba(16,185,129,.08)}
-.tool-card.wrong{border-color:var(--red);background:rgba(239,68,68,.08);animation:shake .4s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.tool-icon{width:48px;height:48px;margin:0 auto 6px;display:block}
-.tool-icon svg{width:100%;height:100%}
-.tool-icon img{width:100%;height:100%;object-fit:contain;border-radius:4px}
-.tool-name{font-size:.78rem;color:var(--txt2);font-weight:600;display:block}
-.tool-info-btn{position:absolute;top:4px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--bg3);color:var(--txt3);font-size:.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
-.tool-info-btn:hover{background:var(--blue);color:#fff}
-
-/* === TOOL DETAIL POPUP === */
-.tool-popup{position:fixed;z-index:200;background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius);padding:20px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:fadeSlide .2s}
-.tool-popup h3{color:var(--blue);font-size:1rem;margin-bottom:8px}
-.tool-popup p{color:var(--txt2);font-size:.85rem;line-height:1.7;margin-bottom:6px}
-.tool-popup .close-popup{position:absolute;top:8px;right:12px;color:var(--txt3);cursor:pointer;font-size:1.1rem}
-.tool-popup .close-popup:hover{color:var(--red)}
-
-/* === INTERACTIVE AREA === */
-.interact-area{background:var(--bg);border:2px solid var(--bg3);border-radius:var(--radius);padding:20px;margin:12px 0;min-height:120px;position:relative;overflow:hidden}
-.interact-area.highlight{border-color:var(--blue);box-shadow:0 0 20px rgba(59,130,246,.15)}
-.fiber-visual{width:100%;height:60px;position:relative;margin:10px 0}
-.fiber-core{position:absolute;top:50%;left:10%;right:10%;height:4px;background:linear-gradient(90deg,var(--gold),#fde68a,var(--gold));border-radius:2px;transform:translateY(-50%);transition:all .3s}
-.fiber-coating{position:absolute;top:50%;left:10%;right:10%;height:14px;background:linear-gradient(90deg,#60a5fa,#93c5fd,#60a5fa);border-radius:7px;transform:translateY(-50%);transition:all .5s}
-.fiber-coating.stripped{clip-path:inset(0 40% 0 0)}
-
-/* Slider control */
-.slider-group{margin:12px 0}
-.slider-label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--txt2);margin-bottom:6px}
-.slider-label span{color:var(--cyan);font-weight:600}
-input[type=range]{width:100%;height:6px;-webkit-appearance:none;background:var(--bg3);border-radius:3px;outline:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--blue);cursor:pointer;border:2px solid #fff}
-
-/* Action buttons */
-.action-row{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap}
-.act-btn{padding:10px 22px;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;border:2px solid;display:flex;align-items:center;gap:6px}
+.fault-card{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);border-radius:var(--radius);padding:14px;margin:12px 0;animation:fadeSlide .3s}
+.fault-card h4{color:#fca5a5;font-size:.9rem;margin-bottom:8px;display:flex;gap:6px;align-items:center}
+.fault-card ol{margin:0 0 0 18px}
+.fault-card li{color:#fecaca;font-size:.82rem;line-height:1.8}
+.todo-card{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius);padding:12px 14px;margin:12px 0}
+.todo-card h4{color:#fcd34d;font-size:.85rem;margin-bottom:6px}
+.todo-card li{color:#fde68a;font-size:.8rem;line-height:1.7;margin-left:16px}
+.act-btn{padding:9px 20px;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;border:2px solid;display:inline-flex;align-items:center;gap:6px}
 .act-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.act-btn.primary:hover{background:#2563eb;box-shadow:0 4px 16px rgba(59,130,246,.3)}
+.act-btn.primary:hover{background:#2563eb}
 .act-btn.secondary{background:none;color:var(--txt2);border-color:var(--bg3)}
-.act-btn.secondary:hover{border-color:var(--txt3);color:var(--txt)}
 .act-btn.success{background:var(--green);color:#fff;border-color:var(--green)}
 .act-btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
 .act-btn:disabled{opacity:.4;cursor:not-allowed}
-
-/* === FUSION MACHINE PANEL === */
-.machine-panel{background:var(--bg);border:2px solid var(--bg3);border-radius:var(--radius);overflow:hidden;margin:12px 0}
-.machine-screen{background:#0a1628;border-bottom:1px solid var(--bg3);padding:16px;text-align:center;min-height:140px;position:relative}
-.machine-screen .screen-label{font-size:.7rem;color:var(--txt3);position:absolute;top:6px;left:10px}
-.machine-screen canvas{max-width:100%;border-radius:4px}
-.machine-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px}
-.machine-btn{background:var(--bg2);border:1px solid var(--bg3);border-radius:8px;padding:10px 4px;cursor:pointer;transition:all .2s;text-align:center}
-.machine-btn:hover{border-color:var(--blue);background:rgba(59,130,246,.1)}
-.machine-btn:active{transform:scale(.95)}
-.machine-btn.pressed{background:var(--blue);border-color:var(--blue);color:#fff}
-.machine-btn .mbtn-icon{font-size:1.2rem;display:block;margin-bottom:2px}
-.machine-btn .mbtn-lbl{font-size:.65rem;color:var(--txt3)}
-.machine-btn.pressed .mbtn-lbl{color:#fff}
-
-/* === FEEDBACK === */
-.feedback{border-radius:var(--radius);padding:14px 16px;margin:12px 0;font-size:.88rem;line-height:1.6;animation:fadeSlide .3s}
+.action-row{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap}
+.check-item{display:flex;align-items:flex-start;gap:10px;background:var(--bg);border:2px solid var(--bg3);border-radius:10px;padding:10px 12px;margin:8px 0;cursor:pointer;transition:all .2s}
+.check-item:hover{border-color:var(--txt3)}
+.check-item.ok{border-color:var(--green);background:rgba(16,185,129,.07)}
+.check-item.bad{border-color:var(--red);background:rgba(239,68,68,.07)}
+.check-item .ck-icon{font-size:1.1rem}
+.check-item .ck-txt{font-size:.82rem;line-height:1.5}
+.check-item .ck-txt b{display:block;margin-bottom:2px}
+.feedback{border-radius:var(--radius);padding:12px 14px;margin:12px 0;font-size:.84rem;line-height:1.6}
 .feedback.ok{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#6ee7b7}
 .feedback.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
 .feedback.info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#93c5fd}
-
-/* === KNOWLEDGE CARD === */
-.knowledge-card{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(6,182,212,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:16px;margin:12px 0}
-.knowledge-card h4{color:var(--cyan);font-size:.9rem;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.knowledge-card{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(6,182,212,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:14px;margin:12px 0}
+.knowledge-card h4{color:var(--cyan);font-size:.88rem;margin-bottom:8px}
 .knowledge-card ul{list-style:none;padding:0}
-.knowledge-card li{color:var(--txt2);font-size:.82rem;line-height:1.7;padding-left:16px;position:relative}
+.knowledge-card li{color:var(--txt2);font-size:.8rem;line-height:1.7;padding-left:16px;position:relative}
 .knowledge-card li::before{content:'•';position:absolute;left:0;color:var(--cyan)}
+.hint-acc{margin:10px 0;border:1px solid var(--bg3);border-radius:10px;overflow:hidden}
+.hint-acc summary{padding:9px 12px;font-size:.8rem;color:var(--txt2);cursor:pointer;user-select:none;background:var(--bg)}
+.hint-acc summary:hover{color:var(--txt)}
+.hint-acc .hint-body{padding:10px 14px;font-size:.8rem;color:var(--txt2);line-height:1.8;border-top:1px solid var(--bg3)}
 
-/* === HEAT ANIMATION === */
-.heat-container{margin:12px 0}
-.heat-bar-wrap{height:20px;background:var(--bg3);border-radius:10px;overflow:hidden;position:relative}
-.heat-bar-fill{height:100%;border-radius:10px;transition:width .1s linear;background:linear-gradient(90deg,#3b82f6,#f59e0b,#ef4444);width:0%}
-.heat-bar-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
-
-/* === SCORE PAGE === */
-.score-page{padding:24px;text-align:center}
-.score-ring{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:140px;height:140px;border-radius:50%;border:4px solid;margin:16px 0}
+/* 成绩页 */
+.score-page{padding:14px;text-align:center}
+.score-ring{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:130px;height:130px;border-radius:50%;border:4px solid;margin:14px 0}
 .score-ring.excellent{border-color:var(--green);background:rgba(16,185,129,.08)}
 .score-ring.good{border-color:var(--blue);background:rgba(59,130,246,.08)}
 .score-ring.poor{border-color:var(--red);background:rgba(239,68,68,.08)}
-.score-val{font-size:2.6rem;font-weight:900;line-height:1}
-.score-lbl{font-size:.78rem;color:var(--txt3)}
-.score-details{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0;text-align:left}
-.score-item{background:var(--bg);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;font-size:.82rem}
+.score-val{font-size:2.4rem;font-weight:900;line-height:1}
+.score-lbl{font-size:.75rem;color:var(--txt3)}
+.score-details{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;text-align:left}
+.score-item{background:var(--bg);border-radius:8px;padding:9px 12px;display:flex;justify-content:space-between;font-size:.8rem;gap:6px}
 .score-item .label{color:var(--txt3)}
 .score-item .value{font-weight:700}
 .score-item .value.pass{color:var(--green)}
 .score-item .value.fail{color:var(--red)}
 
-/* === PROGRESS OVERLAY === */
-.progress-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.7);z-index:50;animation:fadeIn .3s}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.progress-content{text-align:center}
-.progress-spinner{width:48px;height:48px;border:3px solid var(--bg3);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.progress-text{color:var(--txt2);font-size:.9rem}
+/* 模态确认 */
+#modalMask{position:fixed;inset:0;background:rgba(5,10,20,.72);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+#modalCard{background:var(--bg2);border:1px solid var(--bg3);border-radius:14px;padding:22px;max-width:400px;width:100%;box-shadow:0 12px 44px rgba(0,0,0,.6);animation:fadeSlide .25s}
+#modalCard h3{color:#fca5a5;font-size:1rem;margin-bottom:10px}
+#modalCard .modal-body{color:var(--txt2);font-size:.85rem;line-height:1.8;margin-bottom:16px}
+#modalCard .modal-body b{color:#fcd34d}
 
-/* === ARC EFFECT === */
-.arc-effect{position:absolute;pointer-events:none;z-index:10}
-.arc-glow{width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.8),rgba(59,130,246,.3),transparent);animation:arcPulse .15s infinite alternate}
-@keyframes arcPulse{from{opacity:.6;transform:scale(.9)}to{opacity:1;transform:scale(1.1)}}
+/* WebGL错误卡 */
+.fatal-card{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(13,21,36,.96)}
+.fatal-inner{max-width:420px;width:90%;background:var(--bg2);border:1px solid rgba(239,68,68,.4);border-radius:14px;padding:26px;text-align:center}
+.fatal-inner h3{color:#fca5a5;margin-bottom:12px;font-size:1.05rem}
+.fatal-inner p{color:var(--txt2);font-size:.82rem;line-height:1.8;margin-bottom:6px;text-align:left}
+.fatal-inner .err-detail{font-family:monospace;font-size:.7rem;color:var(--red);background:rgba(239,68,68,.08);border-radius:6px;padding:8px;margin-top:10px;word-break:break-all}
 
 /* === RESPONSIVE === */
 @media(max-width:1100px){
   .video-panel{width:22%;min-width:160px}
-  .panel{width:32%;min-width:240px}
+  .panel{width:32%;min-width:250px}
   .scene-wrap{flex:4}
 }
 @media(max-width:900px){
-  .panel{min-width:220px}
-  .tool-shelf{grid-template-columns:repeat(2,1fr)}
+  .panel{min-width:230px}
 }
 @media(max-width:700px){
   .main{flex-direction:column}
-  .video-panel{width:100%;height:auto;max-height:160px;border-right:none;border-bottom:1px solid var(--bg3)}
-  .video-panel-body{padding:6px}
-  .panel{width:100%;height:50%;border-left:none;border-top:1px solid var(--bg3);min-width:0}
-  .scene-wrap{height:40%}
+  .video-panel{width:100%;height:auto;max-height:132px;border-right:none;border-bottom:1px solid var(--bg3)}
+  .video-panel-body{padding:4px}
+  .video-panel-head{padding:6px 12px;font-size:.78rem}
+  .video-info{display:none}
+  .panel{width:100%;height:46%;border-left:none;border-top:1px solid var(--bg3);min-width:0}
+  .scene-wrap{height:38%}
   .step-lbl{display:none}
+  .scr-panel{bottom:6px}
+  .scr-views{padding:4px 6px 0}
+  .scr-msg{font-size:.68rem;min-height:22px}
+  .scrkey{font-size:.68rem;padding:6px 2px}
+  .topbar{padding:0 10px}
+  .topbar-title{font-size:.9rem}
 }
-
-/* === SPOTLIGHT === */
-.spotlight{position:absolute;border:2px dashed var(--blue);border-radius:8px;pointer-events:none;animation:spotPulse 1.5s infinite;z-index:5}
-@keyframes spotPulse{0%,100%{opacity:.4}50%{opacity:1}}
-
-/* === Drag Sort === */
-.drag-list{display:flex;flex-direction:column;gap:6px;margin:8px 0}
-.drag-item{background:rgba(59,130,246,.12);border:2px solid rgba(59,130,246,.3);border-radius:8px;padding:10px 14px;cursor:grab;font-size:.85rem;color:#93c5fd;transition:all .2s;user-select:none}
-.drag-item:active{cursor:grabbing;background:rgba(59,130,246,.2)}
-.drag-item.correct{border-color:var(--green);color:#6ee7b7;background:rgba(16,185,129,.08)}
-.drag-item.wrong{border-color:var(--red);color:#fca5a5;background:rgba(239,68,68,.08)}
-.drag-slot{border:2px dashed var(--bg3);border-radius:8px;min-height:42px;padding:8px 14px;margin:4px 0;transition:all .2s;font-size:.82rem;color:var(--txt3)}
-.drag-slot.filled{border-style:solid;border-color:var(--green)}
-.drag-slot.drag-over{border-color:var(--blue);background:rgba(59,130,246,.05)}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
+</style>
+<style>
+/* 12步双光纤流程 · 补充样式 */
+.goal{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);border-left:4px solid var(--blue);border-radius:8px;padding:10px 12px;font-size:.85rem;color:var(--txt);line-height:1.7;margin-bottom:10px}
+.goal b{color:#93c5fd}
+.act-list{margin:6px 0}
+.act-item{font-size:.82rem;color:var(--txt2);line-height:1.9;padding-left:4px}
+.act-item b{color:var(--txt)}
+.live-strip{background:var(--bg);border:1px dashed var(--bg3);border-radius:8px;padding:8px 12px;font-size:.85rem;color:var(--txt2);margin:8px 0}
+.live-strip b{color:#93c5fd;font-family:monospace;font-size:1rem}
+.fb{display:none;border-radius:8px;padding:10px 12px;font-size:.82rem;line-height:1.7;margin:10px 0}
+.fb.show{display:block}
+.fb.info{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:#bae6fd}
+.fb.ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);color:#6ee7b7}
+.fb.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fca5a5}
+.fb .back-row .btn{margin-top:8px}
+.btn{background:var(--bg2);color:var(--txt);border:1px solid var(--bg3);border-radius:8px;padding:9px 14px;font-size:.82rem;cursor:pointer;transition:all .2s;margin:4px 4px 0 0}
+.btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn.k{background:#12233f;border-color:#1e4a7a;color:#7dd3fc;font-family:monospace;letter-spacing:1px}
+.btn.k.danger{border-color:#7f1d1d;color:#fca5a5;background:#2a1015}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.primary:hover{background:#2563eb;color:#fff}
+.btn.ghost{background:transparent;color:var(--txt3)}
+.btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
+.keys-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.back-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.heat-bar{height:16px;background:var(--bg);border:1px solid var(--bg3);border-radius:8px;overflow:hidden;margin:10px 0}
+.heat-fill{height:100%;width:0;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:8px}
+.chk-list{margin:8px 0}
+.check-item.ok{border-color:var(--green);background:rgba(16,185,129,.07)}
+.check-item.ok::after{content:'✓';color:var(--green);margin-left:auto;font-weight:700}
+.score-big{font-size:3.6rem;font-weight:800;line-height:1;font-family:monospace}
+.score-big.g{color:var(--green)}
+.score-big.y{color:var(--amber)}
+.score-big.r{color:var(--red)}
+.grade{font-size:1.2rem;color:var(--txt2);margin:4px 0 10px;letter-spacing:4px}
+.score-stats{font-size:.8rem;color:var(--txt2);line-height:1.8;margin-bottom:6px}
+.score-stats b{color:#93c5fd}
+.panel-head h2 .badge.b1{background:#3b82f6}
+.panel-head h2 .badge.b2{background:#10b981}
+.scr-keys button{flex:1;background:#12233f;border:1px solid #1e4a7a;color:#7dd3fc;border-radius:6px;padding:6px 4px;font-size:.72rem;cursor:pointer;font-family:monospace;letter-spacing:1px}
+.scr-keys button:hover{background:#1a3358}
+.scr-keys button.set{border-color:#7f1d1d;color:#fca5a5;background:#2a1015}
+#preCheck b.g{color:var(--green)}
+#preCheck b.y{color:var(--amber)}
+.fault-card.ok{border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.07);color:#6ee7b7}
+.fault-card ul{margin:6px 0 0 18px}
+.fault-card li{color:#fecaca;font-size:.8rem;line-height:1.8}
+.fault-card.ok li{color:#6ee7b7}
 </style>
   <script src="feishu-sync.js"></script>
 <script src="site-auth.js"></script>
@@ -262,1519 +301,1379 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       </div>
     </div>
     <div class="video-info">
-      当前播放：<span id="videoStepName">熔接机与切割刀功能介绍</span>
+      当前播放：<span id="videoStepName">光纤熔接完整流程</span>
     </div>
   </div>
 
   <!-- MIDDLE: 3D SCENE -->
   <div class="scene-wrap" id="sceneWrap">
     <canvas id="three-canvas"></canvas>
-    <div class="scene-label">3D光纤熔接平台</div>
+    <div class="scene-label" id="sceneLabel">3D光纤熔接实训台</div>
+    <div id="labelLayer"></div>
+    <div id="toastBox"></div>
+    <!-- 熔接机屏幕（开机后显示） -->
+    <div class="scr-panel" id="scrPanel" style="display:none">
+      <div class="scr-top"><span id="scrMode">MODE: MM</span><span id="scrArc">ARC: 1996</span><span id="scrClock">00:00</span></div>
+      <div class="scr-views">
+        <div class="scr-vwrap"><canvas id="scrX" width="300" height="190"></canvas><div class="scr-vlbl">X-VIEW</div></div>
+        <div class="scr-vwrap"><canvas id="scrY" width="300" height="190"></canvas><div class="scr-vlbl">Y-VIEW</div></div>
+      </div>
+      <div class="scr-msg" id="scrMsg">STAND BY</div>
+      <div class="scr-keys" id="scrKeys"></div>
+    </div>
   </div>
 
   <!-- RIGHT PANEL -->
   <div class="panel" id="rightPanel">
     <div class="panel-head">
-      <h2 id="panelTitle">步骤 1：工具与材料准备 <span class="badge">8步</span></h2>
+      <h2 id="panelTitle">步骤 1：开机准备 <span class="badge">12步·双光纤</span></h2>
+      <div class="panel-stats">
+        <span id="statTime">⏱ <b>00:00</b></span>
+        <span id="statRework">🔧 返工 <b>0</b></span>
+        <span id="statFault">⚠ 故障 <b>0</b></span>
+      </div>
     </div>
     <div class="panel-body" id="panelBody">
-      <!-- Dynamic content injected by JS -->
+      <div class="tip-box">3D实训台加载中……</div>
     </div>
   </div>
 </div>
 
-<!-- TOOL POPUP (hidden) -->
-<div class="tool-popup" id="toolPopup" style="display:none">
-  <span class="close-popup" onclick="closeToolPopup()">✕</span>
-  <h3 id="popupTitle"></h3>
-  <p id="popupBody"></p>
+<!-- 模态确认 -->
+<div id="modalMask" style="display:none">
+  <div id="modalCard">
+    <h3 id="modalTitle"></h3>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="action-row" style="justify-content:flex-end;margin:0">
+      <button class="act-btn secondary" id="modalCancel" onclick="hideModal()">取消</button>
+      <button class="act-btn danger" id="modalOk">确定</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ===========================
-// STATE
-// ===========================
-var STEPS = [
-  {id:1, name:'工具准备', short:'准备'},
-  {id:2, name:'剥线去涂覆', short:'剥线'},
-  {id:3, name:'光纤清洁', short:'清洁'},
-  {id:4, name:'端面切割', short:'切割'},
-  {id:5, name:'套热缩管', short:'热缩管'},
-  {id:6, name:'熔接操作', short:'熔接'},
-  {id:7, name:'加热保护', short:'加热'},
-  {id:8, name:'质量检查', short:'检查'}
-];
+// ============================================================
+// 光纤熔接 3D 虚拟实训 · 12步双光纤流程 + 真机故障系统
+// ============================================================
+'use strict';
+var $=function(id){return document.getElementById(id)};
+function clamp(v,a,b){return Math.min(b,Math.max(a,v))}
+function lerp(a,b,k){return a+(b-a)*k}
+function rand(a,b){return a+Math.random()*(b-a)}
+function chance(p){return Math.random()<p}
+function fmtT(s){var m=Math.floor(s/60),ss=Math.floor(s%60);return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss}
 
-var state = {
-  step: 0,
-  mode: 'newbie',
-  errors: 0,
-  score: 100,
-  startTime: Date.now(),
-  stepScores: [],
-  stepErrors: [],
-  completed: [],
-  stepData: {}
+/* ---------- 音效：WebAudio合成，零素材零流量 ---------- */
+var AU={ctx:null,ovenNode:null,
+ ensure:function(){if(!this.ctx){try{this.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(this.ctx&&this.ctx.state==='suspended'){this.ctx.resume()}return this.ctx},
+ tone:function(f0,f1,dur,type,vol){var c=this.ctx;if(!c)return;try{var o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+dur);g.gain.setValueAtTime(vol||0.12,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+0.02)}catch(e){}},
+ noise:function(dur,vol,f){var c=this.ctx;if(!c)return;try{var n=Math.max(1,Math.floor(c.sampleRate*dur)),buf=c.createBuffer(1,n,c.sampleRate),d=buf.getChannelData(0),i;for(i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);var s=c.createBufferSource();s.buffer=buf;var bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f||2500;var g=c.createGain();g.gain.value=vol||0.15;s.connect(bp);bp.connect(g);g.connect(c.destination);s.start()}catch(e){}},
+ play:function(name){var self=this;if(!this.ensure())return;try{switch(name){
+  case 'click':this.tone(700,500,0.05,'square',0.05);break;
+  case 'clamp':this.tone(300,180,0.08,'square',0.1);this.noise(0.04,0.08,1200);break;
+  case 'zip':this.noise(0.22,0.13,3000);this.tone(1400,900,0.2,'sawtooth',0.03);break;
+  case 'snap':this.noise(0.05,0.3,4200);this.tone(2500,1200,0.04,'square',0.12);break;
+  case 'zap':this.tone(120,2400,0.5,'sawtooth',0.08);this.noise(0.5,0.1,6000);break;
+  case 'buzz':this.tone(160,150,0.12,'square',0.12);setTimeout(function(){self.tone(130,120,0.15,'square',0.12)},150);break;
+  case 'ding':this.tone(880,880,0.15,'sine',0.1);setTimeout(function(){self.tone(1318,1318,0.35,'sine',0.1)},160);break;
+  case 'pop':this.tone(320,180,0.09,'sine',0.12);break;
+  case 'cut':this.noise(0.06,0.25,5000);this.tone(400,150,0.08,'square',0.1);break;
+  case 'thud':this.tone(120,70,0.12,'sine',0.18);break;
+ }}catch(e){}},
+ ovenOn:function(){var c=this.ensure();if(!c||this.ovenNode)return;try{var o=c.createOscillator(),o2=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=110;o2.type='sine';o2.frequency.value=220;g.gain.value=0.045;o.connect(g);o2.connect(g);g.connect(c.destination);o.start();o2.start();this.ovenNode={o:o,o2:o2,g:g}}catch(e){}},
+ ovenOff:function(){if(this.ovenNode){try{var n=this.ovenNode;n.g.gain.exponentialRampToValueAtTime(0.0001,this.ctx.currentTime+0.3);setTimeout(function(){try{n.o.stop();n.o2.stop()}catch(e){}},400)}catch(e){}this.ovenNode=null}}
 };
 
-// ===========================
-// STEP BAR
-// ===========================
+/* ---------- 12步定义 ---------- */
+var STEPS=[
+ {n:1, short:'准备',  name:'开机准备',            fiber:0},
+ {n:2, short:'剥线①', name:'光纤① 剥除涂覆层',    fiber:1},
+ {n:3, short:'清洁①', name:'光纤① 端面清洁',      fiber:1},
+ {n:4, short:'切割①', name:'光纤① 端面切割',      fiber:1},
+ {n:5, short:'套管①', name:'光纤① 套管与入槽',    fiber:1},
+ {n:6, short:'剥线②', name:'光纤② 剥除涂覆层',    fiber:2},
+ {n:7, short:'清洁②', name:'光纤② 端面清洁',      fiber:2},
+ {n:8, short:'切割②', name:'光纤② 端面切割',      fiber:2},
+ {n:9, short:'入槽②', name:'光纤② 放入V型槽',     fiber:2},
+ {n:10,short:'熔接',  name:'熔接操作',            fiber:0},
+ {n:11,short:'加热',  name:'热缩保护',            fiber:0},
+ {n:12,short:'检查',  name:'质量检查',            fiber:0}
+];
+var FNAME=['','光纤①','光纤②'];
+
+/* ---------- 全局状态 ---------- */
+var MODE='newbie';
+var F=null;
+function freshFiber(i){return{idx:i,bareLen:0,shortStrip:false,strokes:0,alcohol:false,cleanRoll:null,cleaveAngle:null,cleaved:false,hasTube:false,slot:null,clamped:false,phase:'jacketed'}}
+function resetState(){
+ F={step:1,shield:'open',power:false,mode:'MM',arc:1996,
+    fibers:[freshFiber(0),freshFiber(1)],
+    rework:0,faults:[],hints:{},hintN:0,t0:Date.now(),
+    spliceLoss:null,spliced:false,shrunk:false,earlyPull:false,heated:false,heatProg:0,
+    flags:{},
+    seq:{},                        // 步骤内子操作序列
+    assembly:null,busy:false}
+}
+function fi(n){return F.fibers[n-1]}
+function addFault(code,zh){F.faults.push({code:code,zh:zh,t:Math.round((Date.now()-F.t0)/1000)});updStats()}
+function addRework(){F.rework++;updStats()}
+
+/* ---------- 步骤条 ---------- */
 function renderStepBar(){
-  var bar = document.getElementById('stepBar');
-  var html = '';
-  for(var i=0;i<STEPS.length;i++){
-    var cls = '';
-    if(i === state.step) cls = 'active';
-    else if(state.completed.indexOf(i) >= 0) cls = 'done';
-    html += '<div class="step-item '+cls+'" onclick="goStep('+i+')">';
-    html += '<div class="step-num">'+(i+1)+'</div>';
-    html += '<span class="step-lbl">'+STEPS[i].short+'</span>';
-    html += '</div>';
-    if(i < STEPS.length-1){
-      var connCls = state.completed.indexOf(i) >= 0 ? ' done' : '';
-      html += '<div class="step-connector'+connCls+'"></div>';
-    }
-  }
-  bar.innerHTML = html;
+ var bar=$('stepBar'),html='',i,s,cls,fcls;
+ for(i=0;i<STEPS.length;i++){
+  s=STEPS[i];cls='';
+  if(i+1===F.step)cls='active';
+  else if(i+1<F.step)cls='done';
+  fcls=s.fiber===1?' f1':(s.fiber===2?' f2':'');
+  html+='<div class="step-item '+cls+'" onclick="goStep('+(i+1)+')">';
+  html+='<div class="step-num'+fcls+'">'+(i+1)+'</div>';
+  html+='<span class="step-lbl">'+s.short+'</span></div>';
+  if(i<STEPS.length-1)html+='<div class="step-connector'+(i+1<F.step?' done':'')+'"></div>';
+ }
+ bar.innerHTML=html;
+ var act=bar.querySelector('.step-item.active');
+ if(act&&act.scrollIntoView)act.scrollIntoView({block:'nearest',inline:'center'});
+}
+function goStep(n){
+ if(F.busy)return;
+ if(n<1||n>12)return;
+ if(n>1&&n<12){/* 自由往返：允许返工 */}
+ F.step=n;renderStepBar();enterStep(n);
 }
 
-/* Video switch */
+/* ---------- 模式/视频（沿用原版） ---------- */
+function setMode(m){
+ MODE=m;
+ $('mode-newbie').className='mode-btn'+(m==='newbie'?' active':'');
+ $('mode-exam').className='mode-btn'+(m==='exam'?' active':'');
+ enterStep(F.step);
+}
 var _videoMuted=true;
 function toggleVideoSound(){
-  var v=document.getElementById('videoEl');
-  var btn=document.getElementById('btnMute');
-  _videoMuted=!_videoMuted;
-  v.muted=_videoMuted;
-  if(!_videoMuted){
-    v.volume=1.0;
-    btn.innerHTML='🔊 声音开';
-    btn.style.background='#065f46';
-    btn.style.borderColor='#10b981';
-    btn.style.color='#a7f3d0';
-    btn.style.animation='none';
-    // 部分浏览器需要用户触发后才能播放带声
-    v.play().catch(function(){});
-  }else{
-    btn.innerHTML='🔇 静音';
-    btn.style.background='#92400e';
-    btn.style.borderColor='#f59e0b';
-    btn.style.color='#fde68a';
-  }
+ var v=$('videoEl'),btn=$('btnMute');
+ _videoMuted=!_videoMuted;v.muted=_videoMuted;
+ if(!_videoMuted){v.volume=1.0;btn.innerHTML='🔊 声音开';btn.style.background='#065f46';btn.style.borderColor='#10b981';btn.style.color='#a7f3d0';btn.style.animation='none';v.play().catch(function(){});}
+ else{btn.innerHTML='🔇 静音';btn.style.background='#92400e';btn.style.borderColor='#f59e0b';btn.style.color='#fde68a';}
 }
 function switchVideo(n){
-  var v=document.getElementById('videoEl');
-  var name=document.getElementById('videoStepName');
-  var map={
-    1:{src:'fiber-video1.mp4',title:'熔接机与切割刀功能介绍'},
-    2:{src:'fiber-video2.mp4',title:'光纤熔接完整流程'},
-    3:{src:'fiber-video3.mp4',title:'光纤盘纤工艺'}
-  };
-  v.src=map[n].src;
-  v.muted=_videoMuted;
-  v.load();v.play();
-  name.textContent=map[n].title;
-  for(var i=1;i<=3;i++){
-    var b=document.getElementById('btnVideo'+i);
-    var active=(i===n);
-    b.style.background=active?'var(--cyan)':'var(--bg2)';
-    b.style.color=active?'#000':'var(--txt)';
-    b.style.borderColor=active?'var(--cyan)':'var(--bg3)';
-    b.style.fontWeight=active?'600':'400';
-  }
+ var v=$('videoEl'),name=$('videoStepName');
+ var map={1:{src:'fiber-video1.mp4',title:'熔接机与切割刀功能介绍'},2:{src:'fiber-video2.mp4',title:'光纤熔接完整流程'},3:{src:'fiber-video3.mp4',title:'光纤盘纤工艺'}};
+ v.src=map[n].src;v.muted=_videoMuted;v.load();v.play();name.textContent=map[n].title;
+ for(var i=1;i<=3;i++){var b=$('btnVideo'+i),a=(i===n);b.style.background=a?'var(--cyan)':'var(--bg2)';b.style.color=a?'#000':'var(--txt)';b.style.borderColor=a?'var(--cyan)':'var(--bg3)';b.style.fontWeight=a?'600':'400';}
 }
 
-function goStep(idx){
-  if(idx <= state.step || state.completed.indexOf(idx-1) >= 0 || idx === 0){
-    state.step = idx;
-    renderStepBar();
-    renderPanel();
-    updateScene();
-  }
+/* ---------- 浮条提示 ---------- */
+function toast(msg,type,dur){
+ var box=$('toastBox'),d=document.createElement('div');
+ d.className='toast '+(type||'');d.innerHTML=msg;box.appendChild(d);
+ setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d)},420)},dur||3400);
 }
 
-// ===========================
-// MODE TOGGLE
-// ===========================
-function setMode(m){
-  state.mode = m;
-  document.getElementById('mode-newbie').className = 'mode-btn' + (m==='newbie'?' active':'');
-  document.getElementById('mode-exam').className = 'mode-btn' + (m==='exam'?' active':'');
-  renderPanel();
+/* ---------- 模态确认 ---------- */
+var _modalCb=null;
+function showModal(title,body,okText,cb){
+ $('modalTitle').innerHTML=title;$('modalBody').innerHTML=body;
+ $('modalOk').innerHTML=okText||'确定';_modalCb=cb;$('modalMask').style.display='flex';
 }
+function hideModal(){$('modalMask').style.display='none';_modalCb=null}
+$('modalOk')&&($('modalOk').onclick=function(){var cb=_modalCb;hideModal();if(cb)cb();});
 
-// ===========================
-// PANEL RENDERING
-// ===========================
-function renderPanel(){
-  var title = document.getElementById('panelTitle');
-  var body = document.getElementById('panelBody');
-  var s = state.step;
-  title.innerHTML = '步骤 '+(s+1)+'：'+STEPS[s].name+' <span class="badge">'+STEPS.length+'步</span>';
-  // Update video panel step name
-  var vn = document.getElementById('videoStepName');
-  if(vn) vn.textContent = STEPS[s].name;
-  body.innerHTML = '';
-  body.scrollTop = 0;
-
-  switch(s){
-    case 0: renderStep1(body); break;
-    case 1: renderStep2(body); break;
-    case 2: renderStep3(body); break;
-    case 3: renderStep4(body); break;
-    case 4: renderStep5(body); break;
-    case 5: renderStep6(body); break;
-    case 6: renderStep7(body); break;
-    case 7: renderStep8(body); break;
-  }
+/* ---------- 统计条 ---------- */
+function updStats(){
+ $('statTime').innerHTML='⏱ <b>'+fmtT(Math.round((Date.now()-F.t0)/1000))+'</b>';
+ $('statRework').innerHTML='🔧 返工 <b>'+F.rework+'</b>';
+ $('statFault').innerHTML='⚠ 故障 <b>'+F.faults.length+'</b>';
 }
+setInterval(function(){if(F)updStats()},1000);
 
-// --- Tool info data ---
-var TOOLS = [
-  {name:'光纤剥线钳',icon:'<img src="米勒钳.png" alt="光纤剥线钳">',desc:'专用剥线钳，用于精确剥除光纤涂覆层（250μm/900μm）',detail:'型号：CFS-2光纤米勒钳\n孔径：250μm（红孔）和900μm（蓝孔）\n用途：剥除光纤涂覆层，露出裸光纤\n注意：不可用来剥除光纤加强件或外护套'},
-  {name:'光纤切割刀',icon:'<img src="切割刀.png" alt="光纤切割刀">',desc:'精密光纤切割刀，确保端面平整光滑',detail:'型号：FC-6S高精度光纤切割刀\n切割角度：<0.5°\n适用光纤：单模/多模（涂覆层250-900μm）\n注意：刀片为消耗品，每面可切割约1000次，需定期更换'},
-  {name:'无尘纸/酒精',icon:'<svg viewBox="0 0 48 48"><rect x="16" y="6" width="16" height="32" rx="4" fill="#93c5fd" opacity="0.7"/><rect x="20" y="2" width="8" height="6" rx="2" fill="#3b82f6"/><rect x="6" y="34" width="16" height="10" rx="2" fill="#f1f5f9"/><line x1="10" y1="37" x2="18" y2="37" stroke="#cbd5e1" stroke-width="0.8"/><line x1="10" y1="40" x2="18" y2="40" stroke="#cbd5e1" stroke-width="0.8"/></svg>',desc:'99%高纯度无水酒精+无尘纸，清洁光纤表面',detail:'规格：99.9%无水酒精\n无尘纸：专用光纤清洁纸，不掉纤维\n用途：清除光纤表面涂覆层残留和灰尘\n注意：擦拭方向只能从手指持握端向外单向擦拭'},
-  {name:'光纤熔接机',icon:'<img src="光纤熔接机.png" alt="光纤熔接机">',desc:'全自动光纤熔接机，核心设备',detail:'型号：藤仓FSM-70S / 住原S178\n功能：自动对准、放电熔接、损耗估算\n熔接时间：约9秒\n对准方式：纤芯对准（PAS）\n注意：使用前需清洁电极棒，检查防风盖'},
-  {name:'热缩管',icon:'<img src="热缩管.png" alt="热缩管">',desc:'光纤熔接保护套管，含钢针加强',detail:'规格：60mm/40mm热缩保护管\n结构：外层热缩管+内层不锈钢针+内衬管\n作用：保护熔接点，增强抗拉强度\n注意：必须在熔接前套入光纤'},
-  {name:'光纤',icon:'<img src="室内光纤.png" alt="光纤">',desc:'单模光纤（G.652D），外径125μm',detail:'类型：G.652D单模光纤\n结构：纤芯9μm + 包层125μm + 涂覆层250μm\n颜色：黄色外皮（室内），红色/蓝色标记区分\n衰减：1310nm ≤0.35dB/km，1550nm ≤0.20dB/km'}
-];
-
-function renderToolShelf(body, onSelect){
-  var html = '<div class="tool-shelf">';
-  for(var i=0;i<TOOLS.length;i++){
-    html += '<div class="tool-card" id="tool-'+i+'" onclick="selectTool('+i+')">';
-    html += '<button class="tool-info-btn" onclick="event.stopPropagation();showToolInfo('+i+')">i</button>';
-    html += '<div class="tool-icon">'+TOOLS[i].icon+'</div>';
-    html += '<span class="tool-name">'+TOOLS[i].name+'</span>';
-    html += '</div>';
-  }
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
+/* ---------- 错误可见化（D4同款） ---------- */
+var __booted=false;
+function __esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function __fatal(msg){
+ var w=$('sceneWrap');if(!w)return;
+ if(w.querySelector('.fatal-card'))return;
+ var d=document.createElement('div');d.className='fatal-card';
+ d.innerHTML='<div class="fatal-inner"><h3>⚠️ 3D 实训台启动失败</h3>'+
+  '<p>① 请刷新页面重试<br>② 手机请关闭省电模式后重试<br>③ 仍无法使用请换 Chrome 浏览器</p>'+
+  '<div class="err-detail">'+__esc(msg||'unknown')+'</div></div>';
+ w.appendChild(d);
 }
-
-function showToolInfo(idx){
-  var t = TOOLS[idx];
-  var popup = document.getElementById('toolPopup');
-  document.getElementById('popupTitle').textContent = t.name;
-  document.getElementById('popupBody').innerHTML = t.detail.replace(/\n/g,'<br>');
-  popup.style.display = 'block';
-  popup.style.left = '50%';
-  popup.style.top = '50%';
-  popup.style.transform = 'translate(-50%,-50%)';
-}
-function closeToolPopup(){
-  document.getElementById('toolPopup').style.display = 'none';
-}
-
-// ===========================
-// STEP 1: 工具准备
-// ===========================
-function renderStep1(body){
-  var newbie = state.mode === 'newbie';
-  var html = '';
-  html += '<div class="step-section">';
-  html += '<div class="instruction">欢迎进入<b>光纤熔接虚拟实训</b>！<br>首先认识并准备所有需要的工具和材料。点击每个工具查看详细介绍，了解其用途和注意事项。</div>';
-  if(newbie){
-    html += '<div class="tip-box">💡 新手提示：请逐一点击下方工具卡片，了解每种工具的功能。点击右上角 <b>i</b> 按钮查看详细说明。</div>';
-  }
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
-  renderToolShelf(body);
-
-  html = '<div id="step1-fb"></div>';
-  html += '<div class="tip-box warn">⚠️ 安全注意事项：<br>• 操作前佩戴防静电手环<br>• 确保工作台面清洁无尘<br>• 光纤碎屑需妥善收集，不可用手直接触碰<br>• 操作区域光线充足</div>';
-  html += '<div class="action-row" style="justify-content:center">';
-  html += '<button class="act-btn primary" onclick="completeStep1()">✓ 工具已确认，进入下一步</button>';
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
-}
-
-function selectTool(idx){
-  var cards = document.querySelectorAll('.tool-card');
-  cards.forEach(function(c){c.classList.remove('selected')});
-  cards[idx].classList.add('selected');
-  var fb = document.getElementById('step1-fb');
-  if(fb){
-    fb.innerHTML = '<div class="feedback info">📋 '+TOOLS[idx].name+'：'+TOOLS[idx].desc+'</div>';
-  }
-}
-
-function completeStep1(){
-  state.stepScores[0] = 10;
-  state.completed.push(0);
-  state.step = 1;
-  renderStepBar();
-  renderPanel();
-  updateScene();
-}
-
-// ===========================
-// STEP 2: 光纤剥线
-// ===========================
-function renderStep2(body){
-  var newbie = state.mode === 'newbie';
-  var d = state.stepData;
-  var html = '<div class="step-section">';
-  html += '<div class="instruction">使用<b>光纤剥线钳</b>剥除光纤涂覆层，露出裸光纤。<br>操作要点：选择正确的钳口孔径，控制剥线力度和长度。</div>';
-  html += '</div>';
-
-  // Visual fiber representation
-  html += '<div class="interact-area highlight">';
-  html += '<div style="font-size:.8rem;color:var(--txt3);margin-bottom:8px">光纤截面示意</div>';
-  html += '<div class="fiber-visual">';
-  html += '<div class="fiber-coating" id="fiberCoating"></div>';
-  html += '<div class="fiber-core" id="fiberCore"></div>';
-  html += '</div>';
-  html += '<div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--txt3)">';
-  html += '<span>持握端</span><span>→ 剥除方向 →</span><span>光纤端</span>';
-  html += '</div>';
-  html += '</div>';
-
-  // Controls
-  html += '<div class="slider-group">';
-  html += '<div class="slider-label"><span>剥线长度</span><span id="stripLen">30mm</span></div>';
-  html += '<input type="range" id="stripRange" min="15" max="50" value="30" oninput="updateStripLen(this.value)">';
-  html += '<div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--txt3)"><span>15mm</span><span>标准:30-40mm</span><span>50mm</span></div>';
-  html += '</div>';
-
-  html += '<div class="slider-group">';
-  html += '<div class="slider-label"><span>剥线力度</span><span id="stripForce">适中</span></div>';
-  html += '<input type="range" id="forceRange" min="1" max="5" value="3" oninput="updateStripForce(this.value)">';
-  html += '</div>';
-
-  if(newbie){
-    html += '<div class="tip-box">💡 标准剥线长度为30-40mm，使用250μm（红孔）钳口。力度要适中，过大容易折断光纤。</div>';
-  }
-
-  html += '<div id="step2-fb"></div>';
-  html += '<div class="action-row" style="justify-content:center">';
-  html += '<button class="act-btn primary" onclick="executeStrip()">🔪 执行剥线操作</button>';
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
-}
-
-function updateStripLen(v){
-  document.getElementById('stripLen').textContent = v+'mm';
-  var pct = ((v-15)/35)*40;
-  var coating = document.getElementById('fiberCoating');
-  if(coating) coating.style.clipPath = 'inset(0 '+pct+'% 0 0)';
-}
-function updateStripForce(v){
-  var labels = ['很轻','偏轻','适中','偏大','过大'];
-  document.getElementById('stripForce').textContent = labels[v-1];
-}
-
-function executeStrip(){
-  var len = parseInt(document.getElementById('stripRange').value);
-  var force = parseInt(document.getElementById('forceRange').value);
-  var fb = document.getElementById('step2-fb');
-  var errors = 0;
-
-  if(force >= 5){
-    fb.innerHTML = '<div class="feedback err">❌ 力度过大！光纤已断裂，需要重新剥线。裸光纤非常脆弱，力度必须轻柔。</div>';
-    errors++;
-    state.errors++;
-  } else if(force >= 4){
-    fb.innerHTML = '<div class="feedback err">⚠️ 力度偏大，光纤出现微弯损伤，可能影响后续熔接质量。建议减小力度重试。</div>';
-    errors++;
-    state.errors++;
-  } else if(len < 25){
-    fb.innerHTML = '<div class="feedback err">⚠️ 剥线长度不足'+len+'mm，涂覆层残留会影响清洁和切割质量。标准长度30-40mm。</div>';
-    errors++;
-    state.errors++;
-  } else if(len > 45){
-    fb.innerHTML = '<div class="feedback info">ℹ️ 剥线长度'+len+'mm偏长，虽然可用但裸光纤暴露过长易受损。建议控制在30-40mm。</div>';
-  } else {
-    fb.innerHTML = '<div class="feedback ok">✅ 剥线操作正确！涂覆层已完整去除，裸光纤长度'+len+'mm，端面整齐。</div>';
-  }
-
-  if(errors === 0){
-    state.stepData.stripLen = len;
-    state.stepData.stripOk = true;
-    setTimeout(function(){
-      var addHtml = '<div class="knowledge-card"><h4>📚 知识点总结</h4><ul>';
-      addHtml += '<li>光纤涂覆层直径250μm，使用红孔（250μm）钳口剥除</li>';
-      addHtml += '<li>剥线长度标准：30-40mm，与切割刀适配</li>';
-      addHtml += '<li>剥线时避免弯折光纤，保持直线拉出</li>';
-      addHtml += '<li>剥线钳不可用于剥除光纤外护套或加强件</li>';
-      addHtml += '</ul></div>';
-      addHtml += '<div class="action-row" style="justify-content:center">';
-      addHtml += '<button class="act-btn success" onclick="completeStep(1)">✓ 进入下一步</button>';
-      addHtml += '</div>';
-      fb.insertAdjacentHTML('afterend', addHtml);
-    }, 600);
-  }
-}
-
-// ===========================
-// STEP 3: 光纤清洁
-// ===========================
-function renderStep3(body){
-  var newbie = state.mode === 'newbie';
-  var html = '<div class="step-section">';
-  html += '<div class="instruction">用<b>无尘纸蘸取酒精</b>擦拭裸光纤表面，去除涂覆层残留物和灰尘。<br>关键要点：擦拭方向、次数、酒精用量。</div>';
-  html += '</div>';
-
-  html += '<div class="interact-area highlight">';
-  html += '<div style="text-align:center;margin-bottom:10px">';
-  html += '<div style="font-size:.82rem;color:var(--txt2);margin-bottom:8px">模拟擦拭操作（点击擦拭光纤）</div>';
-  html += '<div id="cleanFiber" style="position:relative;width:100%;height:50px;background:var(--bg3);border-radius:25px;overflow:hidden;cursor:pointer" onclick="wipeFiber()">';
-  html += '<div id="fiberDirt" style="position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(148,163,184,.3) 20%,rgba(148,163,184,.5) 50%,rgba(148,163,184,.3) 80%,transparent 100%);transition:opacity .3s"></div>';
-  html += '<div style="position:absolute;top:50%;left:10%;right:10%;height:3px;background:linear-gradient(90deg,var(--gold),#fde68a,var(--gold));border-radius:2px;transform:translateY(-50%)"></div>';
-  html += '</div>';
-  html += '<div style="font-size:.72rem;color:var(--txt3);margin-top:6px">擦拭次数：<span id="wipeCount">0</span> / 3次以上</div>';
-  html += '</div>';
-  html += '</div>';
-
-  if(newbie){
-    html += '<div class="tip-box">💡 正确擦拭方法：无尘纸折叠后蘸取少量酒精，从持握端向光纤末端<b>单向擦拭</b>，不可来回擦拭。至少擦拭3次。</div>';
-  }
-
-  html += '<div class="tip-box danger">⚠️ 常见错误：<br>• 来回擦拭会导致碎屑重新附着<br>• 酒精用量过多会残留液体<br>• 使用普通纸巾会掉纤维，必须用无尘纸</div>';
-
-  html += '<div id="step3-fb"></div>';
-  html += '<div class="action-row" style="justify-content:center">';
-  html += '<button class="act-btn primary" id="cleanBtn" onclick="confirmClean()">✓ 清洁完成</button>';
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
-  state.stepData.wipeCount = 0;
-}
-
-function wipeFiber(){
-  state.stepData.wipeCount = (state.stepData.wipeCount||0) + 1;
-  var count = state.stepData.wipeCount;
-  document.getElementById('wipeCount').textContent = count;
-  var dirt = document.getElementById('fiberDirt');
-  if(dirt){
-    var opacity = Math.max(0, 1 - count * 0.25);
-    dirt.style.opacity = opacity;
-  }
-}
-
-function confirmClean(){
-  var count = state.stepData.wipeCount || 0;
-  var fb = document.getElementById('step3-fb');
-  if(count < 3){
-    fb.innerHTML = '<div class="feedback err">❌ 擦拭次数不足'+count+'次！光纤表面仍有残留物，需要至少3次单向擦拭。</div>';
-    state.errors++;
-    return;
-  }
-  fb.innerHTML = '<div class="feedback ok">✅ 光纤清洁完成！表面光洁无残留，可以进入切割步骤。</div>';
-  setTimeout(function(){
-    var html = '<div class="knowledge-card"><h4>📚 知识点总结</h4><ul>';
-    html += '<li>使用99%以上纯度无水酒精</li>';
-    html += '<li>单向擦拭，从持握端向末端方向</li>';
-    html += '<li>至少擦拭3次，每次更换无尘纸面</li>';
-    html += '<li>擦拭后不可触碰裸光纤表面</li>';
-    html += '</ul></div>';
-    html += '<div class="action-row" style="justify-content:center">';
-    html += '<button class="act-btn success" onclick="completeStep(2)">✓ 进入下一步</button>';
-    html += '</div>';
-    fb.insertAdjacentHTML('afterend', html);
-  },500);
-}
-
-// ===========================
-// STEP 4: 端面切割
-// ===========================
-function renderStep4(body){
-  var newbie = state.mode === 'newbie';
-  var html = '<div class="step-section">';
-  html += '<div class="instruction">使用<b>光纤切割刀</b>对光纤进行端面切割。<br>这是最关键的步骤之一，端面质量直接影响熔接损耗。</div>';
-  html += '</div>';
-
-  // Cutting simulation
-  html += '<div class="interact-area highlight">';
-  html += '<div style="font-size:.82rem;color:var(--txt2);margin-bottom:10px;text-align:center">切割刀操作模拟</div>';
-  html += '<div style="background:var(--bg3);border-radius:8px;padding:16px;position:relative">';
-  html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
-  html += '<div style="flex:1">';
-  html += '<div style="font-size:.75rem;color:var(--txt3);margin-bottom:4px">光纤放置位置</div>';
-  html += '<div class="slider-group" style="margin:0">';
-  html += '<input type="range" id="fiberPos" min="0" max="100" value="50" oninput="updateFiberPos(this.value)">';
-  html += '<div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--txt3)"><span>偏左</span><span>标准位置</span><span>偏右</span></div>';
-  html += '</div>';
-  html += '</div>';
-  html += '</div>';
-
-  // Cutting visual
-  html += '<div id="cuttingVisual" style="height:60px;background:linear-gradient(180deg,#475569,#334155);border-radius:6px;position:relative;overflow:hidden">';
-  html += '<div style="position:absolute;bottom:0;left:0;right:0;height:20px;background:linear-gradient(180deg,#1e293b,#0f172a)"></div>';
-  html += '<div id="fiberLine" style="position:absolute;top:8px;bottom:20px;left:50%;width:2px;background:var(--gold);transform:translateX(-50%);transition:left .1s"></div>';
-  html += '<div id="bladeLine" style="position:absolute;top:0;left:50%;width:3px;height:0;background:linear-gradient(180deg,#ef4444,#dc2626);transition:height .3s;transform:translateX(-50%)"></div>';
-  html += '<div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:.6rem;color:var(--txt3)">定位标尺</div>';
-  html += '</div>';
-  html += '</div>';
-  html += '</div>';
-
-  if(newbie){
-    html += '<div class="tip-box">💡 操作步骤：①打开刀盖 → ②放置光纤到定位标尺位置 → ③合上压块 → ④推切手柄 → ⑤取出光纤检查端面</div>';
-  }
-
-  html += '<div id="step4-fb"></div>';
-  html += '<div class="action-row" style="justify-content:center">';
-  html += '<button class="act-btn primary" onclick="executeCut()">✂️ 执行切割</button>';
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
-}
-
-function updateFiberPos(v){
-  var fiberLine = document.getElementById('fiberLine');
-  if(fiberLine) fiberLine.style.left = v+'%';
-}
-
-function executeCut(){
-  var pos = parseInt(document.getElementById('fiberPos').value);
-  var fb = document.getElementById('step4-fb');
-  var blade = document.getElementById('bladeLine');
-
-  // Animate blade
-  if(blade){
-    blade.style.height = '100%';
-    setTimeout(function(){ blade.style.height = '0'; }, 500);
-  }
-
-  setTimeout(function(){
-    var deviation = Math.abs(pos - 50);
-    if(deviation > 30){
-      fb.innerHTML = '<div class="feedback err">❌ 光纤放置位置严重偏移！切割角度过大，端面不合格。需重新切割。</div>';
-      state.errors++;
-    } else if(deviation > 15){
-      fb.innerHTML = '<div class="feedback err">⚠️ 光纤位置有偏差，切割角度偏大。端面可能有倾斜，建议调整位置重试。</div>';
-      state.errors++;
-    } else {
-      var angle = (deviation * 0.01).toFixed(2);
-      fb.innerHTML = '<div class="feedback ok">✅ 切割完成！端面角度 '+angle+'°，质量良好。角度越小端面越平整。</div>';
-      setTimeout(function(){
-        var html = '<div class="knowledge-card"><h4>📚 知识点总结</h4><ul>';
-        html += '<li>切割角度标准：<0.5°为优秀，<1°为合格</li>';
-        html += '<li>光纤放置须对齐定位标尺，保持水平</li>';
-        html += '<li>切割刀滑轨需定期清洁，刀片定期更换</li>';
-        html += '<li>端面检查：无毛刺、无倾斜、无缺损</li>';
-        html += '</ul></div>';
-        html += '<div class="action-row" style="justify-content:center">';
-        html += '<button class="act-btn success" onclick="completeStep(3)">✓ 进入下一步</button>';
-        html += '</div>';
-        fb.insertAdjacentHTML('afterend', html);
-      },500);
-    }
-  },600);
-}
-
-// ===========================
-// STEP 5: 套热缩管
-// ===========================
-function renderStep5(body){
-  var newbie = state.mode === 'newbie';
-  var html = '<div class="step-section">';
-  html += '<div class="instruction">在<b>熔接前</b>将热缩管套入光纤！<br>这是最容易被遗忘的步骤——熔接后无法再套入热缩管。</div>';
-  html += '</div>';
-
-  html += '<div class="interact-area highlight">';
-  html += '<div style="text-align:center">';
-  html += '<div style="font-size:.82rem;color:var(--txt2);margin-bottom:12px">选择热缩管规格并套入</div>';
-  html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">';
-  html += '<div class="tool-card" style="width:120px" id="tube40" onclick="selectTube(40)"><div class="tool-icon"><img src="热缩管.png" alt="40mm" style="width:48px;height:48px;object-fit:contain"><div style="text-align:center;font-size:.7rem;color:var(--cyan);margin-top:2px">40mm</div></div><span class="tool-name">40mm热缩管</span></div>';
-  html += '<div class="tool-card" style="width:120px" id="tube60" onclick="selectTube(60)"><div class="tool-icon"><img src="热缩管.png" alt="60mm" style="width:48px;height:48px;object-fit:contain"><div style="text-align:center;font-size:.7rem;color:var(--cyan);margin-top:2px">60mm</div></div><span class="tool-name">60mm热缩管</span></div>';
-  html += '<div class="tool-card" style="width:120px" id="tube80" onclick="selectTube(80)"><div class="tool-icon"><img src="热缩管.png" alt="80mm" style="width:48px;height:48px;object-fit:contain"><div style="text-align:center;font-size:.7rem;color:var(--cyan);margin-top:2px">80mm</div></div><span class="tool-name">80mm热缩管</span></div>';
-  html += '</div>';
-  html += '</div>';
-  html += '<div id="tubeVisual" style="margin-top:16px;height:40px;position:relative">';
-  html += '<div style="position:absolute;top:50%;left:10%;right:10%;height:3px;background:var(--gold);border-radius:2px;transform:translateY(-50%)"></div>';
-  html += '<div id="tubeOverlay" style="position:absolute;top:50%;height:16px;background:rgba(251,191,36,.2);border:2px solid var(--amber);border-radius:8px;transform:translateY(-50%);transition:all .3s;display:none"></div>';
-  html += '</div>';
-  html += '</div>';
-
-  if(newbie){
-    html += '<div class="tip-box">💡 60mm热缩管是光纤熔接的标准规格，含不锈钢加强针，能提供足够的抗拉强度保护。</div>';
-  }
-
-  html += '<div class="tip-box warn">⚠️ 重要：热缩管必须在熔接前套入一根光纤！一旦熔接完成，熔接点无法穿过热缩管。</div>';
-  html += '<div id="step5-fb"></div>';
-  html += '<div class="action-row" style="justify-content:center">';
-  html += '<button class="act-btn primary" id="tubeBtn" onclick="confirmTube()" disabled>🔒 套入热缩管</button>';
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
-}
-
-function selectTube(size){
-  document.querySelectorAll('.tool-card').forEach(function(c){c.classList.remove('selected')});
-  document.getElementById('tube'+size).classList.add('selected');
-  state.stepData.tubeSize = size;
-  document.getElementById('tubeBtn').disabled = false;
-  var overlay = document.getElementById('tubeOverlay');
-  if(overlay){
-    overlay.style.display = 'block';
-    var widths = {40:'25%',60:'35%',80:'50%'};
-    overlay.style.width = widths[size] || '35%';
-    overlay.style.left = '15%';
-  }
-}
-
-function confirmTube(){
-  var size = state.stepData.tubeSize;
-  var fb = document.getElementById('step5-fb');
-  if(!size){
-    fb.innerHTML = '<div class="feedback err">请先选择热缩管规格！</div>';
-    return;
-  }
-  if(size !== 60){
-    fb.innerHTML = '<div class="feedback err">⚠️ '+size+'mm热缩管规格不合适。标准光纤熔接使用60mm热缩管，含钢针加强。</div>';
-    state.errors++;
-  } else {
-    fb.innerHTML = '<div class="feedback ok">✅ 60mm热缩管已正确套入光纤，位置居中。准备进入熔接步骤。</div>';
-  }
-  setTimeout(function(){
-    var html = '<div class="knowledge-card"><h4>📚 知识点总结</h4><ul>';
-    html += '<li>热缩管必须在熔接<b>前</b>套入，这是最易遗忘的步骤</li>';
-    html += '<li>标准规格60mm，含不锈钢加强针</li>';
-    html += '<li>套入后移动至覆盖熔接点两侧各15mm以上</li>';
-    html += '<li>热缩管有方向性，钢针侧朝内</li>';
-    html += '</ul></div>';
-    html += '<div class="action-row" style="justify-content:center">';
-    html += '<button class="act-btn success" onclick="completeStep(4)">✓ 进入下一步</button>';
-    html += '</div>';
-    fb.insertAdjacentHTML('afterend', html);
-  },500);
-}
-
-// ===========================
-// STEP 6: 熔接操作
-// ===========================
-function renderStep6(body){
-  var newbie = state.mode === 'newbie';
-  var html = '<div class="step-section">';
-  html += '<div class="instruction">操作<b>光纤熔接机</b>完成光纤对准与熔接。<br>请按正确顺序操作熔接机各功能按钮。</div>';
-  html += '</div>';
-
-  // Machine panel
-  html += '<div class="machine-panel">';
-  html += '<div class="machine-screen">';
-  html += '<div class="screen-label">FSM-70S 显示屏</div>';
-  html += '<canvas id="machineCanvas" width="340" height="100"></canvas>';
-  html += '</div>';
-  html += '<div class="machine-btns">';
-  var btns = [
-    {id:'mpower',icon:'⏻',lbl:'电源'},
-    {id:'mmode',icon:'⚙',lbl:'模式'},
-    {id:'mset',icon:'📡',lbl:'参数'},
-    {id:'mheat',icon:'🔥',lbl:'加热'},
-    {id:'mup',icon:'▲',lbl:'上'},
-    {id:'mdown',icon:'▼',lbl:'下'},
-    {id:'mleft',icon:'◀',lbl:'左'},
-    {id:'mright',icon:'▶',lbl:'右'},
-    {id:'mok',icon:'✓',lbl:'确认'},
-    {id:'mcover',icon:'📂',lbl:'防风盖'},
-    {id:'marc',icon:'⚡',lbl:'熔接'},
-    {id:'mreset',icon:'↺',lbl:'复位'}
-  ];
-  for(var i=0;i<btns.length;i++){
-    html += '<div class="machine-btn" id="'+btns[i].id+'" onclick="pressMachineBtn(\''+btns[i].id+'\')">';
-    html += '<span class="mbtn-icon">'+btns[i].icon+'</span>';
-    html += '<span class="mbtn-lbl">'+btns[i].lbl+'</span>';
-    html += '</div>';
-  }
-  html += '</div>';
-  html += '</div>';
-
-  if(newbie){
-    html += '<div class="tip-box">💡 操作顺序：①开机 → ②设置模式(单模SM) → ③打开防风盖 → ④放置光纤 → ⑤关闭防风盖 → ⑥按熔接键</div>';
-  }
-
-  html += '<div id="step6-fb"></div>';
-  html += '<div id="step6-status" style="text-align:center;font-size:.85rem;color:var(--txt3);margin:8px 0">请按正确顺序操作熔接机</div>';
-  body.insertAdjacentHTML('beforeend', html);
-
-  state.stepData.machineSeq = [];
-  state.stepData.machineOn = false;
-  state.stepData.modeSet = false;
-  state.stepData.coverOpen = false;
-  state.stepData.fiberPlaced = false;
-  state.stepData.spliceDone = false;
-  drawMachineScreen('off');
-}
-
-function drawMachineScreen(status, text){
-  var canvas = document.getElementById('machineCanvas');
-  if(!canvas) return;
-  var ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,340,100);
-  ctx.fillStyle = '#0a1628';
-  ctx.fillRect(0,0,340,100);
-
-  if(status === 'off'){
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(0,0,340,100);
-    ctx.fillStyle = '#334155';
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('请按电源键开机', 170, 55);
-  } else if(status === 'on'){
-    ctx.fillStyle = '#0f2a1a';
-    ctx.fillRect(0,0,340,100);
-    ctx.strokeStyle = '#10b981';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(10,10,320,80);
-    ctx.fillStyle = '#10b981';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('FSM-70S READY', 20, 30);
-    ctx.fillText('MODE: ' + (text || '---'), 20, 50);
-    ctx.fillText('STATUS: WAITING', 20, 70);
-  } else if(status === 'align'){
-    ctx.fillStyle = '#0a1628';
-    ctx.fillRect(0,0,340,100);
-    // Draw fiber alignment view
-    ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(10,10,320,80);
-    // Left fiber
-    ctx.fillStyle = '#fbbf24';
-    ctx.fillRect(20, 45, 140, 3);
-    ctx.fillStyle = '#60a5fa';
-    ctx.fillRect(20, 40, 140, 2);
-    // Right fiber
-    ctx.fillStyle = '#fbbf24';
-    ctx.fillRect(180, 45, 140, 3);
-    ctx.fillStyle = '#60a5fa';
-    ctx.fillRect(180, 40, 140, 2);
-    // Electrodes
-    ctx.fillStyle = '#64748b';
-    ctx.fillRect(155, 25, 4, 15);
-    ctx.fillRect(181, 25, 4, 15);
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '9px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('电极', 170, 22);
-  } else if(status === 'splicing'){
-    ctx.fillStyle = '#0a1628';
-    ctx.fillRect(0,0,340,100);
-    ctx.strokeStyle = '#334155';
-    ctx.strokeRect(10,10,320,80);
-    // Arc effect
-    var grd = ctx.createRadialGradient(170,48,2,170,48,20);
-    grd.addColorStop(0,'rgba(59,130,246,0.8)');
-    grd.addColorStop(0.5,'rgba(59,130,246,0.3)');
-    grd.addColorStop(1,'rgba(59,130,246,0)');
-    ctx.fillStyle = grd;
-    ctx.fillRect(150,28,40,40);
-    // Fibers joined
-    ctx.fillStyle = '#fbbf24';
-    ctx.fillRect(20, 47, 300, 3);
-    ctx.fillStyle = '#3b82f6';
-    ctx.font = '11px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('DISCHARGING...', 170, 85);
-  } else if(status === 'done'){
-    ctx.fillStyle = '#0a1628';
-    ctx.fillRect(0,0,340,100);
-    ctx.strokeStyle = '#10b981';
-    ctx.strokeRect(10,10,320,80);
-    ctx.fillStyle = '#fbbf24';
-    ctx.fillRect(20, 47, 300, 3);
-    ctx.fillStyle = '#10b981';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('SPLICE OK', 20, 30);
-    ctx.fillText('LOSS: 0.02 dB', 20, 50);
-    ctx.fillStyle = '#6ee7b7';
-    ctx.fillText('ESTIMATE: GOOD', 20, 70);
-  }
-}
-
-function pressMachineBtn(id){
-  var d = state.stepData;
-  var fb = document.getElementById('step6-fb');
-  var statusEl = document.getElementById('step6-status');
-  var btnEl = document.getElementById(id);
-
-  // Visual feedback
-  if(btnEl) btnEl.classList.add('pressed');
-
-  switch(id){
-    case 'mpower':
-      if(!d.machineOn){
-        d.machineOn = true;
-        drawMachineScreen('on', '---');
-        fb.innerHTML = '<div class="feedback ok">✅ 熔接机已开机，系统自检中...</div>';
-        statusEl.textContent = '开机完成 → 请设置熔接模式';
-      }
-      break;
-    case 'mmode':
-      if(!d.machineOn){
-        fb.innerHTML = '<div class="feedback err">❌ 请先开机！</div>'; state.errors++;
-      } else {
-        d.modeSet = true;
-        drawMachineScreen('on', 'SM(单模)');
-        fb.innerHTML = '<div class="feedback ok">✅ 已设置熔接模式：SM单模光纤</div>';
-        statusEl.textContent = '模式设置完成 → 请打开防风盖';
-      }
-      break;
-    case 'mcover':
-      if(!d.modeSet){
-        fb.innerHTML = '<div class="feedback err">❌ 请先设置熔接模式！</div>'; state.errors++;
-      } else if(!d.coverOpen){
-        d.coverOpen = true;
-        d.fiberPlaced = true;
-        drawMachineScreen('align');
-        fb.innerHTML = '<div class="feedback ok">✅ 防风盖已打开，左右光纤已放入V型槽，对准电极位置。请关闭防风盖。</div>';
-        statusEl.textContent = '光纤已就位 → 请关闭防风盖';
-      } else {
-        d.coverOpen = false;
-        fb.innerHTML = '<div class="feedback ok">✅ 防风盖已关闭。可以开始熔接。</div>';
-        statusEl.textContent = '准备就绪 → 按熔接键开始';
-      }
-      break;
-    case 'marc':
-      if(!d.fiberPlaced || d.coverOpen){
-        fb.innerHTML = '<div class="feedback err">❌ 请先放置光纤并关闭防风盖！</div>'; state.errors++;
-      } else if(d.spliceDone){
-        fb.innerHTML = '<div class="feedback info">ℹ️ 已完成熔接</div>';
-      } else {
-        d.spliceDone = true;
-        drawMachineScreen('splicing');
-        fb.innerHTML = '<div class="feedback info">⚡ 正在放电熔接...</div>';
-        statusEl.textContent = '熔接进行中...';
-        // Simulate splicing process
-        setTimeout(function(){
-          drawMachineScreen('done');
-          var loss = (Math.random()*0.03 + 0.01).toFixed(2);
-          fb.innerHTML = '<div class="feedback ok">✅ 熔接完成！估算损耗：'+loss+' dB，质量优秀（<0.08dB为优秀）</div>';
-          state.stepData.spliceLoss = parseFloat(loss);
-          statusEl.textContent = '熔接成功！损耗 '+loss+' dB';
-          setTimeout(function(){
-            var html = '<div class="knowledge-card"><h4>📚 知识点总结</h4><ul>';
-            html += '<li>熔接机使用PAS纤芯对准技术，自动调整光纤位置</li>';
-            html += '<li>放电熔接时间约5-10秒，需关闭防风盖</li>';
-            html += '<li>熔接损耗标准：<0.08dB优秀，<0.1dB合格</li>';
-            html += '<li>电极棒需定期清洁，放电约1000次后需更换</li>';
-            html += '</ul></div>';
-            html += '<div class="action-row" style="justify-content:center">';
-            html += '<button class="act-btn success" onclick="completeStep(5)">✓ 进入下一步</button>';
-            html += '</div>';
-            fb.insertAdjacentHTML('afterend', html);
-          }, 600);
-        }, 2500);
-      }
-      break;
-    case 'mheat':
-      fb.innerHTML = '<div class="feedback info">ℹ️ 加热功能在下一步（热缩管加热）中使用</div>';
-      break;
-    default:
-      fb.innerHTML = '<div class="feedback info">ℹ️ '+document.querySelector('#'+id+' .mbtn-lbl').textContent+'功能已记录</div>';
-  }
-}
-
-// ===========================
-// STEP 7: 热缩管加热
-// ===========================
-function renderStep7(body){
-  var newbie = state.mode === 'newbie';
-  var html = '<div class="step-section">';
-  html += '<div class="instruction">将套好热缩管的熔接光纤放入<b>熔接机加热炉</b>进行加热保护。<br>热缩管受热收缩，紧密包裹熔接点并提供机械保护。</div>';
-  html += '</div>';
-
-  html += '<div class="interact-area highlight">';
-  html += '<div style="text-align:center">';
-  html += '<div style="font-size:.82rem;color:var(--txt2);margin-bottom:12px">热缩管加热模拟</div>';
-
-  // Visual of heat shrink tube
-  html += '<div id="heatTubeVisual" style="position:relative;height:50px;background:var(--bg3);border-radius:25px;overflow:hidden">';
-  html += '<div style="position:absolute;top:50%;left:10%;right:10%;height:3px;background:var(--gold);border-radius:2px;transform:translateY(-50%)"></div>';
-  html += '<div id="shrinkingTube" style="position:absolute;top:50%;left:15%;width:35%;height:24px;background:rgba(251,191,36,.15);border:2px solid var(--amber);border-radius:12px;transform:translateY(-50%);transition:all 2s"></div>';
-  html += '</div>';
-
-  // Heat progress
-  html += '<div class="heat-container" style="margin-top:16px">';
-  html += '<div style="font-size:.82rem;color:var(--txt2);margin-bottom:6px">加热进度</div>';
-  html += '<div class="heat-bar-wrap">';
-  html += '<div class="heat-bar-fill" id="heatFill"></div>';
-  html += '<div class="heat-bar-text" id="heatText">未开始</div>';
-  html += '</div>';
-  html += '</div>';
-  html += '</div>';
-  html += '</div>';
-
-  if(newbie){
-    html += '<div class="tip-box">💡 操作步骤：①将热缩管移至覆盖熔接点 → ②放入加热炉槽 → ③关闭炉盖 → ④按加热键 → ⑤等待完成 → ⑥取出冷却</div>';
-  }
-
-  html += '<div id="step7-fb"></div>';
-  html += '<div class="action-row" style="justify-content:center">';
-  html += '<button class="act-btn primary" id="heatBtn" onclick="startHeating()">🔥 开始加热</button>';
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
-}
-
-function startHeating(){
-  var btn = document.getElementById('heatBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ 加热中...';
-  var fill = document.getElementById('heatFill');
-  var text = document.getElementById('heatText');
-  var tube = document.getElementById('shrinkingTube');
-  var fb = document.getElementById('step7-fb');
-  fb.innerHTML = '<div class="feedback info">🔥 热缩管加热中，请等待...</div>';
-
-  var progress = 0;
-  var interval = setInterval(function(){
-    progress += 1;
-    fill.style.width = progress + '%';
-    text.textContent = progress + '% / 加热时间约20秒';
-
-    // Shrink tube animation
-    if(tube && progress > 30){
-      var shrinkProgress = Math.min(1, (progress - 30) / 60);
-      var newHeight = 24 - shrinkProgress * 10;
-      var newBorder = 2 - shrinkProgress * 1;
-      tube.style.height = newHeight + 'px';
-      tube.style.background = 'rgba(37,99,235,' + (0.1 + shrinkProgress * 0.2) + ')';
-      tube.style.borderColor = shrinkProgress > 0.8 ? '#3b82f6' : '#f59e0b';
-    }
-
-    if(progress >= 100){
-      clearInterval(interval);
-      text.textContent = '加热完成！';
-      fb.innerHTML = '<div class="feedback ok">✅ 热缩管加热完成！管体已完全收缩，紧密包裹熔接点。请取出并等待冷却。</div>';
-      setTimeout(function(){
-        var html = '<div class="knowledge-card"><h4>📚 知识点总结</h4><ul>';
-        html += '<li>加热时间约20-30秒（60mm热缩管）</li>';
-        html += '<li>加热完成后需等待冷却再取出</li>';
-        html += '<li>热缩管应完全覆盖熔接点，两侧各15mm以上</li>';
-        html += '<li>检查热缩管内有无气泡，有气泡需重新处理</li>';
-        html += '</ul></div>';
-        html += '<div class="action-row" style="justify-content:center">';
-        html += '<button class="act-btn success" onclick="completeStep(6)">✓ 进入最后一步</button>';
-        html += '</div>';
-        fb.insertAdjacentHTML('afterend', html);
-      },600);
-    }
-  }, 200);
-}
-
-// ===========================
-// STEP 8: 质量检查
-// ===========================
-function renderStep8(body){
-  var newbie = state.mode === 'newbie';
-  var html = '<div class="step-section">';
-  html += '<div class="instruction">对熔接结果进行<b>质量检查</b>，包括外观检查和损耗测试。<br>这是实训的最后一步，检查合格后完成本次实训。</div>';
-  html += '</div>';
-
-  // Inspection items
-  html += '<div class="interact-area highlight">';
-  html += '<div style="font-size:.82rem;color:var(--txt2);margin-bottom:12px;text-align:center">熔接质量检查项目</div>';
-  html += '<div style="display:flex;flex-direction:column;gap:8px">';
-
-  var checks = [
-    {id:'chk1',label:'熔接点外观',desc:'检查熔接点有无气泡、裂纹、变形'},
-    {id:'chk2',label:'热缩管保护',desc:'检查热缩管是否完全覆盖熔接点，有无气泡'},
-    {id:'chk3',label:'熔接损耗值',desc:'查看熔接机显示的损耗估算值'},
-    {id:'chk4',label:'光纤弯曲半径',desc:'检查光纤弯曲半径是否≥30mm'}
-  ];
-  for(var i=0;i<checks.length;i++){
-    html += '<div style="display:flex;align-items:center;gap:12px;background:var(--bg3);border-radius:8px;padding:12px;cursor:pointer" onclick="toggleCheck(\''+checks[i].id+'\')" id="'+checks[i].id+'">';
-    html += '<div style="width:22px;height:22px;border:2px solid var(--bg);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s" class="chk-box"></div>';
-    html += '<div><div style="font-size:.88rem;color:var(--txt);font-weight:600">'+checks[i].label+'</div>';
-    html += '<div style="font-size:.75rem;color:var(--txt3)">'+checks[i].desc+'</div></div>';
-    html += '</div>';
-  }
-  html += '</div>';
-  html += '</div>';
-
-  if(newbie){
-    html += '<div class="tip-box">💡 请逐一检查每个项目，点击勾选已检查通过的项目。</div>';
-  }
-
-  // Show splice result
-  var loss = state.stepData.spliceLoss || 0.02;
-  html += '<div style="background:var(--bg);border:1px solid var(--bg3);border-radius:var(--radius);padding:16px;margin:12px 0;text-align:center">';
-  html += '<div style="font-size:.82rem;color:var(--txt3);margin-bottom:8px">本次熔接结果</div>';
-  html += '<div style="font-size:2rem;font-weight:900;color:var(--green)">'+loss.toFixed(2)+' <span style="font-size:.9rem;color:var(--txt3)">dB</span></div>';
-  html += '<div style="font-size:.78rem;color:var(--txt3);margin-top:4px">熔接损耗（<0.08dB 优秀）</div>';
-  html += '</div>';
-
-  html += '<div id="step8-fb"></div>';
-  html += '<div class="action-row" style="justify-content:center">';
-  html += '<button class="act-btn primary" onclick="finishInspection()">📋 完成检查，生成报告</button>';
-  html += '</div>';
-  body.insertAdjacentHTML('beforeend', html);
-  state.stepData.checks = {};
-}
-
-function toggleCheck(id){
-  var el = document.getElementById(id);
-  var box = el.querySelector('.chk-box');
-  if(state.stepData.checks[id]){
-    delete state.stepData.checks[id];
-    box.style.background = 'transparent';
-    box.innerHTML = '';
-    el.style.borderColor = 'var(--bg3)';
-  } else {
-    state.stepData.checks[id] = true;
-    box.style.background = 'var(--green)';
-    box.style.borderColor = 'var(--green)';
-    box.innerHTML = '✓';
-    box.style.color = '#fff';
-    box.style.fontSize = '.7rem';
-  }
-}
-
-function finishInspection(){
-  var checks = state.stepData.checks || {};
-  var checked = Object.keys(checks).length;
-  var fb = document.getElementById('step8-fb');
-
-  if(checked < 3){
-    fb.innerHTML = '<div class="feedback err">❌ 请至少完成3项检查后再提交！</div>';
-    state.errors++;
-    return;
-  }
-
-  // Calculate final score
-  var baseScore = 100;
-  var loss = state.stepData.spliceLoss || 0.02;
-  var lossDeduct = loss > 0.1 ? 15 : (loss > 0.08 ? 8 : 0);
-  var errorDeduct = state.errors * 5;
-  var finalScore = Math.max(0, baseScore - lossDeduct - errorDeduct);
-  var grade = finalScore >= 90 ? '优秀' : (finalScore >= 75 ? '良好' : (finalScore >= 60 ? '合格' : '不合格'));
-  var gradeColor = finalScore >= 90 ? 'var(--green)' : (finalScore >= 75 ? 'var(--blue)' : (finalScore >= 60 ? 'var(--amber)' : 'var(--red)'));
-
-  state.score = finalScore;
-  state.stepScores[7] = finalScore;
-  state.completed.push(7);
-
-  // 实时同步成绩到飞书「AI赋能教学数据中枢·D4-1光纤熔接实训成绩表」
-  if(window.feishuSync){
-    feishuSync.sync('fiber_score', '8步实训完成成绩', {
-      '最终得分(分)': finalScore,
-      '评级': grade,
-      '熔接损耗(dB)': loss.toFixed(3),
-      '操作错误次数(次)': state.errors,
-      '完成步骤': state.completed.length+'/'+STEPS.length,
-      '操作模式': state.mode==='exam'?'考核模式':'新手引导'
-    },{silent:true});
-  }
-
-  // 写入本地实训记录供数据看板读取
-  (function(){
-    try{
-      var list=JSON.parse(localStorage.getItem('sim_records')||'[]');
-      list.unshift({type:'fiber',name:'光纤熔接3D',score:finalScore,grade:grade,errors:state.errors,loss:loss.toFixed(3),time:state.startTime?Math.round((Date.now()-state.startTime)/1000):0,ts:Date.now()});
-      if(list.length>50)list=list.slice(0,50);
-      localStorage.setItem('sim_records',JSON.stringify(list));
-    }catch(e){}
-  })();
-
-  fb.innerHTML = '<div class="feedback ok">✅ 质量检查完成！</div>';
-
-  // Show score page
-  var body = document.getElementById('panelBody');
-  body.innerHTML = '<div class="score-page">';
-  body.innerHTML += '<div style="font-size:1.2rem;font-weight:700;margin-bottom:8px;color:var(--txt)">实训完成！</div>';
-  body.innerHTML += '<div class="score-ring '+(finalScore>=90?'excellent':(finalScore>=60?'good':'poor'))+'">';
-  body.innerHTML += '<div class="score-val" style="color:'+gradeColor+'">'+finalScore+'</div>';
-  body.innerHTML += '<div class="score-lbl">分</div>';
-  body.innerHTML += '</div>';
-  body.innerHTML += '<div style="font-size:1.1rem;font-weight:700;color:'+gradeColor+';margin-bottom:16px">'+grade+'</div>';
-
-  body.innerHTML += '<div class="score-details">';
-  body.innerHTML += '<div class="score-item"><span class="label">熔接损耗</span><span class="value '+(loss<=0.08?'pass':'fail')+'">'+loss.toFixed(2)+' dB</span></div>';
-  body.innerHTML += '<div class="score-item"><span class="label">操作错误</span><span class="value '+(state.errors===0?'pass':'fail')+'">'+state.errors+' 次</span></div>';
-  body.innerHTML += '<div class="score-item"><span class="label">步骤完成</span><span class="value pass">'+state.completed.length+'/'+STEPS.length+'</span></div>';
-  body.innerHTML += '<div class="score-item"><span class="label">检查项</span><span class="value pass">'+checked+'/4</span></div>';
-  body.innerHTML += '</div>';
-
-  body.innerHTML += '<div class="knowledge-card"><h4>📋 实训总结</h4><ul>';
-  if(loss <= 0.05) body.innerHTML += '<li>熔接损耗优秀，操作规范</li>';
-  else if(loss <= 0.08) body.innerHTML += '<li>熔接损耗良好，仍有优化空间</li>';
-  else body.innerHTML += '<li>熔接损耗偏高，需注意清洁和切割质量</li>';
-  if(state.errors === 0) body.innerHTML += '<li>操作零失误，非常出色！</li>';
-  else body.innerHTML += '<li>共'+state.errors+'次操作失误，需加强练习</li>';
-  body.innerHTML += '<li>完整掌握光纤熔接8步操作流程</li>';
-  body.innerHTML += '</ul></div>';
-
-  body.innerHTML += '<div class="action-row" style="justify-content:center">';
-  body.innerHTML += '<button class="act-btn primary" onclick="restartTraining()">🔄 重新训练</button>';
-  body.innerHTML += '<button class="act-btn secondary" onclick="location.href=\'index.html\'">🏠 返回首页</button>';
-  body.innerHTML += '</div>';
-  body.innerHTML += '</div>';
-
-  renderStepBar();
-}
-
-function restartTraining(){
-  state = {step:0,mode:state.mode,errors:0,score:100,startTime:Date.now(),stepScores:[],stepErrors:[],completed:[],stepData:{}};
-  renderStepBar();
-  renderPanel();
-  updateScene();
-}
-
-function completeStep(idx){
-  state.completed.push(idx);
-  state.step = idx + 1;
-  renderStepBar();
-  renderPanel();
-  updateScene();
-}
-
-// ===========================
-// THREE.JS 3D SCENE
-// ===========================
-var scene, camera, renderer, sceneObjects = {};
-
-function initThreeJS(){
-  var canvas = document.getElementById('three-canvas');
-  var wrap = document.getElementById('sceneWrap');
-
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0f172a);
-  scene.fog = new THREE.Fog(0x0f172a, 8, 20);
-
-  camera = new THREE.PerspectiveCamera(45, wrap.clientWidth / wrap.clientHeight, 0.1, 100);
-  camera.position.set(0, 3, 6);
-  camera.lookAt(0, 0.5, 0);
-
-  renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
-  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-  // Lighting
-  var ambientLight = new THREE.AmbientLight(0x404060, 0.6);
-  scene.add(ambientLight);
-
-  var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  dirLight.position.set(3, 5, 4);
-  dirLight.castShadow = true;
-  dirLight.shadow.mapSize.width = 1024;
-  dirLight.shadow.mapSize.height = 1024;
-  scene.add(dirLight);
-
-  var pointLight = new THREE.PointLight(0x3b82f6, 0.4, 10);
-  pointLight.position.set(-2, 3, 2);
-  scene.add(pointLight);
-
-  // Ground / Desk
-  var deskGeo = new THREE.BoxGeometry(6, 0.15, 3);
-  var deskMat = new THREE.MeshStandardMaterial({color: 0x2d3748, roughness: 0.7});
-  var desk = new THREE.Mesh(deskGeo, deskMat);
-  desk.position.y = -0.075;
-  desk.receiveShadow = true;
-  scene.add(desk);
-  sceneObjects.desk = desk;
-
-  // Grid on desk
-  var gridHelper = new THREE.GridHelper(6, 12, 0x334155, 0x1e293b);
-  gridHelper.position.y = 0.01;
-  scene.add(gridHelper);
-
-  // Build equipment models
-  buildFusionSplicer();
-  buildCleaver();
-  buildStripper();
-  buildFiber();
-  buildHeatShrink();
-  buildFiberCables();
-
-  // Mouse interaction for rotation
-  var isDragging = false;
-  var prevMouse = {x: 0, y: 0};
-  var rotTarget = {x: 0, y: 0};
-
-  canvas.addEventListener('mousedown', function(e){
-    isDragging = true;
-    prevMouse = {x: e.clientX, y: e.clientY};
-  });
-  canvas.addEventListener('mousemove', function(e){
-    if(!isDragging) return;
-    var dx = e.clientX - prevMouse.x;
-    var dy = e.clientY - prevMouse.y;
-    rotTarget.y += dx * 0.005;
-    rotTarget.x += dy * 0.005;
-    rotTarget.x = Math.max(-1, Math.min(1, rotTarget.x));
-    prevMouse = {x: e.clientX, y: e.clientY};
-  });
-  canvas.addEventListener('mouseup', function(){ isDragging = false; });
-  canvas.addEventListener('mouseleave', function(){ isDragging = false; });
-  canvas.addEventListener('wheel', function(e){
-    camera.position.z += e.deltaY * 0.005;
-    camera.position.z = Math.max(3, Math.min(10, camera.position.z));
-  });
-
-  // Animate
-  function animate(){
-    requestAnimationFrame(animate);
-    // Smooth camera rotation
-    var targetX = 3 * Math.cos(rotTarget.y) * Math.sin(Math.PI/4 - rotTarget.x);
-    var targetY = 3 * Math.sin(Math.PI/4 - rotTarget.x);
-    var targetZ = 3 * Math.sin(rotTarget.y) * Math.sin(Math.PI/4 - rotTarget.x);
-    camera.position.x += (targetX - camera.position.x + 0) * 0.05;
-    camera.position.y += (targetY - camera.position.y + 0.5) * 0.05;
-    camera.position.z += (targetZ - camera.position.z + 6) * 0.05;
-    camera.lookAt(0, 0.5, 0);
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  // Resize
-  window.addEventListener('resize', function(){
-    camera.aspect = wrap.clientWidth / wrap.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  });
-}
-
-function buildFusionSplicer(){
-  var group = new THREE.Group();
-  // Main body
-  var bodyGeo = new THREE.BoxGeometry(1.8, 0.5, 1.2);
-  var bodyMat = new THREE.MeshStandardMaterial({color: 0x4a5568, roughness: 0.5});
-  var body = new THREE.Mesh(bodyGeo, bodyMat);
-  body.castShadow = true;
-  group.add(body);
-
-  // Screen
-  var screenGeo = new THREE.BoxGeometry(1.2, 0.35, 0.05);
-  var screenMat = new THREE.MeshStandardMaterial({color: 0x0a1628, roughness: 0.2});
-  var screen = new THREE.Mesh(screenGeo, screenMat);
-  screen.position.set(0, 0.42, -0.3);
-  screen.rotation.x = -0.3;
-  group.add(screen);
-
-  // Screen glow
-  var glowGeo = new THREE.BoxGeometry(1.1, 0.3, 0.01);
-  var glowMat = new THREE.MeshBasicMaterial({color: 0x10b981});
-  var glow = new THREE.Mesh(glowGeo, glowMat);
-  glow.position.set(0, 0.42, -0.27);
-  glow.rotation.x = -0.3;
-  group.add(glow);
-  sceneObjects.screen = glow;
-
-  // Wind cover (lid)
-  var lidGeo = new THREE.BoxGeometry(1.0, 0.1, 0.5);
-  var lidMat = new THREE.MeshStandardMaterial({color: 0x718096, roughness: 0.4});
-  var lid = new THREE.Mesh(lidGeo, lidMat);
-  lid.position.set(0, 0.3, 0.3);
-  lid.castShadow = true;
-  group.add(lid);
-  sceneObjects.lid = lid;
-
-  // Electrode indicators
-  var elGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.3);
-  var elMat = new THREE.MeshStandardMaterial({color: 0x94a3b8, metalness: 0.8});
-  var el1 = new THREE.Mesh(elGeo, elMat);
-  el1.position.set(-0.1, 0.3, 0.3);
-  group.add(el1);
-  var el2 = new THREE.Mesh(elGeo, elMat);
-  el2.position.set(0.1, 0.3, 0.3);
-  group.add(el2);
-
-  // Buttons
-  var btnGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.03, 16);
-  var btnColors = [0x10b981, 0x3b82f6, 0xf59e0b, 0xef4444];
-  for(var i = 0; i < 4; i++){
-    var btnMat = new THREE.MeshStandardMaterial({color: btnColors[i], roughness: 0.3});
-    var btn = new THREE.Mesh(btnGeo, btnMat);
-    btn.rotation.x = Math.PI/2;
-    btn.position.set(-0.6 + i*0.15, 0.26, -0.45);
-    group.add(btn);
-  }
-
-  // Heating slot
-  var slotGeo = new THREE.BoxGeometry(0.8, 0.08, 0.2);
-  var slotMat = new THREE.MeshStandardMaterial({color: 0x2d3748, roughness: 0.6});
-  var slot = new THREE.Mesh(slotGeo, slotMat);
-  slot.position.set(0, 0.25, 0.55);
-  group.add(slot);
-
-  group.position.set(0.5, 0.08, -0.2);
-  scene.add(group);
-  sceneObjects.splicer = group;
-}
-
-function buildCleaver(){
-  var group = new THREE.Group();
-  // Base
-  var baseGeo = new THREE.BoxGeometry(0.8, 0.2, 0.5);
-  var baseMat = new THREE.MeshStandardMaterial({color: 0x4a5568, roughness: 0.5});
-  var base = new THREE.Mesh(baseGeo, baseMat);
-  base.castShadow = true;
-  group.add(base);
-
-  // Blade slider
-  var sliderGeo = new THREE.BoxGeometry(0.6, 0.08, 0.15);
-  var sliderMat = new THREE.MeshStandardMaterial({color: 0x94a3b8, metalness: 0.6});
-  var slider = new THREE.Mesh(sliderGeo, sliderMat);
-  slider.position.set(0, 0.14, 0);
-  group.add(slider);
-  sceneObjects.bladeSlider = slider;
-
-  // Cover
-  var coverGeo = new THREE.BoxGeometry(0.7, 0.06, 0.4);
-  var coverMat = new THREE.MeshStandardMaterial({color: 0x718096, roughness: 0.4});
-  var cover = new THREE.Mesh(coverGeo, coverMat);
-  cover.position.set(0, 0.13, 0);
-  group.add(cover);
-
-  group.position.set(-1.5, 0.1, 0.5);
-  scene.add(group);
-  sceneObjects.cleaver = group;
-}
-
-function buildStripper(){
-  var group = new THREE.Group();
-  // Handle
-  var handleGeo = new THREE.BoxGeometry(0.08, 0.15, 0.6);
-  var handleMat = new THREE.MeshStandardMaterial({color: 0xef4444, roughness: 0.5});
-  var h1 = new THREE.Mesh(handleGeo, handleMat);
-  h1.position.set(-0.06, 0.08, 0);
-  group.add(h1);
-  var h2 = new THREE.Mesh(handleGeo, handleMat);
-  h2.position.set(0.06, 0.08, 0);
-  group.add(h2);
-
-  // Jaw
-  var jawGeo = new THREE.BoxGeometry(0.12, 0.04, 0.15);
-  var jawMat = new THREE.MeshStandardMaterial({color: 0x4a5568, metalness: 0.7});
-  var jaw = new THREE.Mesh(jawGeo, jawMat);
-  jaw.position.set(0, 0.16, 0);
-  group.add(jaw);
-
-  group.position.set(-1.5, 0.1, -0.5);
-  scene.add(group);
-  sceneObjects.stripper = group;
-}
-
-function buildFiber(){
-  var group = new THREE.Group();
-  // Fiber coating (blue)
-  var coatGeo = new THREE.CylinderGeometry(0.015, 0.015, 3, 8);
-  var coatMat = new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.3});
-  var coat = new THREE.Mesh(coatGeo, coatMat);
-  coat.rotation.z = Math.PI/2;
-  group.add(coat);
-  sceneObjects.fiberCoat = coat;
-
-  // Bare fiber (gold)
-  var bareGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.8, 8);
-  var bareMat = new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.1, metalness: 0.5});
-  var bare = new THREE.Mesh(bareGeo, bareMat);
-  bare.rotation.z = Math.PI/2;
-  bare.position.x = 1.9;
-  group.add(bare);
-  sceneObjects.bareFiber = bare;
-
-  group.position.set(0, 0.15, -0.3);
-  scene.add(group);
-  sceneObjects.fiber = group;
-}
-
-function buildHeatShrink(){
-  var group = new THREE.Group();
-  var tubeGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.6, 8);
-  var tubeMat = new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.4, transparent: true, opacity: 0.5});
-  var tube = new THREE.Mesh(tubeGeo, tubeMat);
-  tube.rotation.z = Math.PI/2;
-  group.add(tube);
-  sceneObjects.heatTube = tube;
-
-  group.position.set(0, 0.5, 0.3);
-  group.visible = false;
-  scene.add(group);
-  sceneObjects.heatShrink = group;
-}
-
-function buildFiberCables(){
-  // Fiber spool/reel on the desk
-  var spoolGroup = new THREE.Group();
-  // Spool core
-  var coreGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 16);
-  var coreMat = new THREE.MeshStandardMaterial({color: 0x4a5568, roughness: 0.4});
-  var core = new THREE.Mesh(coreGeo, coreMat);
-  core.rotation.z = Math.PI/2;
-  spoolGroup.add(core);
-  // Spool flanges
-  var flangeGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.03, 16);
-  var flangeMat = new THREE.MeshStandardMaterial({color: 0x718096, roughness: 0.5});
-  var flange1 = new THREE.Mesh(flangeGeo, flangeMat);
-  flange1.rotation.z = Math.PI/2;
-  flange1.position.x = 0.25;
-  spoolGroup.add(flange1);
-  var flange2 = new THREE.Mesh(flangeGeo, flangeMat);
-  flange2.rotation.z = Math.PI/2;
-  flange2.position.x = -0.25;
-  spoolGroup.add(flange2);
-  // Wound fiber on spool (torus)
-  var woundGeo = new THREE.TorusGeometry(0.14, 0.04, 8, 24);
-  var woundMat = new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.3});
-  var wound = new THREE.Mesh(woundGeo, woundMat);
-  wound.rotation.y = Math.PI/2;
-  spoolGroup.add(wound);
-  spoolGroup.position.set(-2.2, 0.22, -0.8);
-  spoolGroup.castShadow = true;
-  scene.add(spoolGroup);
-  sceneObjects.fiberSpool = spoolGroup;
-
-  // Additional fiber cables laid across the desk
-  // Cable 1: yellow jacket fiber cable (left side, coiled)
-  var cableGroup1 = new THREE.Group();
-  var cablePath1 = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-2.5, 0.08, 0),
-    new THREE.Vector3(-2.0, 0.08, 0.2),
-    new THREE.Vector3(-1.5, 0.08, 0.1),
-    new THREE.Vector3(-1.0, 0.08, 0.3),
-    new THREE.Vector3(-0.5, 0.08, 0.15),
-  ]);
-  var cableGeo1 = new THREE.TubeGeometry(cablePath1, 40, 0.03, 8, false);
-  var cableMat1 = new THREE.MeshStandardMaterial({color: 0xeab308, roughness: 0.5});
-  var cable1 = new THREE.Mesh(cableGeo1, cableMat1);
-  cable1.castShadow = true;
-  cableGroup1.add(cable1);
-  // Inner fiber visible at end
-  var innerPath1 = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-0.5, 0.08, 0.15),
-    new THREE.Vector3(-0.2, 0.08, 0.1),
-    new THREE.Vector3(0.0, 0.08, 0.0),
-  ]);
-  var innerGeo1 = new THREE.TubeGeometry(innerPath1, 20, 0.01, 8, false);
-  var innerMat1 = new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.2, metalness: 0.3});
-  var inner1 = new THREE.Mesh(innerGeo1, innerMat1);
-  cableGroup1.add(inner1);
-  scene.add(cableGroup1);
-  sceneObjects.cable1 = cableGroup1;
-
-  // Cable 2: another fiber on the right side
-  var cableGroup2 = new THREE.Group();
-  var cablePath2 = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(2.5, 0.08, -0.3),
-    new THREE.Vector3(2.0, 0.08, -0.1),
-    new THREE.Vector3(1.5, 0.08, 0.1),
-    new THREE.Vector3(1.2, 0.08, 0.0),
-  ]);
-  var cableGeo2 = new THREE.TubeGeometry(cablePath2, 30, 0.03, 8, false);
-  var cableMat2 = new THREE.MeshStandardMaterial({color: 0xeab308, roughness: 0.5});
-  var cable2 = new THREE.Mesh(cableGeo2, cableMat2);
-  cable2.castShadow = true;
-  cableGroup2.add(cable2);
-  // Bare fiber at end
-  var innerPath2 = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(1.2, 0.08, 0.0),
-    new THREE.Vector3(1.0, 0.08, -0.1),
-    new THREE.Vector3(0.8, 0.08, -0.05),
-  ]);
-  var innerGeo2 = new THREE.TubeGeometry(innerPath2, 20, 0.01, 8, false);
-  var innerMat2 = new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.2, metalness: 0.3});
-  var inner2 = new THREE.Mesh(innerGeo2, innerMat2);
-  cableGroup2.add(inner2);
-  scene.add(cableGroup2);
-  sceneObjects.cable2 = cableGroup2;
-
-  // Alcohol bottle model
-  var bottleGroup = new THREE.Group();
-  var bottleBodyGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.25, 12);
-  var bottleBodyMat = new THREE.MeshStandardMaterial({color: 0x93c5fd, roughness: 0.2, transparent: true, opacity: 0.6});
-  var bottleBody = new THREE.Mesh(bottleBodyGeo, bottleBodyMat);
-  bottleGroup.add(bottleBody);
-  var capGeo = new THREE.CylinderGeometry(0.03, 0.04, 0.05, 12);
-  var capMat = new THREE.MeshStandardMaterial({color: 0x3b82f6, roughness: 0.4});
-  var cap = new THREE.Mesh(capGeo, capMat);
-  cap.position.y = 0.15;
-  bottleGroup.add(cap);
-  // Label
-  var labelGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.1, 12, 1, true);
-  var labelMat = new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6, side: THREE.DoubleSide});
-  var label = new THREE.Mesh(labelGeo, labelMat);
-  label.position.y = 0.03;
-  bottleGroup.add(label);
-  bottleGroup.position.set(1.8, 0.2, 0.7);
-  bottleGroup.castShadow = true;
-  scene.add(bottleGroup);
-  sceneObjects.alcoholBottle = bottleGroup;
-
-  // Cleaning tissue (flat white rectangle on desk)
-  var tissueGeo = new THREE.BoxGeometry(0.25, 0.01, 0.15);
-  var tissueMat = new THREE.MeshStandardMaterial({color: 0xf1f5f9, roughness: 0.8});
-  var tissue = new THREE.Mesh(tissueGeo, tissueMat);
-  tissue.position.set(1.5, 0.01, 0.8);
-  tissue.rotation.y = 0.3;
-  scene.add(tissue);
-  sceneObjects.tissue = tissue;
-}
-
-function updateScene(){
-  var step = state.step;
-  // Reset visibility
-  if(sceneObjects.splicer) sceneObjects.splicer.visible = true;
-  if(sceneObjects.cleaver) sceneObjects.cleaver.visible = true;
-  if(sceneObjects.stripper) sceneObjects.stripper.visible = true;
-  if(sceneObjects.fiber) sceneObjects.fiber.visible = true;
-  if(sceneObjects.heatShrink) sceneObjects.heatShrink.visible = false;
-  if(sceneObjects.fiberSpool) sceneObjects.fiberSpool.visible = true;
-  if(sceneObjects.cable1) sceneObjects.cable1.visible = true;
-  if(sceneObjects.cable2) sceneObjects.cable2.visible = true;
-  if(sceneObjects.alcoholBottle) sceneObjects.alcoholBottle.visible = true;
-  if(sceneObjects.tissue) sceneObjects.tissue.visible = true;
-
-  // Highlight current step equipment
-  if(sceneObjects.splicer){
-    sceneObjects.splicer.position.y = 0.08;
-    sceneObjects.splicer.children.forEach(function(c){
-      if(c.material && c.material.emissive) c.material.emissive.setHex(0x000000);
-    });
-  }
-
-  switch(step){
-    case 0: // Tool prep - show all
-      break;
-    case 1: // Stripping - highlight stripper
-      if(sceneObjects.stripper){
-        sceneObjects.stripper.position.y = 0.15;
-      }
-      break;
-    case 2: // Cleaning - fiber prominent
-      if(sceneObjects.fiber) sceneObjects.fiber.position.y = 0.25;
-      break;
-    case 3: // Cutting - highlight cleaver
-      if(sceneObjects.cleaver) sceneObjects.cleaver.position.y = 0.18;
-      break;
-    case 4: // Heat shrink tube
-      if(sceneObjects.heatShrink) {
-        sceneObjects.heatShrink.visible = true;
-        sceneObjects.heatShrink.position.y = 0.15;
-      }
-      break;
-    case 5: // Splicing - highlight machine
-      if(sceneObjects.splicer){
-        sceneObjects.splicer.position.y = 0.1;
-        if(sceneObjects.screen){
-          sceneObjects.screen.material.emissive.setHex(0x10b981);
-          sceneObjects.screen.material.emissiveIntensity = 0.3;
-        }
-      }
-      break;
-    case 6: // Heating
-      if(sceneObjects.heatShrink){
-        sceneObjects.heatShrink.visible = true;
-        sceneObjects.heatShrink.position.y = 0.3;
-      }
-      break;
-    case 7: // Inspection
-      break;
-  }
-}
-
-// ===========================
-// INIT
-// ===========================
-window.addEventListener('DOMContentLoaded', function(){
-  renderStepBar();
-  renderPanel();
-  initThreeJS();
-  updateScene();
+window.addEventListener('error',function(e){
+ if(!__booted)__fatal((e&&e.message)||'script error');
 });
+/* ============================================================
+ * CHUNK B · 3D场景（全程序化建模，零素材）
+ * ============================================================ */
+var scene,camera,renderer,canvasEl,wrapEl,_clock=null;
+var ANCH={},labelDefs=[],tweens=[];
+var SP={},CT={},TL={},FIB3D=[],WASTES=[];
+var rig={yaw:0.5,pitch:0.95,dist:8.4,tx:0,ty:0.45,tz:0,gyaw:0.5,gpitch:0.95,gdist:8.4,gtx:0,gty:0.45,gtz:0,shake:0};
+var CAM={
+ wide:   {yaw:0.5, pitch:0.95,dist:8.4,tx:0,   ty:0.45,tz:0},
+ fiber1: {yaw:0.18,pitch:0.82,dist:3.0, tx:-1.5,ty:0.25,tz:1.75},
+ fiber2: {yaw:0.18,pitch:0.82,dist:3.0, tx:-1.5,ty:0.25,tz:2.1},
+ cleave: {yaw:-0.55,pitch:0.95,dist:2.6,tx:-2.2,ty:0.3, tz:-0.3},
+ splicer:{yaw:0.4, pitch:0.8, dist:3.5, tx:0,   ty:0.4, tz:-0.9},
+ splice: {yaw:0.12,pitch:1.02,dist:2.5, tx:0,   ty:0.5, tz:-0.85},
+ oven:   {yaw:0.95,pitch:0.85,dist:2.9, tx:1.0, ty:0.4, tz:-0.9},
+ macro:  {yaw:0.1, pitch:0.75,dist:1.5, tx:0,   ty:0.35,tz:0.9}
+};
+function camTo(name){var c=CAM[name]||CAM.wide;rig.gyaw=c.yaw;rig.gpitch=c.pitch;rig.gdist=c.dist;rig.gtx=c.tx;rig.gty=c.ty;rig.gtz=c.tz}
+function tw(dur,fn,done,ease){tweens.push({t:0,dur:dur,fn:fn,done:done,ease:ease||function(k){return k<0.5?2*k*k:1-Math.pow(-2*k+2,2)/2}})}
+function moveTo(obj,x,y,z,dur,done){var f={x:obj.position.x,y:obj.position.y,z:obj.position.z};tw(dur,function(k){obj.position.set(lerp(f.x,x,k),lerp(f.y,y,k),lerp(f.z,z,k))},done)}
+function rotTo(obj,axis,val,dur,done){var f=obj.rotation[axis];tw(dur,function(k){obj.rotation[axis]=lerp(f,val,k)},done)}
+
+function mat(c,o){o=o||{};var m=new THREE.MeshStandardMaterial({color:c,roughness:o.r!==undefined?o.r:0.55,metalness:o.m!==undefined?o.m:0.2});
+ if(o.t){m.transparent=true;m.opacity=(o.op!==undefined?o.op:0.4)}
+ if(o.e){m.emissive=new THREE.Color(o.e);m.emissiveIntensity=o.ei||1}
+ return m}
+function box(w,h,d,c,o){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c,o));m.castShadow=true;m.receiveShadow=true;return m}
+function cyl(rt,rb,h,c,o,seg){var m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||14),mat(c,o));m.castShadow=true;return m}
+function reg(mesh,act){
+ mesh.userData.act=act;ANCH[act]=mesh;
+ if(mesh.material&&mesh.material.emissive){mesh.userData._ee=mesh.material.emissive.getHex();mesh.userData._ei=mesh.material.emissiveIntensity}
+ return mesh}
+
+/* ---------- 藤仓88S 熔接机 ---------- */
+function buildSplicer(){
+ var g=new THREE.Group();g.position.set(0,0,-0.9);scene.add(g);SP.grp=g;
+ var base=box(1.75,0.52,1.55,0x23272e,{r:0.5,m:0.35});base.position.y=0.26;g.add(base);
+ var plate=box(1.68,0.07,1.48,0x9aa2ab,{r:0.32,m:0.7});plate.position.y=0.555;g.add(plate);
+ var wa=box(0.62,0.05,0.16,0x1b1f26,{r:0.4,m:0.3});wa.position.set(0,0.6,0.05);g.add(wa);
+ var gl1=box(0.24,0.012,0.02,0x0b0d12);gl1.position.set(-0.18,0.632,0.05);g.add(gl1);
+ var gl2=box(0.24,0.012,0.02,0x0b0d12);gl2.position.set(0.18,0.632,0.05);g.add(gl2);
+ // 电极对
+ var eh1=box(0.05,0.1,0.06,0x555c66,{m:0.8,r:0.3});eh1.position.set(-0.075,0.66,-0.06);g.add(eh1);
+ var eh2=box(0.05,0.1,0.06,0x555c66,{m:0.8,r:0.3});eh2.position.set(0.075,0.66,-0.06);g.add(eh2);
+ var e1=cyl(0.004,0.013,0.075,0xd8dee6,{m:0.9,r:0.25});e1.rotation.z=Math.PI/2;e1.position.set(-0.033,0.685,-0.06);g.add(e1);
+ var e2=cyl(0.013,0.004,0.075,0xd8dee6,{m:0.9,r:0.25});e2.rotation.z=-Math.PI/2;e2.position.set(0.033,0.685,-0.06);g.add(e2);
+ SP.elecL=e1;SP.elecR=e2;SP.arcLight=new THREE.PointLight(0x9fd0ff,0,1.4);SP.arcLight.position.set(0,0.78,-0.06);g.add(SP.arcLight);
+ // 压板
+ function mkClamp(x){
+  var p=new THREE.Group();p.position.set(x,0.645,0.2);
+  var arm=box(0.13,0.025,0.22,0x3a4150,{m:0.7,r:0.35});arm.position.set(0,0.02,-0.11);p.add(arm);
+  var pad=box(0.1,0.02,0.12,0x22262c,{m:0.5,r:0.5});pad.position.set(0,0.006,-0.13);p.add(pad);
+  var knob=cyl(0.022,0.022,0.035,0xc0c7cf,{m:0.85,r:0.3});knob.position.set(0,0.05,-0.16);p.add(knob);
+  p.rotation.x=0.72;g.add(p);return p}
+ SP.clampL=mkClamp(-0.18);SP.clampR=mkClamp(0.18);
+ reg(SP.clampL.children[1],'clampL');reg(SP.clampR.children[1],'clampR');
+ // 防风罩（透明PC盖，铰链后缘）
+ var wsp=new THREE.Group();wsp.position.set(0,0.72,-0.55);
+ var shieldM=new THREE.MeshPhysicalMaterial({color:0xcfe0e8,transparent:true,opacity:0.26,roughness:0.06,metalness:0,transmission:0.72});
+ var shield=new THREE.Mesh(new THREE.BoxGeometry(1.52,0.018,1.05),shieldM);shield.position.set(0,0,0.52);shield.castShadow=false;
+ var fr1=box(1.52,0.032,0.032,0x2a3038,{m:0.7,r:0.3});fr1.position.set(0,0,1.04);
+ var fr2=box(0.032,0.032,1.05,0x2a3038,{m:0.7,r:0.3});fr2.position.set(-0.76,0,0.52);
+ var fr3=fr2.clone();fr3.position.x=0.76;
+ var lift=box(0.18,0.05,0.07,0xc0c7cf,{m:0.8,r:0.3});lift.position.set(0,0.05,1.0);
+ wsp.add(shield);wsp.add(fr1);wsp.add(fr2);wsp.add(fr3);wsp.add(lift);
+ wsp.rotation.x=-1.92;g.add(wsp);SP.shield=wsp;reg(lift,'shield');
+ // 屏幕（常开约110°，CanvasTexture显示）
+ var ssp=new THREE.Group();ssp.position.set(0,0.58,-0.84);ssp.rotation.x=-0.34;
+ var bez=box(0.94,0.62,0.05,0x1a1e24,{r:0.4,m:0.4});bez.position.y=0.31;ssp.add(bez);
+ var scn=document.createElement('canvas');scn.width=256;scn.height=160;SP.scrCtx=scn.getContext('2d');
+ SP.scrTex=new THREE.CanvasTexture(scn);
+ var scr=new THREE.Mesh(new THREE.PlaneGeometry(0.82,0.52),new THREE.MeshBasicMaterial({map:SP.scrTex}));
+ scr.position.set(0,0.31,0.03);ssp.add(scr);
+ g.add(ssp);
+ // 电源键+指示灯
+ var pk=cyl(0.05,0.05,0.035,0x11141a,{r:0.4,m:0.3});pk.rotation.x=Math.PI/2;pk.position.set(-0.72,0.3,0.79);g.add(pk);reg(pk,'powerKey');
+ var lamp=cyl(0.02,0.02,0.014,0x0e1116,{e:0x22c55e,ei:0});lamp.rotation.x=Math.PI/2;lamp.position.set(-0.72,0.42,0.79);g.add(lamp);SP.lamp=lamp;
+ // 加热炉（右侧）
+ var ovb=box(0.42,0.34,0.6,0x2b3038,{r:0.5,m:0.3});ovb.position.set(1.12,0.17,0);g.add(ovb);
+ var slot=box(0.3,0.05,0.42,0x05070b);slot.position.set(1.12,0.3,0.02);g.add(slot);
+ var odp=new THREE.Group();odp.position.set(1.12,0.315,0.24);
+ var door=box(0.34,0.018,0.5,0x3a4150,{m:0.7,r:0.35});door.position.set(0,0,-0.22);odp.add(door);
+ odp.rotation.x=-1.4;g.add(odp);SP.ovDoor=odp;reg(door,'ovenDoor');
+ var glow=new THREE.Mesh(new THREE.PlaneGeometry(0.26,0.38),new THREE.MeshBasicMaterial({color:0xff7a2a,transparent:true,opacity:0}));
+ glow.rotation.x=-Math.PI/2;glow.position.set(1.12,0.33,0);g.add(glow);SP.glow=glow;
+ SP.ovLight=new THREE.PointLight(0xff8c3a,0,1.8);SP.ovLight.position.set(1.12,0.55,0);g.add(SP.ovLight);
+ // 熔接点锚
+ SP.joint=new THREE.Object3D();SP.joint.position.set(0,0.705,0.05);g.add(SP.joint);
+ SP.slotL=new THREE.Object3D();SP.slotL.position.set(-0.18,0.71,0.05);g.add(SP.slotL);
+ SP.slotR=new THREE.Object3D();SP.slotR.position.set(0.18,0.71,0.05);g.add(SP.slotR);
+}
+
+/* ---------- 藤仓CT50 切割刀 ---------- */
+function buildCleaver(){
+ var g=new THREE.Group();g.position.set(-2.2,0,-0.3);g.rotation.y=-0.3;scene.add(g);CT.grp=g;
+ var base=box(1.4,0.24,0.9,0x39404d,{r:0.45,m:0.3});base.position.y=0.12;g.add(base);
+ var plate=box(1.34,0.05,0.85,0x9aa2ac,{r:0.28,m:0.75});plate.position.y=0.265;g.add(plate);
+ // 夹持机构（前）
+ var fcp=new THREE.Group();fcp.position.set(0,0.3,0.26);
+ var fc=box(0.55,0.05,0.15,0x22262c,{m:0.6,r:0.4});fc.position.set(0,0.025,-0.05);fcp.add(fc);
+ fcp.rotation.x=0.8;g.add(fcp);CT.clamp=fcp;reg(fc,'ctClamp');
+ // 刀盖
+ var lp=new THREE.Group();lp.position.set(0,0.29,-0.28);
+ var lid=box(1.2,0.09,0.5,0x2f3542,{r:0.4,m:0.35});lid.position.set(0,0.03,0.22);lp.add(lid);
+ lp.rotation.x=-1.3;g.add(lp);CT.lid=lp;reg(lid,'ctLid');
+ // 压柄
+ var hp=new THREE.Group();hp.position.set(0,0.4,-0.34);
+ var arm=box(1.05,0.05,0.14,0x8f97a1,{m:0.75,r:0.3});arm.position.set(0,0.045,0.42);hp.add(arm);
+ var grip=box(1.12,0.06,0.075,0xc7ced6,{m:0.8,r:0.25});grip.position.set(0,0.045,0.92);hp.add(grip);
+ hp.rotation.x=-0.5;g.add(hp);CT.handle=hp;reg(grip,'ctHandle');
+ // 废料盒
+ var bin=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.14,0.5),mat(0x141922,{t:1,op:0.55,r:0.3}));bin.position.set(0.84,0.32,0.05);g.add(bin);
+ CT.bin=new THREE.Object3D();CT.bin.position.set(0.84,0.36,0.05);g.add(CT.bin);
+ var bl=box(0.9,0.012,0.025,0x0a0c10);bl.position.set(0,0.295,0.0);g.add(bl);
+ // 切割光纤锚位（刀片上方）
+ CT.fiberPose=new THREE.Object3D();CT.fiberPose.position.set(-0.12,0.36,-0.02);CT.fiberPose.rotation.y=0;g.add(CT.fiberPose);
+}
+
+/* ---------- 工具 ---------- */
+function buildTools(){
+ // 米勒钳
+ var pg=new THREE.Group();pg.position.set(-3.4,0,0.9);pg.rotation.y=0.55;scene.add(pg);
+ var h1=box(0.55,0.05,0.09,0xd9a521,{r:0.5,m:0.2});h1.position.set(0.22,0.05,0.05);pg.add(h1);
+ var h2=box(0.55,0.05,0.09,0xd9a521,{r:0.5,m:0.2});h2.position.set(0.22,0.05,-0.05);pg.add(h2);
+ var head=box(0.2,0.13,0.14,0x22262c,{m:0.6,r:0.4});head.position.set(-0.16,0.07,0);pg.add(head);
+ reg(head,'pliers');TL.pliers=pg;
+ // 酒精喷壶
+ var bg=new THREE.Group();bg.position.set(-2.65,0,1.55);scene.add(bg);
+ var body=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.115,0.34,14),mat(0xe8f2f6,{t:1,op:0.5,r:0.15}));body.position.y=0.17;body.castShadow=true;bg.add(body);
+ var cap=cyl(0.035,0.035,0.11,0x2a6fb0,{r:0.3,m:0.5});cap.position.y=0.39;bg.add(cap);
+ var noz=cyl(0.014,0.014,0.09,0x2a6fb0,{r:0.3,m:0.5});noz.rotation.z=0.6;noz.position.set(0.045,0.46,0);bg.add(noz);
+ reg(body,'bottle');
+ // 无尘纸
+ var paper=box(0.26,0.01,0.2,0xf2f5f8,{r:0.85,m:0});paper.position.set(-2.05,0.03,1.65);scene.add(paper);reg(paper,'paper');
+ TL.paper=paper;TL.paperHome={x:-2.05,y:0.03,z:1.65};
+ // 热缩管架
+ var rg=new THREE.Group();rg.position.set(1.85,0,1.35);scene.add(rg);
+ var tray=box(0.75,0.04,0.26,0x2a3038);tray.position.y=0.02;rg.add(tray);
+ for(var i=0;i<3;i++){var tb=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.55,10,1,true),mat(0xf0c88f,{t:1,op:0.42,r:0.4}));tb.rotation.z=Math.PI/2;tb.position.set(0,0.1,-0.06+i*0.06);rg.add(tb)}
+ reg(rg.children[2],'tubePick');TL.tube=rg.children[2];
+ // 光纤搁架
+ var r1=box(0.55,0.05,0.15,0x232936);r1.position.set(-0.6,0.025,1.95);scene.add(r1);
+ var r2=box(0.55,0.05,0.15,0x232936);r2.position.set(-0.6,0.025,2.3);scene.add(r2);
+}
+
+/* ---------- 双光纤 ---------- */
+function makeFibers(){
+ for(var i=0;i<2;i++){
+  var g=new THREE.Group();
+  var glass=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,1,10),mat(0xcfe8ff,{t:1,op:0.62,r:0.1,m:0}));
+  glass.rotation.z=Math.PI/2;glass.castShadow=false;
+  var jacket=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,1,12),mat(0xdec27a,{t:1,op:0.88,r:0.55,m:0}));
+  jacket.rotation.z=Math.PI/2;
+  var tagc=(i===0)?0x3b82f6:0x10b981;
+  var tag=new THREE.Mesh(new THREE.TorusGeometry(0.08,0.02,8,20),mat(tagc,{e:tagc,ei:0.45}));
+  tag.rotation.y=Math.PI/2;tag.position.x=2.0;
+  g.add(glass);g.add(jacket);g.add(tag);
+  g.userData={glass:glass,jacket:jacket,tag:tag,idx:i,home:{x:-1.25,y:0.08,z:i===0?1.95:2.3,ry:0}};
+  reg(jacket,'fiber'+(i+1));
+  setBare(g,0.05);
+  g.position.set(-1.25,0.08,i===0?1.95:2.3);
+  scene.add(g);FIB3D.push(g);
+ }
+}
+function setBare(g,len){
+ var u=g.userData;
+ u.glass.scale.y=Math.max(0.001,len);u.glass.position.x=len/2;
+ var jl=Math.max(0.001,2.05-len-0.05);
+ u.jacket.scale.y=jl;u.jacket.position.x=len+0.05+jl/2;
+}
+function fiberHome(i){var h=FIB3D[i].userData.home;moveTo(FIB3D[i],h.x,h.y,h.z,0.7);rotYTo(FIB3D[i],h.ry,0.7)}
+function rotYTo(obj,val,dur,done){var f=obj.rotation.y;tw(dur,function(k){obj.rotation.y=lerp(f,val,k)},done)}
+function fiberToSlot(i){ // 0=左槽 1=右槽
+ var g=FIB3D[i];
+ var sp=SP.grp.position;
+ moveTo(g,sp.x+(i===0?-0.055:0.055),0.705,sp.z+0.05,0.8);
+ rotYTo(g,i===0?Math.PI:0,0.8);
+}
+
+/* ---------- 高亮标签 ---------- */
+function setElig(items){
+ for(var a in ANCH){if(ANCH[a].userData)ANCH[a].userData._pulse=false}
+ var layer=$('labelLayer');layer.innerHTML='';labelDefs=[];
+ ELIG={};
+ if(!items||!items.length)return;
+ for(var i=0;i<items.length;i++){
+  var it=items[i];ELIG[it.act]=it;
+  var m=ANCH[it.act];
+  if(m&&m.userData)m.userData._pulse=true;
+  if(it.label){
+   var el=document.createElement('div');el.className='obj-label';el.innerHTML=it.label;layer.appendChild(el);
+   labelDefs.push({act:it.act,obj:it.obj||m,el:el});
+  }
+ }
+}
+var ELIG={};
+var _v3=null;
+function updLabels(){
+ if(!_v3)_v3=new THREE.Vector3();
+ for(var i=0;i<labelDefs.length;i++){
+  var L=labelDefs[i];
+  if(!L.obj){L.el.style.display='none';continue}
+  L.obj.getWorldPosition(_v3);_v3.project(camera);
+  if(_v3.z<1&&Math.abs(_v3.x)<1.05&&Math.abs(_v3.y)<1.05){
+   L.el.style.display='block';
+   L.el.style.left=((_v3.x*0.5+0.5)*wrapEl.clientWidth)+'px';
+   L.el.style.top=((-_v3.y*0.5+0.5)*wrapEl.clientHeight)+'px';
+  }else L.el.style.display='none';
+ }
+}
+
+/* ---------- 渲染循环 ---------- */
+function applyRig(){
+ var cp=Math.cos(rig.pitch),sp=Math.sin(rig.pitch);
+ camera.position.set(rig.tx+rig.dist*cp*Math.sin(rig.yaw),rig.ty+rig.dist*sp,rig.tz+rig.dist*cp*Math.cos(rig.yaw));
+ if(rig.shake>0.001){camera.position.x+=rand(-1,1)*rig.shake;camera.position.y+=rand(-1,1)*rig.shake}
+ camera.lookAt(rig.tx,rig.ty,rig.tz);
+}
+function animate(){
+ requestAnimationFrame(animate);
+ var dt=Math.min(0.05,_clock.getDelta());
+ var t=_clock.elapsedTime;
+ for(var i=tweens.length-1;i>=0;i--){
+  var w=tweens[i];w.t+=dt;var k=clamp(w.t/w.dur,0,1);
+  try{w.fn(w.ease(k))}catch(e){}
+  if(k>=1){tweens.splice(i,1);if(w.done)try{w.done()}catch(e){}}
+ }
+ rig.yaw=lerp(rig.yaw,rig.gyaw,0.09);rig.pitch=lerp(rig.pitch,rig.gpitch,0.09);
+ rig.dist=lerp(rig.dist,rig.gdist,0.09);
+ rig.tx=lerp(rig.tx,rig.gtx,0.09);rig.ty=lerp(rig.ty,rig.gty,0.09);rig.tz=lerp(rig.tz,rig.gtz,0.09);
+ rig.shake*=0.86;
+ applyRig();
+ var pl=0.22+0.18*Math.sin(t*5.5);
+ for(var a in ANCH){
+  var m=ANCH[a];
+  if(!m.material||!m.material.emissive)continue;
+  if(m.userData._pulse){m.material.emissive.setHex(0x38bdf8);m.material.emissiveIntensity=pl}
+  else if(m.userData._ee!==undefined){m.material.emissive.setHex(m.userData._ee);m.material.emissiveIntensity=m.userData._ei}
+ }
+ updLabels();
+ if(SP.scrTex&&typeof SCR!=='undefined'&&SCR.dirty){drawScr3D()}
+ renderer.render(scene,camera);
+}
+
+/* ---------- 初始化 ---------- */
+function init3D(){
+ wrapEl=$('sceneWrap');canvasEl=$('three-canvas');
+ var r=null;
+ try{r=new THREE.WebGLRenderer({canvas:canvasEl,antialias:true})}catch(e){r=null}
+ if(!r){
+  var c2=document.createElement('canvas');c2.id='three-canvas';
+  canvasEl.parentNode.replaceChild(c2,canvasEl);canvasEl=c2;
+  r=new THREE.WebGLRenderer({canvas:c2,antialias:false});
+  r.setPixelRatio(1);
+ }
+ renderer=r;
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+ renderer.setSize(wrapEl.clientWidth,wrapEl.clientHeight);
+ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x0d1524);scene.fog=new THREE.Fog(0x0d1524,9,24);
+ camera=new THREE.PerspectiveCamera(46,wrapEl.clientWidth/wrapEl.clientHeight,0.05,60);
+ scene.add(new THREE.HemisphereLight(0x8fb4dd,0x141a26,0.9));
+ var dl=new THREE.DirectionalLight(0xfff1de,0.95);dl.position.set(3.5,6,4);dl.castShadow=true;
+ dl.shadow.mapSize.set(1024,1024);
+ dl.shadow.camera.left=-5;dl.shadow.camera.right=5;dl.shadow.camera.top=5;dl.shadow.camera.bottom=-5;dl.shadow.camera.far=20;dl.shadow.bias=-0.0015;
+ scene.add(dl);
+ var fl=new THREE.DirectionalLight(0x6fa0ff,0.22);fl.position.set(-4,3,-3);scene.add(fl);
+ var table=box(12.5,0.2,6.4,0x2c3440,{r:0.7,m:0.15});table.position.y=-0.1;table.castShadow=false;scene.add(table);
+ var edge=box(12.7,0.06,6.6,0x3a4452,{r:0.6,m:0.2});edge.position.y=-0.23;scene.add(edge);
+ buildSplicer();buildCleaver();buildTools();makeFibers();
+ _clock=new THREE.Clock();
+ window.addEventListener('resize',onResize);
+ animate();
+ __booted=true;
+}
+function onResize(){
+ if(!renderer||!wrapEl||!camera)return;
+ renderer.setSize(wrapEl.clientWidth,wrapEl.clientHeight);
+ camera.aspect=wrapEl.clientWidth/wrapEl.clientHeight;
+ camera.updateProjectionMatrix();
+}
+/* ============================================================
+ * CHUNK C · 12步面板 + 真机故障引擎
+ * ============================================================ */
+var PICK=null,DRAG={mode:null,fib:0};
+function setPT(n){
+ var s=STEPS[n-1],b='';
+ if(s.fiber===1)b=' <span class="badge b1">光纤①</span>';
+ if(s.fiber===2)b=' <span class="badge b2">光纤②</span>';
+ $('panelTitle').innerHTML='步骤 '+n+'/12：'+s.name+b;
+}
+function goal(t){return '<div class="goal">'+t+'</div>'}
+function fbEl(){return '<div class="fb" id="stepFb"></div>'}
+function fbSet(html,cls){var e=$('stepFb');if(e){e.innerHTML=html;e.className='fb show '+(cls||'')}}
+function btn(fn,txt,cls){return '<button class="btn '+(cls||'')+'" onclick="'+fn+'">'+txt+'</button>'}
+function hintB(key,title,lines){
+ return '<details class="hint-acc" ontoggle="if(this.open)hintOpen(\''+key+'\')"><summary>💡 '+title+'（扣3分）</summary><div>'+lines+'</div></details>'
+}
+function hintOpen(key){
+ if(!F.hints[key]){F.hints[key]=1;F.hintN++;updStats()}
+}
+function enterStep(n){
+ PICK=null;DRAG.mode=null;
+ var fn=window['panelStep_'+n];
+ if(fn)fn();
+ updStats();
+}
+/* ---------- S1 开机 ---------- */
+function panelStep_1(){
+ setPT(1);camTo('wide');
+ setElig([{act:'powerKey',label:'电源键'}]);
+ PICK=function(act){
+  if(act==='powerKey'&&!F.power){
+   F.power=true;AU.play('pop');
+   SP.lamp.material.emissiveIntensity=1;
+   scrShow();scrMsg('SELF TEST...','#8fd3ff');
+   setTimeout(function(){if(F.power)scrMsg('STAND BY','#9fe8b8');scrKeys()},1500);
+   fbSet('✅ 熔接机开机，屏幕自检完成','ok');
+   toast('开机完成，即将进入剥线','ok');
+   setTimeout(function(){goStep(2)},2100);
+  }
+ };
+ $('panelBody').innerHTML=
+  goal('开启熔接机电源，确认设备自检正常。')+
+  '<div class="act-list">'+
+  '<div class="act-item">① 点击 3D 画面中熔接机左侧的 <b>电源键</b></div>'+
+  '<div class="act-item">② 屏幕自检 → STAND BY 待机</div></div>'+
+  (MODE==='newbie'?hintB('s1','新手提示','真机88S开机后等待自检完成；检查电极针尖、V型槽是否洁净，防风罩开合是否顺滑。'):'')+
+  fbEl();
+}
+/* ---------- S2/S6 剥线 ---------- */
+function stripPanel(i){
+ setPT(i===1?2:6);camTo(i===1?'fiber1':'fiber2');
+ $('panelBody').innerHTML=
+  goal('用米勒钳剥除'+FNAME[i]+'涂覆层，露出裸纤 <b>30~45mm</b>。')+
+  '<div class="act-list">'+
+  '<div class="act-item">① 点击 <b>米勒钳</b>，钳口卡住光纤</div>'+
+  '<div class="act-item">② 按住钳子<b>向左拖动</b>，一次拉出</div>'+
+  '<div class="act-item">③ 松手完成</div></div>'+
+  '<div class="live-strip">裸纤长度：<b id="stripLen">--</b></div>'+
+  (MODE==='newbie'?hintB('strip'+i,'新手提示','钳口距末端约40mm卡入；<b>一次拉出，禁止来回拉锯</b>；太短夹持爪夹不住，太长裸纤易折断。'):'')+
+  fbEl();
+ setElig([{act:'fiber'+i},{act:'pliers',label:'米勒钳'}]);
+ PICK=function(act){if(act==='pliers')startStrip(i)};
+}
+function panelStep_2(){stripPanel(1)}
+function panelStep_6(){stripPanel(2)}
+function startStrip(i){
+ var fib=FIB3D[i-1],tip=fib.position;
+ toast('米勒钳就位','info',1400);
+ moveTo(TL.pliers,tip.x+0.68,0.15,tip.z,0.55,function(){
+  rotYTo(TL.pliers,0,0.25);
+  DRAG.mode='strip';DRAG.fib=i;DRAG.tipX=tip.x;DRAG.base=tip.x+0.68;DRAG.pull=0;
+  DRAG.bare0=Math.max(0.05,(fi(i).bareMM||0)/50);
+  fbSet('钳口已卡住光纤：按住钳子<b>向左拖动</b>剥出裸纤','info');
+ });
+}
+function commitStrip(i,pull){
+ DRAG.mode=null;
+ var f=fi(i),fib=FIB3D[i-1];
+ var mm=Math.round(pull*50);
+ f.bareMM=Math.min(50,(f.bareMM||0)+mm);
+ setBare(fib,Math.max(0.05,f.bareMM/50));
+ AU.play('zip');
+ moveTo(TL.pliers,-3.4,0,0.9,0.5);rotYTo(TL.pliers,0.55,0.5);
+ if(f.bareMM<25){
+  f.shortStrip=true;
+  addFault('strip-short'+i,FNAME[i]+'剥线仅'+f.bareMM+'mm');
+  fbSet('❌ 裸纤只有 <b>'+f.bareMM+'mm</b>，熔接机夹持爪会夹不住。重新点击<b>米勒钳</b>再剥一段。','err');
+  toast('剥线过短：'+f.bareMM+'mm','err');
+ }else{
+  var over=f.bareMM>45?'（略长，注意防折断）':'';
+  fbSet('✅ 剥线完成：裸纤 <b>'+f.bareMM+'mm</b>'+over+'。观察裸纤是否笔直、无裂痕。','ok');
+  toast('剥线完成 '+f.bareMM+'mm','ok');
+  setTimeout(function(){goStep(i===1?3:7)},1000);
+ }
+}
+/* ---------- S3/S7 清洁 ---------- */
+function wipePanel(i){
+ setPT(i===1?3:7);camTo(i===1?'fiber1':'fiber2');
+ $('panelBody').innerHTML=
+  goal('酒精浸润无尘纸，沿'+FNAME[i]+'裸纤<b>一揩到底，擦拭≥3次</b>。')+
+  '<div class="act-list">'+
+  '<div class="act-item">① 点击 <b>酒精壶</b> 浸润无尘纸</div>'+
+  '<div class="act-item">② 点击 <b>无尘纸</b> 夹起</div>'+
+  '<div class="act-item">③ 按住纸片<b>沿裸纤来回擦拭</b>（每次一揩到底）</div></div>'+
+  '<div class="live-strip">擦拭次数：<b id="wipeN">0</b> / 3</div>'+
+  (MODE==='newbie'?hintB('wipe'+i,'新手提示','擦一次换一面/换纸，脏纸反复擦等于没擦；擦拭质量好不好，熔接时屏幕影像见分晓。'):'')+
+  fbEl();
+ setElig([{act:'bottle',label:'酒精壶'},{act:'paper',label:'无尘纸'}]);
+ fi(i).strokes=0;
+ PICK=function(act){
+  if(act==='bottle'){TL.soaked=true;AU.play('pop');toast('无尘纸已浸润酒精','ok',1500);fbSet('✅ 纸已浸润酒精。点击<b>无尘纸</b>开始擦拭','info')}
+  else if(act==='paper'){
+   if(!TL.soaked){toast('先点击酒精壶浸润无尘纸','warn');return}
+   startWipe(i);
+  }
+ };
+}
+function panelStep_3(){wipePanel(1)}
+function panelStep_7(){wipePanel(2)}
+function startWipe(i){
+ var fib=FIB3D[i-1];
+ DRAG.mode='wipe';DRAG.fib=i;
+ DRAG.tipX=fib.position.x;DRAG.bare=Math.max(0.05,fi(i).bareMM/50);
+ DRAG.strokes=0;DRAG.dir=0;DRAG.trav=0;DRAG.lx=null;
+ fbSet('按住纸片沿裸纤<b>来回擦拭</b>，一揩到底','info');
+}
+function wipeStroke(){
+ var e=$('wipeN');if(e)e.textContent=DRAG.strokes;
+ fi(DRAG.fib).strokes=DRAG.strokes;
+ AU.play('pop');
+ if(DRAG.strokes>=3){
+  fbSet('✅ 擦拭 3 次完成，端面洁净度合格（最终以熔接机影像检测为准）','ok');
+  toast('清洁完成','ok');
+  DRAG.mode=null;
+  paperHome();
+  setTimeout(function(){goStep(DRAG.fib===1?4:8)},1000);
+ }
+}
+function paperHome(){moveTo(TL.paper,TL.paperHome.x,TL.paperHome.y,TL.paperHome.z,0.5)}
+/* ---------- S4/S8 切割 ---------- */
+function cutPanel(i){
+ setPT(i===1?4:8);camTo('cleave');
+ $('panelBody').innerHTML=
+  goal('将'+FNAME[i]+'放入CT50切割刀，压柄<b>快速下压到底</b>，切割出≤1°的平整端面。')+
+  '<div class="act-list">'+
+  '<div class="act-item">① 点击 <b>'+FNAME[i]+'</b> 放入切割刀夹持座</div>'+
+  '<div class="act-item">② <b>按住压柄向下压到底</b>（一次到位）</div></div>'+
+  '<div class="live-strip">端面角度：<b id="cutAngle">待切割后由熔接机检测</b></div>'+
+  (MODE==='newbie'?hintB('cut'+i,'新手提示','端面角度>1°真机会<b>拒绝熔接</b>，必须重切；切割刀压柄要快压到底，犹豫慢压会产生斜端面。'):'')+
+  fbEl();
+ setElig([{act:'fiber'+i,label:FNAME[i]}]);
+ PICK=function(act){
+  if(act==='fiber'+i){
+   fiberToCleave(i);
+   setTimeout(function(){
+    setElig([{act:'ctHandle',label:'压柄'}]);
+    fbSet('光纤已入座、夹持已压紧。按住<b>压柄</b>向下压到底','info');
+   },900);
+  }
+ };
+}
+function panelStep_4(){cutPanel(1)}
+function panelStep_8(){cutPanel(2)}
+function fiberToCleave(i){
+ var fib=FIB3D[i-1];
+ var gp=CT.grp.position,ry=CT.grp.rotation.y;
+ moveTo(fib,gp.x-0.12,0.37,gp.z-0.02,0.7);
+ rotYTo(fib,ry,0.7);
+ rotTo(CT.clamp,'x',0,0.3);
+ rotTo(CT.lid,'x',0,0.4);
+ AU.play('clamp');
+}
+function fireCleave(i){
+ DRAG.mode=null;DRAG.fired=true;
+ AU.play('cut');rig.shake=0.035;
+ var f=fi(i);
+ f.cleaveAngle=chance(0.3)?rand(1.2,2.6):rand(0.2,0.9);
+ f.cleaved=true;
+ f.stained=(f.strokes<3);
+ if(chance(0.18))f.debris=true;
+ spawnStub();
+ fbSet('✅ 切割完成，废纤头弹入废料盒。端面角度由熔接机影像检测（现在看不到）。','ok');
+ toast('端面切割完成','ok');
+ setTimeout(function(){
+  rotTo(CT.clamp,'x',0.8,0.3);
+  rotTo(CT.lid,'x',-1.3,0.35);
+  fiberHome(i-1);
+  setTimeout(function(){goStep(i===1?5:9)},800);
+ },700);
+}
+function spawnStub(){
+ var gp=CT.grp.position;
+ var stub=cyl(0.02,0.02,0.12,0xcfe8ff,{t:1,op:0.6,r:0.2});
+ stub.rotation.z=Math.PI/2;
+ stub.position.set(gp.x-0.1,0.42,gp.z-0.02);
+ scene.add(stub);
+ var from=stub.position.clone(),to=CT.bin.getWorldPosition(new THREE.Vector3());
+ tw(0.7,function(k){
+  stub.position.set(lerp(from.x,to.x,k),lerp(from.y,to.y,k)+Math.sin(k*Math.PI)*0.5,lerp(from.z,to.z,k));
+  stub.rotation.x=k*7;
+ },function(){scene.remove(stub);AU.play('pop')});
+}
+/* ---------- S5 套管入槽 ---------- */
+function panelStep_5(){
+ setPT(5);camTo('splicer');
+ $('panelBody').innerHTML=
+  goal('给光纤①套上热缩管，放入熔接机<b>左侧</b>V型槽并压下左压板。')+
+  '<div class="act-list">'+
+  '<div class="act-item">① 点击 <b>热缩管</b> 套到光纤①上</div>'+
+  '<div class="act-item">② 点击 <b>光纤①</b> 放入左V型槽</div></div>'+
+  (MODE==='newbie'?hintB('tube','新手提示','热缩管必须<b>熔接前</b>套在涂覆层上！忘了套，熔接后加热工序直接报废，只能剪断整根光纤重做。'):'')+
+  fbEl();
+ setElig([{act:'tubePick',label:'热缩管'},{act:'fiber1',label:'光纤①'}]);
+ PICK=function(act){
+  if(act==='tubePick')mountTube();
+  else if(act==='fiber1')placeFiber(1);
+ };
+}
+function mountTube(){
+ var f1=fi(1);
+ if(f1.hasTube){toast('热缩管已经套上了','info');return}
+ FIB3D[0].attach(TL.tube);
+ TL.tube.position.set(1.3,0,0);
+ TL.tube.scale.set(1,1,1);
+ f1.hasTube=true;
+ AU.play('pop');
+ fbSet('✅ 热缩管已套在光纤①涂覆层上（熔接后推到接点加热）','ok');
+ toast('热缩管已套上','ok');
+ setElig([{act:'fiber1',label:'光纤①'}]);
+}
+function placeFiber(i){
+ var f=fi(i);
+ if(!f.cleaved){toast('端面还没切割，先回切割步骤','warn');return}
+ if(f.debris){
+  addFault('debris'+i,FNAME[i]+'入槽：V槽碎屑');
+  AU.play('buzz');
+  toast('光纤放置异常','err');
+  fbSet('🚫 屏幕提示 <b>光纤放置异常</b>——切割产生的玻璃碎屑被带进了V型槽。'+btn('cleanV('+i+')','用无尘纸清理V型槽'),'err');
+  return;
+ }
+ if(f.bareMM<25){
+  addFault('short'+i,FNAME[i]+'裸纤不足夹不住');
+  AU.play('buzz');
+  toast('夹持爪夹不住裸纤','err');
+  fbSet('❌ 压板处弹提示：<b>裸纤太短，夹持爪夹不住</b>（仅 '+f.bareMM+'mm，需≥25mm）。回剥线步骤再剥一段。'+btn('backToStrip('+i+')','返回剥线'),'err');
+  return;
+ }
+ fiberToSlot(i-1);
+ setTimeout(function(){
+  var cl=(i===1)?SP.clampL:SP.clampR;
+  rotTo(cl,'x',0,0.25,function(){
+   AU.play('clamp');f.clamped=true;
+   fbSet('✅ '+FNAME[i]+'已放入'+(i===1?'左':'右')+'V型槽，压板压紧','ok');
+   toast(FNAME[i]+'入槽完成','ok');
+   setTimeout(function(){goStep(i===1?6:10)},900);
+  });
+ },900);
+}
+function cleanV(i){
+ fi(i).debris=false;
+ AU.play('pop');
+ fbSet('✅ V型槽已用无尘纸清理干净。重新点击<b>'+FNAME[i]+'</b>放入槽','ok');
+ toast('V槽已清理','ok');
+}
+function backToStrip(i){
+ goStep(i===1?2:6);
+}
+/* ---------- S9 入槽② ---------- */
+function panelStep_9(){
+ setPT(9);camTo('splicer');
+ $('panelBody').innerHTML=
+  goal('将光纤②放入熔接机<b>右侧</b>V型槽并压下右压板。')+
+  '<div class="act-list">'+
+  '<div class="act-item">① 点击 <b>光纤②</b> 放入右V型槽</div></div>'+
+  fbEl();
+ setElig([{act:'fiber2',label:'光纤②'}]);
+ PICK=function(act){if(act==='fiber2')placeFiber(2)};
+}
+/* ---------- S10 熔接（三检测拒熔） ---------- */
+function panelStep_10(){
+ if(!F.power){toast('设备还没开机，先回步骤 1 开机','warn');setTimeout(function(){goStep(1)},600);return}
+ setPT(10);camTo('splice');
+ scrShow();scrMsg('FIBER SET','#8fd3ff');scrKeys();
+ $('panelBody').innerHTML=
+  goal('按真机流程熔接：关防风罩 → SM单模 → 电弧清灰 → SET熔接。<b>机器先检测端面，不合格拒熔不放电。</b>')+
+  '<div class="act-list">'+
+  '<div class="act-item">① 点击 <b>防风罩</b> 盖上（安全联锁）</div>'+
+  '<div class="act-item">② 按 <b>MODE</b> 切到 SM 单模</div>'+
+  '<div class="act-item">③ 按 <b>DUST</b> 电弧清灰</div>'+
+  '<div class="act-item">④ 按 <b>SET</b> 熔接</div></div>'+
+  '<div class="keys-row">'+
+  btn('scrKeyMode()','MODE','k')+btn('scrKeyDust()','DUST 清灰','k')+btn('scrKeySet()','SET 熔接','k danger')+
+  '</div>'+
+  '<div class="check-item" id="preCheck">前置：--</div>'+
+  (MODE==='newbie'?hintB('scr','屏幕影像怎么看','X/Y是端面显微影像：<b>规整亮点</b>=合格端面；<b>斜椭圆</b>=切割角度超差(>1°)；<b>灰雾斑</b>=端面污染。三项全过机器才放电。'):'')+
+  fbEl();
+ setElig([{act:'shield',label:'防风罩'}]);
+ PICK=function(act){
+  if(act==='shield'){if(F.shield==='closed')openShield();else closeShield()}
+ };
+ updPre();
+}
+function updPre(){
+ var e=$('preCheck');if(!e)return;
+ e.innerHTML='前置检查：模式 <b class="'+(F.mode==='SM'?'g':'y')+'">'+F.mode+(F.mode==='SM'?' 单模✅':' ⚠')+'</b> ｜ 防风罩 <b class="'+(F.shield==='closed'?'g':'y')+'">'+(F.shield==='closed'?'已关✅':'开着⚠')+'</b> ｜ 清灰 <b class="'+(F.seq.dust?'g':'y')+'">'+(F.seq.dust?'✅':'未做')+'</b>';
+}
+function closeShield(){
+ if(F.shield==='closed')return;
+ F.shield='closed';
+ rotTo(SP.shield,'x',0,0.55,function(){AU.play('thud')});
+ updPre();
+}
+function openShield(){
+ if(F.shield==='open')return;
+ F.shield='open';
+ rotTo(SP.shield,'x',-1.92,0.5);
+ updPre();
+}
+function scrKeyMode(){
+ if(F.busy)return;
+ AU.play('click');
+ F.mode=(F.mode==='SM')?'MM':'SM';
+ $('scrMode').textContent='MODE: '+F.mode;
+ scrMsg(F.mode==='SM'?'MODE SET: SM 单模':'MODE: MM','#ffd166');
+ updPre();
+}
+function scrKeyDust(){
+ if(F.busy)return;
+ if(F.shield!=='closed'){
+  AU.play('buzz');
+  if(!F.flags.interlock){F.flags.interlock=1;addFault('interlock','防风罩未关操作电弧')}
+  scrMsg('CLOSE WINDSHIELD!','#ff8f8f');
+  toast('安全联锁：电弧操作必须关闭防风罩','err');
+  return;
+ }
+ AU.play('zap');arcFX(0.5);
+ F.seq.dust=true;
+ scrMsg('DUST OK','#9fe8b8');
+ updPre();
+ toast('电弧清灰完成','ok',1500);
+}
+function scrKeySet(){if(!F.busy)trySplice()}
+function trySplice(){
+ if(F.shield!=='closed'){
+  AU.play('buzz');
+  if(!F.flags.interlock){F.flags.interlock=1;addFault('interlock','防风罩未关按熔接')}
+  scrMsg('CLOSE WINDSHIELD!','#ff8f8f');
+  toast('安全联锁：请先关闭防风罩','err');
+  return;
+ }
+ if(F.mode!=='SM'){
+  AU.play('buzz');
+  if(!F.flags.mode){F.flags.mode=1;addFault('nosm','未设置SM单模模式')}
+  scrMsg('MODE: MM  CHECK FIBER TYPE!','#ffd166');
+  toast('黄色警示：模式为MM多模，SM单模光纤请先切换','warn');
+  return;
+ }
+ F.busy=true;
+ scrMsg('FIBER FEEDING...','#8fd3ff');
+ fiberAdvance();
+ setTimeout(function(){
+  scrMsg('INSPECTING END FACE','#8fd3ff');
+  setTimeout(inspect,1300);
+ },800);
+}
+function fiberAdvance(){
+ var g=SP.grp.position;
+ moveTo(FIB3D[0],g.x-0.03,0.705,g.z+0.05,0.6);
+ moveTo(FIB3D[1],g.x+0.03,0.705,g.z+0.05,0.6);
+}
+function fiberRetract(){
+ var g=SP.grp.position;
+ moveTo(FIB3D[0],g.x-0.055,0.705,g.z+0.05,0.5);
+ moveTo(FIB3D[1],g.x+0.055,0.705,g.z+0.05,0.5);
+}
+function inspect(){
+ var probs=[],i,f;
+ for(i=1;i<=2;i++){
+  f=fi(i);
+  if(f.cleaveAngle>1.0)probs.push({f:i,type:'angle'});
+  else if(f.stained)probs.push({f:i,type:'stain'});
+ }
+ if(probs.length){refuseSplice(probs);return}
+ runSplice();
+}
+function refuseSplice(probs){
+ F.busy=false;
+ AU.play('buzz');
+ scrMsg('REJECTED — NO ARC','#ff8f8f');
+ SCR.show={f:probs[0].f,type:probs[0].type};
+ for(var j=0;j<probs.length;j++){
+  var f=fi(probs[j].f);
+  if(probs[j].type==='angle'&&!f.flagAngle){f.flagAngle=1;addFault('angle'+probs[j].f,FNAME[probs[j].f]+'切割角度'+f.cleaveAngle.toFixed(1)+'°超标')}
+  if(probs[j].type==='stain'&&!f.flagStain){f.flagStain=1;addFault('stain'+probs[j].f,FNAME[probs[j].f]+'端面污染')}
+ }
+ var txt='';
+ var btns='';
+ for(var k=0;k<probs.length;k++){
+  var p=probs[k],f2=fi(p.f);
+  f2.cleaved=false;
+  txt+=FNAME[p.f]+(p.type==='angle'?'端面角度 '+f2.cleaveAngle.toFixed(1)+'° 超标（>1°），需重新切割':'端面污染，需重新清洁+切割')+'；';
+  var st=(p.type==='angle')?(p.f===1?4:8):(p.f===1?3:7);
+  btns+=btn('goFix('+st+')','处理'+FNAME[p.f]);
+ }
+ fbSet('🚫 <b>拒熔（电极未放电）</b>：'+txt+'<div class="back-row">'+btns+'</div>','err');
+ toast('熔接被拒：端面不合格','err');
+ openShield();
+ fiberRetract();
+}
+function goFix(step){F.busy=false;SCR.show=null;goStep(step)}
+function runSplice(){
+ scrMsg('ARC ON','#9fe8b8');
+ arcFX(0.9);AU.play('zap');
+ F.arc++;
+ $('scrArc').textContent='ARC: '+F.arc;
+ setTimeout(function(){
+  var loss=chance(0.025)?rand(0.08,0.15):rand(0.01,0.03);
+  F.spliceLoss=loss;F.spliced=true;
+  SCR.show={f:0,type:'good',loss:loss};
+  jointMarkOn();
+  scrMsg('LOSS '+loss.toFixed(2)+' dB','#9fe8b8');
+  var tip='';
+  if(loss>0.08){addFault('loss','熔接损耗'+loss.toFixed(2)+'dB超标');tip='<br>⚠️ 损耗偏高：常见原因电极老化或环境湿气重。'}
+  if(F.arc>2000)tip+='<br>⚠️ 电弧计数 '+F.arc+'：该保养电极了。';
+  fbSet('✅ 熔接完成！估算损耗 <b>'+loss.toFixed(2)+' dB</b>'+tip,'ok');
+  toast('熔接成功 '+loss.toFixed(2)+' dB','ok');
+  F.busy=false;
+  setTimeout(function(){goStep(11)},1500);
+ },1000);
+}
+function jointMarkOn(){
+ if(SP.jointMark)return;
+ var m=new THREE.Mesh(new THREE.SphereGeometry(0.03,10,10),mat(0x8fc7ff,{t:1,op:0.85,r:0.2}));
+ m.castShadow=false;
+ FIB3D[0].add(m);SP.jointMark=m;
+}
+function jointMarkOff(){if(SP.jointMark){FIB3D[0].remove(SP.jointMark);SP.jointMark=null}}
+function arcFX(dur){
+ SP.arcLight.intensity=2;
+ var gs=new THREE.Mesh(new THREE.SphereGeometry(0.02,8,8),new THREE.MeshBasicMaterial({color:0xdff1ff,transparent:true,opacity:0.9}));
+ gs.position.set(0,0.685,-0.06);SP.grp.add(gs);
+ var p1=new THREE.Vector3(-0.02,0.685,-0.06),p2=new THREE.Vector3(0.02,0.685,-0.06);
+ var geo=new THREE.BufferGeometry().setFromPoints([p1,p2]);
+ var ln=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xbfe3ff,transparent:true,opacity:0.95}));
+ SP.grp.add(ln);
+ tw(dur,function(k){
+  var a=0.55+0.45*Math.sin(k*45);
+  SP.arcLight.intensity=2.2*a;
+  gs.scale.setScalar(0.7+a*0.8);
+  var q1=new THREE.Vector3(-0.02,0.685+rand(-0.012,0.012),-0.06),q2=new THREE.Vector3(0.02,0.685+rand(-0.012,0.012),-0.06);
+  ln.geometry.setFromPoints([q1,q2]);
+  ln.material.opacity=0.95*a;
+ },function(){
+  SP.arcLight.intensity=0;
+  SP.grp.remove(ln);SP.grp.remove(gs);
+ });
+}
+/* ---------- S11 加热 ---------- */
+function panelStep_11(){
+ setPT(11);camTo('oven');
+ var f1=fi(1);
+ if(!f1.hasTube){
+  addFault('notube','忘记套热缩管');
+  F.rework++;updStats();
+  AU.play('buzz');
+  showModal('🚫 没有热缩管！',
+   '<p>加热炉里只有裸接点——<b>忘记套热缩管了</b>。</p><p>按真机规程，这根光纤<b>只能剪断、整根重做</b>（扣故障+返工分）。</p><p style="color:#93c5fd">重做流程：剥线→清洁→切割→<b>先套管</b>→入槽→熔接→加热。</p>',
+   '剪断重做',
+   function(){resetFibersHard();goStep(2)});
+  $('panelBody').innerHTML=goal('加热保护熔接点。')+fbEl();
+  fbSet('❌ 熔接点裸露：没有热缩管可加热','err');
+  return;
+ }
+ openShield();
+ moveToOven();
+ $('panelBody').innerHTML=
+  goal('熔接组件放入加热炉，热缩管收缩保护接点。真机约90秒，此处压缩为8秒。')+
+  '<div class="act-list">'+
+  '<div class="act-item">① 组件已自动入炉、炉门关闭</div>'+
+  '<div class="act-item">② 加热完成有提示音，<b>提示音之前取出=套管收缩不足</b></div></div>'+
+  '<div class="heat-bar"><div class="heat-fill" id="heatFill"></div></div>'+
+  '<div class="live-strip" id="heatTxt">加热中… 0%</div>'+
+  '<div class="back-row">'+btn('pullOut(true)','提前取出（想试试报错可以点）','ghost')+'</div>'+
+  fbEl();
+ startHeat();
+}
+function moveToOven(){
+ var t={x:1.12,y:0.33,z:-0.88};
+ moveTo(FIB3D[0],t.x,t.y,t.z,0.9);
+ moveTo(FIB3D[1],t.x,t.y,t.z,0.9);
+ tw(0.9,function(k){TL.tube.position.x=lerp(1.3,0.05,k)});
+ rotTo(SP.ovDoor,'x',0,0.5);
+}
+var _heatStop=false;
+function startHeat(){
+ _heatStop=false;
+ AU.ovenOn();
+ tw(8,function(k){
+  if(_heatStop)return;
+  F.heatProg=k;
+  var e=$('heatFill');if(e)e.style.width=(k*100)+'%';
+  var t=$('heatTxt');if(t)t.textContent='加热中… '+Math.round(k*100)+'%';
+  if(SP.glow)SP.glow.material.opacity=0.7*k;
+  if(SP.ovLight)SP.ovLight.intensity=1.1*k;
+ },function(){
+  if(_heatStop)return;
+  heatDone();
+ });
+}
+function heatDone(){
+ F.heatProg=1;F.heated=true;
+ AU.ovenOff();AU.play('ding');
+ if(SP.glow)SP.glow.material.opacity=0;
+ if(SP.ovLight)SP.ovLight.intensity=0;
+ shrinkTube();
+ assemblyOut();
+ if(F.step!==11)return;
+ fbSet('✅ 加热完成：套管完全收缩、透明贴合接点，提示音已响，取出组件','ok');
+ toast('加热完成','ok');
+ setTimeout(function(){goStep(12)},1200);
+}
+function pullOut(early){
+ if(F.busy||F.heated)return;
+ _heatStop=true;
+ F.busy=true;
+ AU.ovenOff();
+ if(!F.flags.early){F.flags.early=1;addFault('early','加热时间不足提前取出')}
+ F.earlyPull=true;
+ if(SP.glow)SP.glow.material.opacity=0;
+ if(SP.ovLight)SP.ovLight.intensity=0;
+ shrinkTube();
+ assemblyOut();
+ fbSet('❌ <b>提前取出</b>：套管未完全收缩就停止加热，保护强度不足——质检会发现。'+btn('reheat()','重新加热'),'err');
+ toast('套管未完全收缩','err');
+}
+function reheat(){
+ F.busy=false;
+ moveToOven();
+ fbSet('重新加热中…这次等提示音再取出','info');
+ setTimeout(function(){startHeat();$('panelBody').querySelector('.heat-fill')&&0},700);
+}
+function shrinkTube(){
+ if(!TL.tube)return;
+ TL.tube.scale.set(0.72,1,0.72);
+ TL.tube.material.opacity=0.68;
+ TL.tube.material.color.setHex(0xf5dfb8);
+}
+function assemblyOut(){
+ rotTo(SP.ovDoor,'x',-1.4,0.4);
+ moveTo(FIB3D[0],0,0.3,0.9,0.9);
+ moveTo(FIB3D[1],0,0.3,0.9,0.9);
+ camTo('macro');
+}
+/* ---------- S12 质检 ---------- */
+function panelStep_12(){
+ setPT(12);camTo('macro');
+ var loss=F.spliceLoss||0;
+ var items=[
+  {id:'c1',txt:'热缩管完全收缩、无气泡',bad:F.earlyPull?'套管未完全收缩（提前取出）':null},
+  {id:'c2',txt:'熔接点位于套管中央、无偏移'},
+  {id:'c3',txt:'屏幕损耗读数 ≤ 0.05 dB',bad:(loss>0.05)?('实际 '+loss.toFixed(2)+' dB，偏高'):null},
+  {id:'c4',txt:'光纤无弯折、表面无损伤'}
+ ];
+ var html=goal('对照真机质检四项逐项确认，全部合格才算完工。')+'<div class="chk-list">';
+ items.forEach(function(it){
+  if(it.bad)html+='<div class="check-item bad">✗ '+it.txt+' — <b>'+it.bad+'</b></div>';
+  else html+='<div class="check-item" id="'+it.id+'" onclick="chk(\''+it.id+'\')">✓ '+it.txt+'（点击确认）</div>';
+ });
+ html+='</div><div class="back-row">'+btn('finishTrain()','提交质检，生成成绩','primary')+'</div>';
+ $('panelBody').innerHTML=html;
+ F.chk={};
+}
+function chk(id){
+ var e=$(id);if(!e)return;
+ AU.play('click');
+ e.classList.toggle('ok');
+ F.chk[id]=e.classList.contains('ok');
+}
+function finishTrain(){
+ var need=['c1','c2','c3','c4'].filter(function(id){var e=$(id);return e&&!e.classList.contains('bad')});
+ var miss=need.filter(function(id){return !F.chk[id]});
+ if(miss.length){toast('还有 '+miss.length+' 项没确认','warn');return}
+ AU.play('ding');
+ showResult();
+}
+function showResult(){
+ var sec=Math.round((Date.now()-F.t0)/1000);
+ var loss=F.spliceLoss||0;
+ var score=100;
+ if(loss>0.1)score-=15;else if(loss>0.08)score-=8;
+ score-=5*F.faults.length;
+ score-=3*F.hintN;
+ score-=8*F.rework;
+ score=clamp(Math.round(score),0,100);
+ var grade=score>=90?'优秀':(score>=75?'良好':(score>=60?'合格':'不合格'));
+ try{
+  if(window.feishuSync&&window.feishuSync.sync){
+   window.feishuSync.sync('fiber_score',{
+    '最终得分(分)':String(score),'评级':grade,'熔接损耗(dB)':loss.toFixed(2),
+    '操作错误次数(次)':String(F.faults.length),'完成步骤':'12/12',
+    '操作模式':(MODE==='newbie'?'新手教学':'考核模式')},{silent:true});
+  }
+ }catch(e){}
+ try{
+  var arr=JSON.parse(localStorage.getItem('sim_records')||'[]');
+  arr.push({type:'fiber',name:'光纤熔接3D',score:score,grade:grade,errors:F.faults.length,loss:loss.toFixed(2),time:sec,ts:Date.now()});
+  while(arr.length>50)arr.shift();
+  localStorage.setItem('sim_records',JSON.stringify(arr));
+ }catch(e){}
+ var fh=F.faults.length?('<div class="fault-card"><b>故障记录（'+F.faults.length+' 次，-'+F.faults.length*5+'分）</b><ul>'+F.faults.map(function(x){return '<li>'+x.zh+'（第'+fmtT(x.t)+'）</li>'}).join('')+'</ul></div>'):'<div class="fault-card ok"><b>全程零故障 🎉</b> 真机级操作，漂亮！</div>';
+ $('panelBody').innerHTML=
+  '<div class="score-page">'+
+  '<div class="score-big '+(score>=75?'g':(score>=60?'y':'r'))+'">'+score+'</div>'+
+  '<div class="grade">'+grade+'</div>'+
+  '<div class="score-stats">损耗 <b>'+loss.toFixed(2)+' dB</b> ｜ 用时 <b>'+fmtT(sec)+'</b> ｜ 故障 <b>'+F.faults.length+'</b> ｜ 提示 <b>'+F.hintN+'</b>（-'+F.hintN*3+'）｜ 返工 <b>'+F.rework+'</b>（-'+F.rework*8+'）</div>'+
+  fh+
+  '<div class="back-row">'+btn('restartTraining()','🔁 重新训练','primary')+btn("switchVideo(3);toast(\'盘纤工艺视频已播放\',\'info\')",'📺 看盘纤工艺视频','ghost')+'</div>'+
+  '</div>';
+ toast('训练完成：'+score+'分 '+grade,'ok');
+}
+/* ---------- 重置 ---------- */
+function resetFibersHard(){
+ F.spliced=false;F.spliceLoss=null;F.seq={};
+ F.fibers=[freshFiber(0),freshFiber(1)];
+ try{SCR.show=null;SCR.dirty=true;scrMsg('STAND BY','#9fe8b8')}catch(e){}
+ resetScene3D();
+}
+function resetScene3D(){
+ jointMarkOff();
+ for(var i=0;i<2;i++){
+  var g=FIB3D[i];
+  setBare(g,0.05);
+  g.position.set(-1.25,0.08,i===0?1.95:2.3);
+  g.rotation.set(0,0,0);
+ }
+ if(TL.tube&&TL.tube.parent!==scene){
+  scene.attach(TL.tube);
+ }
+ if(TL.tube){
+  TL.tube.position.set(1.85,0.1,1.47);
+  TL.tube.scale.set(1,1,1);
+  TL.tube.material.opacity=0.42;
+  TL.tube.material.color.setHex(0xf0c88f);
+ }
+ if(TL.pliers){TL.pliers.position.set(-3.4,0,0.9);TL.pliers.rotation.set(0,0.55,0)}
+ paperHome();
+ if(SP.clampL)SP.clampL.rotation.x=0.72;
+ if(SP.clampR)SP.clampR.rotation.x=0.72;
+ if(SP.shield)SP.shield.rotation.x=-1.92;
+ if(SP.ovDoor)SP.ovDoor.rotation.x=-1.4;
+ if(SP.glow)SP.glow.material.opacity=0;
+ if(SP.ovLight)SP.ovLight.intensity=0;
+ AU.ovenOff();
+ DRAG.mode=null;
+}
+function restartTraining(){
+ resetState();
+ resetScene3D();
+ TL.soaked=false;
+ hideModal();
+ scrHide();
+ camTo('wide');
+ renderStepBar();
+ enterStep(1);
+ toast('已重置，开始新一轮训练','info');
+}
+/* ============================================================
+ * CHUNK D · 88S屏幕影像 + 指针交互 + 启动
+ * ============================================================ */
+var SCR={show:null,dirty:true};
+function scrShow(){$('scrPanel').style.display='flex';SCR.dirty=true}
+function scrHide(){$('scrPanel').style.display='none';SCR.show=null}
+function scrMsg(txt,cls){
+ var e=$('scrMsg');if(!e)return;
+ e.textContent=txt;
+ e.className='scr-msg '+((cls==='#ff8f8f')?'err':((cls==='#ffd166')?'warn':((cls==='#9fe8b8')?'ok':'')));
+ SCR.dirty=true;
+}
+function scrKeys(){
+ var k=$('scrKeys');if(!k)return;
+ k.innerHTML='<button onclick="scrKeyMode()">MODE</button><button onclick="scrKeyDust()">DUST</button><button class="set" onclick="scrKeySet()">SET ▶</button>';
+}
+setInterval(function(){
+ if(!F||!F.power)return;
+ var e=$('scrClock');if(e)e.textContent=fmtT(Math.round((Date.now()-F.t0)/1000));
+},1000);
+
+/* ---------- X/Y 端面显微影像 ---------- */
+function endView(ctx,w,h,type,view){
+ ctx.clearRect(0,0,w,h);
+ var g=ctx.createLinearGradient(0,0,0,h);
+ g.addColorStop(0,'#081426');g.addColorStop(1,'#050c18');
+ ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+ ctx.strokeStyle='rgba(56,120,180,.12)';ctx.lineWidth=1;
+ var x,y;
+ for(x=0;x<w;x+=24){ctx.beginPath();ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,h);ctx.stroke()}
+ for(y=0;y<h;y+=24){ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(w,y+.5);ctx.stroke()}
+ var cx=w/2,cy=h/2,i;
+ if(!type){
+  ctx.fillStyle='rgba(125,211,252,.5)';ctx.font='12px monospace';ctx.textAlign='center';
+  ctx.fillText(view===0?'X-VIEW · NO FIBER':'Y-VIEW · NO FIBER',cx,cy);
+  ctx.textAlign='left';return;
+ }
+ if(type==='good'){
+  var r=Math.min(w,h)*0.16;
+  var rg=ctx.createRadialGradient(cx,cy,1,cx,cy,r);
+  rg.addColorStop(0,'#eaffff');rg.addColorStop(.35,'#9fd8ff');rg.addColorStop(1,'rgba(80,140,220,.05)');
+  ctx.fillStyle=rg;ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(160,220,255,.5)';ctx.beginPath();ctx.arc(cx,cy,r*1.5,0,7);ctx.stroke();
+ }else if(type==='angle'){
+  var rot=(view===0)?-0.55:0.5,rx=Math.min(w,h)*0.3,ry=Math.min(w,h)*0.12;
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);
+  var rg2=ctx.createRadialGradient(0,0,2,0,0,rx);
+  rg2.addColorStop(0,'#eaffff');rg2.addColorStop(.4,'#9fd8ff');rg2.addColorStop(1,'rgba(80,140,220,.05)');
+  ctx.fillStyle=rg2;ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(160,220,255,.45)';ctx.beginPath();ctx.ellipse(0,0,rx*1.25,ry*1.4,0,0,7);ctx.stroke();
+  ctx.restore();
+ }else if(type==='stain'){
+  var seeds=[[.5,.5,.34],[.36,.42,.2],[.62,.58,.22],[.55,.35,.15],[.42,.66,.13]];
+  var r0=Math.min(w,h)*0.16;
+  var rg3=ctx.createRadialGradient(cx,cy,1,cx,cy,r0);
+  rg3.addColorStop(0,'#d5e8f5');rg3.addColorStop(.4,'rgba(150,190,220,.5)');rg3.addColorStop(1,'rgba(80,140,220,.05)');
+  ctx.fillStyle=rg3;ctx.beginPath();ctx.arc(cx,cy,r0,0,7);ctx.fill();
+  ctx.fillStyle='rgba(190,200,210,.26)';
+  for(i=0;i<seeds.length;i++){
+   var s=seeds[(i+view)%seeds.length];
+   ctx.beginPath();ctx.arc(cx+(s[0]-.5)*w*.5,cy+(s[1]-.5)*h*.5,s[2]*Math.min(w,h),0,7);ctx.fill();
+  }
+  ctx.fillStyle='rgba(220,225,230,.5)';
+  for(i=0;i<14;i++)ctx.fillRect(cx+Math.sin(i*37.7+view)*w*.3,cy+Math.cos(i*23.3+view*7)*h*.3,2,2);
+ }
+ ctx.strokeStyle='rgba(125,211,252,.3)';
+ ctx.beginPath();ctx.moveTo(cx-14,cy);ctx.lineTo(cx+14,cy);ctx.moveTo(cx,cy-14);ctx.lineTo(cx,cy+14);ctx.stroke();
+ ctx.fillStyle='rgba(125,211,252,.6)';ctx.font='10px monospace';
+ ctx.fillText(view===0?'X':'Y',8,14);
+}
+function renderScr(){
+ var xc=$('scrX'),yc=$('scrY');
+ if(!xc||!yc)return;
+ var t=SCR.show?SCR.show.type:null;
+ endView(xc.getContext('2d'),300,190,t,0);
+ endView(yc.getContext('2d'),300,190,t,1);
+ if(SCR.show&&SCR.show.type==='good'&&SCR.show.loss!==undefined){
+  var c2=yc.getContext('2d');
+  c2.fillStyle='#9fe8b8';c2.font='bold 22px monospace';
+  c2.fillText(SCR.show.loss.toFixed(2)+' dB',16,34);
+ }
+}
+function drawScr3D(){
+ var c=SP.scrCtx;if(!c)return;
+ c.fillStyle='#0a2440';c.fillRect(0,0,256,160);
+ c.strokeStyle='#123055';c.strokeRect(4,4,248,152);
+ c.fillStyle='#5eead4';c.font='11px monospace';
+ c.fillText('MODE '+F.mode,14,24);
+ c.fillText('ARC '+F.arc,14,40);
+ var m=$('scrMsg');
+ c.fillStyle='#93c5fd';
+ c.fillText(m?m.textContent.substring(0,24):'',14,58);
+ var t=SCR.show?SCR.show.type:null;
+ c.save();c.translate(14,66);endView(c,110,80,t,0);c.restore();
+ c.save();c.translate(132,66);endView(c,110,80,t,1);c.restore();
+ if(t==='good'&&SCR.show.loss!==undefined){
+  c.fillStyle='#9fe8b8';c.font='bold 16px monospace';
+  c.fillText(SCR.show.loss.toFixed(2)+'dB',180,30);
+ }
+ SP.scrTex.needsUpdate=true;
+ renderScr();
+ SCR.dirty=false;
+}
+
+/* ---------- 指针交互（点击/拖拽/按压） ---------- */
+var ray=null,ptr=null;
+function pickAt(cx,cy){
+ if(!ray)ray=new THREE.Raycaster();
+ if(!ptr)ptr=new THREE.Vector2();
+ var r=canvasEl.getBoundingClientRect();
+ ptr.x=((cx-r.left)/r.width)*2-1;
+ ptr.y=-((cy-r.top)/r.height)*2+1;
+ ray.setFromCamera(ptr,camera);
+ var meshes=[],a;
+ for(a in ANCH){if(ANCH[a]&&ANCH[a].visible!==false)meshes.push(ANCH[a])}
+ var hits=ray.intersectObjects(meshes,false);
+ return hits.length?(hits[0].object.userData.act||null):null;
+}
+function onDown(e){
+ AU.ensure();
+ if(DRAG.mode==='strip'||DRAG.mode==='wipe'){
+  DRAG.holding=true;DRAG.sx=e.clientX;DRAG.sy=e.clientY;
+  if(DRAG.mode==='wipe'){DRAG.lx=null;DRAG.dir=0;DRAG.trav=0}
+  try{canvasEl.setPointerCapture(e.pointerId)}catch(err){}
+  e.preventDefault();
+  return;
+ }
+ var act=pickAt(e.clientX,e.clientY);
+ if(!act)return;
+ if(act==='ctHandle'&&(F.step===4||F.step===8)){
+  DRAG.mode='handle';DRAG.holding=true;DRAG.rot0=CT.handle.rotation.x;DRAG.sy=e.clientY;DRAG.fired=false;
+  try{canvasEl.setPointerCapture(e.pointerId)}catch(err){}
+  e.preventDefault();
+  return;
+ }
+ if(PICK){AU.play('click');PICK(act)}
+}
+function onMove(e){
+ if(!DRAG.holding)return;
+ var pxU=Math.max(60,wrapEl.clientWidth)/6.5;
+ if(DRAG.mode==='strip'){
+  var pull=clamp((DRAG.sx-e.clientX)/pxU,0,0.5);
+  DRAG.pull=pull;
+  TL.pliers.position.x=DRAG.base-pull;
+  setBare(FIB3D[DRAG.fib-1],DRAG.bare0+pull);
+  var el=$('stripLen');if(el)el.textContent=Math.round((DRAG.bare0+pull)*50)+' mm';
+ }else if(DRAG.mode==='wipe'){
+  var fib=FIB3D[DRAG.fib-1];
+  var dxw=(e.clientX-DRAG.sx)/pxU;
+  var wx=fib.position.x+clamp(dxw,0.03,DRAG.bare);
+  TL.paper.position.set(wx,0.13,fib.position.z);
+  TL.paper.rotation.y=0.3;
+  if(DRAG.lx!==null){
+   var d=wx-DRAG.lx;
+   if(Math.abs(d)>0.004){
+    var dir=d>0?1:-1;
+    if(DRAG.dir===0)DRAG.dir=dir;
+    if(dir===DRAG.dir){DRAG.trav+=Math.abs(d)}
+    else{
+     if(DRAG.trav>DRAG.bare*0.55)DRAG.strokes++;
+     DRAG.dir=dir;DRAG.trav=Math.abs(d);
+     AU.play('pop');
+     var el2=$('wipeN');if(el2)el2.textContent=DRAG.strokes;
+     fi(DRAG.fib).strokes=DRAG.strokes;
+    }
+   }
+  }
+  DRAG.lx=wx;
+ }else if(DRAG.mode==='handle'){
+  var rot=clamp(DRAG.rot0+(e.clientY-DRAG.sy)*0.012,-0.5,0.14);
+  CT.handle.rotation.x=rot;
+  if(rot>=0.13&&!DRAG.fired){DRAG.fired=true;fireCleave(F.step===4?1:2)}
+ }
+}
+function onUp(e){
+ if(!DRAG.holding)return;
+ DRAG.holding=false;
+ if(DRAG.mode==='strip'){
+  commitStrip(DRAG.fib,DRAG.pull||0);
+ }else if(DRAG.mode==='wipe'){
+  if(DRAG.strokes>=3){wipeStroke()}
+  else{
+   var el=$('wipeN');if(el)el.textContent=DRAG.strokes;
+   toast('已擦 '+DRAG.strokes+'/3 次，继续点击无尘纸接着擦','info',2000);
+   DRAG.mode=null;
+   paperHome();
+  }
+ }else if(DRAG.mode==='handle'){
+  DRAG.mode=null;
+ }
+}
+document.addEventListener('touchstart',function(){AU.ensure()},{once:true,passive:true});
+
+/* ---------- 场景标签随步骤 ---------- */
+var _enterStepBase=enterStep;
+enterStep=function(n){
+ _enterStepBase(n);
+ var sl=$('sceneLabel');
+ if(sl&&STEPS[n-1])sl.textContent='3D实训台 · '+STEPS[n-1].name;
+};
+
+/* ---------- 启动 ---------- */
+function boot(){
+ try{
+  init3D();
+ }catch(e){
+  __fatal((e&&e.message)||String(e));
+  return;
+ }
+ try{
+  canvasEl.addEventListener('pointerdown',onDown);
+  window.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+  window.addEventListener('pointercancel',onUp);
+ }catch(e){}
+ resetState();
+ renderStepBar();
+ enterStep(1);
+ updStats();
+ switchVideo(2);
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot)}
+else{boot()}
 </script>
 </body>
 </html>
