@@ -991,7 +991,7 @@ function setPT(n){
  var s=STEPS[n-1],b='';
  if(s.fiber===1)b=' <span class="badge b1">光纤①</span>';
  if(s.fiber===2)b=' <span class="badge b2">光纤②</span>';
- $('panelTitle').innerHTML='步骤 '+n+'/12：'+s.name+b;
+ $('panelTitle').innerHTML='步骤 '+n+'/'+STEPS.length+'：'+s.name+b;
 }
 function goal(t){return '<div class="goal">'+t+'</div>'}
 function fbEl(){return '<div class="fb" id="stepFb"></div>'}
