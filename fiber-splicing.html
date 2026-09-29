@@ -492,6 +492,7 @@ setInterval(function(){if(F)updStats()},1000);
 var __booted=false;
 function __esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function __fatal(msg){
+ try{document.title='ERR|'+String(msg).replace(/\s+/g,' ').substring(0,80)}catch(e2){}
  var w=$('sceneWrap');if(!w)return;
  if(w.querySelector('.fatal-card'))return;
  var d=document.createElement('div');d.className='fatal-card';
@@ -1661,7 +1662,9 @@ function boot(){
   return;
  }
  try{
+  document.title='BOOT|three r'+THREE.REVISION;
   init3D();
+  document.title='OK|3D ready';
  }catch(e){
   __fatal((e&&e.message)||String(e));
   return;
