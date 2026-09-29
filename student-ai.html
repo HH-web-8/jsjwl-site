@@ -40,6 +40,14 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0fdf4;h
 .welcome-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .welcome-tag{background:#fff;color:#276749;padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid #c6f6d5}
 .welcome-tag:hover{background:#276749;color:#fff}
+.qr-entry{display:flex;align-items:center;gap:14px;justify-content:center;margin-top:16px;padding-top:16px;border-top:1px dashed #c6f6d5}
+.qr-img{width:104px;height:104px;border-radius:10px;background:#fff;padding:5px;box-shadow:0 2px 10px rgba(39,103,73,.15)}
+.qr-tip{font-size:13px;color:#4a5568;text-align:left;line-height:1.7}
+.qr-tip span{font-size:12px;color:#718096}
+.input-area .mic-btn{padding:10px 14px;background:#fff;border:2px solid #c6f6d5;border-radius:50%;font-size:16px;cursor:pointer;transition:all .2s;flex-shrink:0;line-height:1}
+.input-area .mic-btn:hover{border-color:#48bb78}
+.input-area .mic-btn.listening{background:#e53e3e;border-color:#e53e3e;animation:micPulse 1.2s infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(229,62,62,.4)}50%{box-shadow:0 0 0 8px rgba(229,62,62,0)}}
 .input-area{padding:12px 0;display:flex;gap:10px;flex-shrink:0}
 .input-area input{flex:1;padding:12px 18px;border:2px solid #c6f6d5;border-radius:24px;font-size:15px;outline:none;transition:border-color .2s}
 .input-area input:focus{border-color:#48bb78}
@@ -106,27 +114,32 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f0fdf4;h
   <div class="msgs" id="msgs">
     <div class="welcome">
       <h2>D2 AI学姐伴学（学生侧）</h2>
-      <p>对话式预习伴学、思维镜子式支架答疑、红队方案陪审、故障情景陪练，全程情感激励，陪你把知识学透</p>
+      <p>橙子学姐 · 22计网1毕业留校的实训室助管——预习伴学、支架答疑、方案陪审、情感激励，陪你把知识学透</p>
       <div class="welcome-tags">
-        <span class="welcome-tag" onclick="sendQuick('我要预习：请用生活化类比帮我理解数据链路和信号衰减，并配一道跟练题，在我卡住时追问引导我')">📖 预习伴学</span>
-        <span class="welcome-tag" onclick="sendQuick('请用思维镜子模式：我先说出我的想法，你不要直接判对错，而是追问我哪些是猜测、缺什么证据、还能追问什么')">🪞 思维镜子</span>
-        <span class="welcome-tag" onclick="sendQuick('请启动方案陪审：分别从执行者、使用者、逻辑审查者三个角色，各提3个问题质疑我的方案')">⚖️ 方案陪审</span>
-        <span class="welcome-tag" onclick="sendQuick('故障情景陪练：我描述一个网络故障，你引导我推测原因、给出排查顺序，让我自己得出结论')">🛠️ 故障陪练</span>
+        <span class="welcome-tag" onclick="sendQuick('学姐，帮我预习一下这周要学的综合布线内容，用生活化类比讲，讲完出一道跟练题考考我')">📖 预习伴学</span>
+        <span class="welcome-tag" onclick="sendQuick('学姐，网线测不通怎么办？你先别直接告诉我答案，追问引导我自己排查')">🪞 支架答疑</span>
+        <span class="welcome-tag" onclick="sendQuick('学姐，开个评审会吧：我们组的施工方案是弱电直接借强电线槽走线，省桥架钱工期快，帮我看看有什么风险')">⚖️ 方案陪审</span>
+        <span class="welcome-tag" onclick="sendQuick('学姐，我今天实操废了8个接头，有点怀疑自己是不是不适合干这行')">💗 情感激励</span>
+      </div>
+      <div class="qr-entry">
+        <img src="qr-d2.png" alt="扫码进入AI学姐" class="qr-img">
+        <div class="qr-tip">📱 手机扫码，随时随地找学姐<br><span>首次访问需输入访问密码（课堂上公布）</span></div>
       </div>
     </div>
   </div>
   <div class="input-area">
+    <button id="micBtn" class="mic-btn" onclick="toggleMic()" title="语音输入">🎤</button>
     <input id="input" type="text" placeholder="告诉学姐你的想法或问题..." onkeydown="if(event.key==='Enter')send()">
     <button id="sendBtn" onclick="send()">发送</button>
   </div>
   <div class="bottom-bar">
-    <a class="coze-btn" href="https://www.coze.cn/s/jgZXDhiIMho/" target="_blank">进入COZE官方智能体 &rarr;</a>
+    <span style="font-size:12px;color:#718096">🍊 橙子学姐 · 智网匠心 AI 布线实训平台 D2 模块</span>
   </div>
 </div>
 <script>
-const BOT_ID='7645540020057374756';
+const BOT_ID='7690867394159591460';
 const API_URL='https://api.coze.cn/v3/chat';
-const TOKEN='sat_5fSxGjaYFMpx9nSlIhXwt9mCAxKUKtJbaEwfyCIW9lSewRnHKSa4Qs5QEg5Zr0RZ';
+const TOKEN='pat_WskE17u1yO5KMvLuQs9Au4DjmHoHcOJCvkyv2ShGVkO08O3lj1OJWvItnDS7EZkZ';
 let userId='u_'+Math.random().toString(36).substr(2,8);
 let conversationId=null;
 let isStreaming=false;
@@ -135,7 +148,7 @@ let msgIdCounter=0;
 function addMsg(role,html){
   const d=document.createElement('div');
   d.className='msg '+role;
-  d.innerHTML=`<div class="msg-avatar">${role==='bot'?'🤖':'👤'}</div><div class="msg-bubble">${html}</div>`;
+  d.innerHTML=`<div class="msg-avatar">${role==='bot'?'🍊':'👤'}</div><div class="msg-bubble">${html}</div>`;
   document.getElementById('msgs').appendChild(d);
   d.scrollIntoView({behavior:'smooth'});
   return d;
@@ -206,7 +219,7 @@ async function send(){
     bubble.innerHTML=finalHtml;
     scrollBottom();
   }catch(e){
-    bubble.innerHTML='⚠️ 网络错误，请稍后重试。也可<a href="https://www.coze.cn/s/jgZXDhiIMho/" target="_blank" style="color:#48bb78">点击进入COZE官方智能体</a>';
+    bubble.innerHTML='⚠️ 网络波动，请稍后重试';
     console.error(e);
   }
   isStreaming=false;
@@ -230,6 +243,23 @@ function formatMsg(text){
 function toggleThinking(id){
   const el=document.getElementById(id);
   if(el){el.classList.toggle('expanded');const arrow=el.querySelector('.arrow');if(arrow)arrow.textContent=el.classList.contains('expanded')?'▼':'▶';}
+}
+
+/* 语音输入（浏览器原生识别，不支持时自动隐藏麦克风按钮） */
+let voiceRecog=null,voiceListening=false;
+(function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const btn=document.getElementById('micBtn');
+  if(!SR){if(btn)btn.style.display='none';return;}
+  voiceRecog=new SR();voiceRecog.lang='zh-CN';voiceRecog.interimResults=false;voiceRecog.maxAlternatives=1;
+  voiceRecog.onresult=function(e){const t=e.results[0][0].transcript;const inp=document.getElementById('input');inp.value=(inp.value+t).trim();inp.focus();};
+  voiceRecog.onend=function(){voiceListening=false;btn.classList.remove('listening');};
+  voiceRecog.onerror=function(){voiceListening=false;btn.classList.remove('listening');};
+})();
+function toggleMic(){
+  if(!voiceRecog)return;
+  if(voiceListening){try{voiceRecog.stop();}catch(e){}return;}
+  try{voiceRecog.start();voiceListening=true;document.getElementById('micBtn').classList.add('listening');}catch(e){}
 }
 const COURSE_MAP={cable:'综合布线系统',net:'网络基础',route:'路由交换技术',security:'网络安全',server:'服务器配置',wireless:'无线网络',program:'网络编程'};
 const STUDENT_TYPE_MAP={preview:{key:'student_preview',label:'预习伴学',table:'D2-1预习伴学表'},qa:{key:'student_qa',label:'支架答疑',table:'D2-2支架答疑表'},review:{key:'student_review',label:'方案陪审',table:'D2-3方案陪审表'},emotion:{key:'student_emotion',label:'情感激励',table:'D2-4情感激励表'},consult:{key:'consult_record',label:'咨询记录',table:'咨询记录表'}};
