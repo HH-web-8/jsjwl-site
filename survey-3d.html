@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="国防教育展厅布线勘察3D漫游：一楼机房→弱电走廊→楼梯间→三楼展厅全链路勘察，16个信息点位+光缆追踪">
+<title>任务三维勘察 · 国防教育展厅布线 - D4 AI虚拟实训平台</title>
+<script src="site-auth.js"></script>
+<script src="assets/three-r128.min.js" onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';document.head.appendChild(s);"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0b1526;font-family:"Microsoft YaHei","PingFang SC",sans-serif;-webkit-tap-highlight-color:transparent}
+#c3d{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+/* ---- 顶栏 ---- */
+#topbar{position:fixed;top:0;left:0;right:0;height:54px;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(9,15,28,.86);backdrop-filter:blur(8px);border-bottom:1px solid #1e293b}
+.tb-l{display:flex;align-items:center;gap:10px;min-width:0}
+.tb-l a{color:#7dd3fc;text-decoration:none;font-size:13px;padding:6px 12px;border:1px solid #164e63;border-radius:8px;background:rgba(14,30,48,.6);white-space:nowrap}
+.tb-t{color:#e2e8f0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-r{display:flex;gap:8px}
+.tb-r button{font-size:12px;padding:7px 12px;border-radius:8px;border:1px solid #334155;background:#16202e;color:#cbd5e1;cursor:pointer;white-space:nowrap}
+.tb-r button.on{background:#7c2d12;border-color:#ea580c;color:#fed7aa}
+/* ---- 进度 ---- */
+#prog{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:8px;background:rgba(9,15,28,.8);border:1px solid #1e293b;border-radius:999px;padding:5px 14px;font-size:12px;color:#fde68a}
+#progBarW{display:block;width:90px;height:5px;border-radius:3px;background:#1e293b;overflow:hidden}
+#progBar{display:block;height:100%;width:0;background:linear-gradient(90deg,#f59e0b,#22d3ee);transition:width .4s}
+/* ---- 传送 ---- */
+#telebar{position:fixed;left:10px;top:110px;z-index:5;display:flex;flex-direction:column;gap:6px}
+#telebar em{font-style:normal;font-size:11px;color:#64748b;text-align:center}
+#telebar button{font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid #334155;background:rgba(22,32,46,.82);color:#cbd5e1;cursor:pointer}
+#telebar button:hover{border-color:#22d3ee;color:#7dd3fc}
+/* ---- 热点标记 ---- */
+#hsLayer{position:fixed;inset:0;z-index:2;pointer-events:none}
+.hs-label{position:absolute;transform:translate(-50%,-140%);background:rgba(15,23,42,.82);border:1px solid #f59e0b;color:#fde68a;font-size:12px;padding:3px 9px;border-radius:999px;white-space:nowrap;cursor:pointer;pointer-events:auto;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.hs-label b{color:#f59e0b;margin-right:5px;font-weight:800}
+.hs-label.found{border-color:#22c55e;color:#86efac;opacity:.72}
+.hs-label.found b{color:#22c55e}
+.hs-label.found::before{content:"✓ "}
+/* ---- 详情卡 ---- */
+#card{position:fixed;right:12px;top:66px;width:min(400px,92vw);max-height:calc(100vh - 84px);overflow-y:auto;z-index:7;display:none;background:rgba(11,18,32,.94);border:1px solid #334155;border-radius:14px;padding:14px;backdrop-filter:blur(10px)}
+#card.show{display:block}
+#card::-webkit-scrollbar{width:4px}
+#card::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.c-hd{display:flex;align-items:center;gap:8px}
+.c-no{background:#f59e0b;color:#1c1917;font-weight:800;font-size:12px;padding:2px 8px;border-radius:6px}
+.c-t{color:#f1f5f9;font-weight:700;font-size:15px;flex:1;line-height:1.3}
+#cClose{border:none;background:#1e293b;color:#94a3b8;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px}
+.c-zone{margin:8px 0 10px;font-size:11px;color:#7dd3fc;background:rgba(14,116,144,.18);border:1px solid #155e75;display:inline-block;padding:2px 10px;border-radius:999px}
+#card img{width:100%;border-radius:10px;margin-bottom:8px;display:block;background:#0f172a;min-height:60px}
+.c-params{list-style:none;margin:4px 0 8px}
+.c-params li{font-size:12.5px;color:#cbd5e1;line-height:1.65;padding-left:16px;position:relative}
+.c-params li::before{content:"·";position:absolute;left:4px;color:#f59e0b;font-weight:800}
+.c-tip{font-size:12px;color:#fde68a;background:rgba(120,53,15,.25);border:1px solid #7c2d12;border-radius:10px;padding:8px 10px;line-height:1.6}
+/* ---- 追踪图例 ---- */
+#traceLeg{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:5;display:none;gap:6px;flex-wrap:wrap;justify-content:center;max-width:94vw}
+#traceLeg.show{display:flex}
+#traceLeg span{font-size:11px;color:#fde68a;background:rgba(9,15,28,.85);border:1px solid #7c2d12;padding:4px 9px;border-radius:999px;white-space:nowrap}
+#traceLeg i{color:#f59e0b;font-style:normal;align-self:center;font-size:11px}
+/* ---- 摇杆 ---- */
+#joy{position:fixed;left:16px;bottom:18px;width:118px;height:118px;border-radius:50%;z-index:6;display:none;background:rgba(30,41,59,.35);border:2px solid rgba(148,163,184,.35);touch-action:none}
+#joyKnob{position:absolute;left:33px;top:33px;width:52px;height:52px;border-radius:50%;background:rgba(125,211,252,.55);border:2px solid #7dd3fc}
+body.touch #joy{display:block}
+/* ---- 其它 ---- */
+#hint{position:fixed;right:12px;bottom:14px;z-index:4;font-size:11px;color:#64748b;background:rgba(9,15,28,.7);padding:6px 10px;border-radius:999px;border:1px solid #1e293b;max-width:60vw;text-align:right}
+#toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:8;background:rgba(9,15,28,.92);color:#f1f5f9;font-size:13px;padding:10px 18px;border-radius:999px;border:1px solid #334155;opacity:0;transition:opacity .3s;pointer-events:none;max-width:86vw;text-align:center;line-height:1.5}
+#fade{position:fixed;inset:0;background:#04070f;opacity:0;transition:opacity .2s;z-index:5;pointer-events:none}
+#fade.on{opacity:1}
+/* ---- 任务单 ---- */
+#intro{position:fixed;inset:0;z-index:9;background:rgba(3,7,15,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.i-card{width:min(640px,94vw);background:linear-gradient(160deg,#0f1b2e,#111a2b);border:1px solid #334155;border-radius:18px;padding:26px 24px;color:#e2e8f0}
+.i-card h1{font-size:20px;margin-bottom:4px;color:#fbbf24}
+.i-sub{font-size:11px;color:#64748b;margin-bottom:16px}
+.i-sec{margin-bottom:14px}
+.i-sec b{display:block;font-size:13px;color:#7dd3fc;margin-bottom:5px}
+.i-sec p{font-size:13px;line-height:1.75;color:#cbd5e1}
+.i-sec p mark{background:none;color:#fde68a;font-weight:700}
+#btnStart{display:block;width:100%;margin-top:8px;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#0891b2,#155e75);color:#fff;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px}
+#btnStart:active{transform:scale(.98)}
+.i-note{margin-top:14px;font-size:11px;color:#64748b;text-align:center;line-height:2}
+#btnReset{border:none;background:none;color:#475569;font-size:11px;text-decoration:underline;cursor:pointer}
+@media(max-width:640px){
+  .tb-t{font-size:12px}
+  #card{left:10px;right:10px;width:auto;top:auto;bottom:10px;max-height:58vh}
+  #telebar{top:106px;left:8px}
+  #telebar button{padding:5px 8px;font-size:11px}
+  #hint{display:none}
+  #prog{top:60px;padding:4px 10px;font-size:11px}
+  #progBarW{width:60px}
+}
+@media print{
+  body::after{content:"D4 任务三维勘察：本页为3D交互页面，请使用浏览器打开进行虚拟勘察。链路：一楼机房终端盒→弱电走廊桥架→楼梯间竖向桥架→三楼展厅靶位终端盒。"}
+  #topbar,#prog,#telebar,#hsLayer,#card,#traceLeg,#joy,#hint,#intro,#toast{display:none !important}
+  html,body{overflow:visible;background:#fff}
+}
+</style>
+</head>
+<body>
+<canvas id="c3d"></canvas>
+<div id="topbar">
+  <div class="tb-l"><a href="sim-platform.html">‹ D4平台</a><span class="tb-t">任务三维勘察 · 国防教育展厅布线</span></div>
+  <div class="tb-r"><button id="btnBuild">施工模式：关</button><button id="btnTrace">追踪光缆</button></div>
+</div>
+<div id="prog"><span id="progBarW"><i id="progBar"></i></span><span id="progTxt">勘察进度 0/16</span></div>
+<div id="telebar"><em>传送</em><button data-t="room">一楼机房</button><button data-t="corr">弱电走廊</button><button data-t="stair">楼梯间</button><button data-t="hall">三楼展厅</button></div>
+<div id="hsLayer"></div>
+<div id="traceLeg"><span>①终端盒成端</span><i>→</i><span>②机房桥架</span><i>→</i><span>③走廊桥架</span><i>→</i><span>④楼梯间竖向</span><i>→</i><span>⑤3F走廊</span><i>→</i><span>⑥靶位终端盒</span></div>
+<div id="hint"></div>
+<div id="toast"></div>
+<div id="card"></div>
+<div id="joy"><div id="joyKnob"></div></div>
+<div id="fade"></div>
+<div id="intro"><div class="i-card">
+<h1>📋 布线勘察任务单</h1>
+<div class="i-sub">D4 AI虚拟实训平台 · 课前·虚拟勘察</div>
+<div class="i-sec"><b>项目背景</b><p>学校国防教育展厅需敷设 1 条 <mark>12 芯 G.652D 单模光缆</mark>（6 业务芯对应历史展区 / 武器装备区 / 互动体验区 / 影音教育区 / 荣誉墙 / 指挥中心，另 6 芯备份）。链路：<mark>一楼控制中心机房终端盒 → 弱电走廊桥架 → 楼梯间竖向桥架 → 三楼展厅靶位区终端盒</mark>。</p></div>
+<div class="i-sec"><b>勘察任务</b><p>① 核对机房设备与成端起点　② 记录走廊桥架安装参数　③ 跟踪竖向桥架走向　④ 确认展厅展区分布与终点位置　⑤ 找齐 <mark>16 个勘察点位</mark>并阅读记录</p></div>
+<div class="i-sec"><b>操作方式</b><p>电脑：WASD / 方向键移动，鼠标拖动观察，点击光点标记查看点位详情，Shift 加速。<br>手机：左下摇杆移动，拖动画面观察，点按标记查看。顶部按钮可切换<mark>施工模式</mark>（布设熔接台）与<mark>光缆追踪</mark>，左侧可快速传送。</p></div>
+<button id="btnStart">开 始 勘 察</button>
+<div class="i-note">山东工业技师学院 信息工程系 计网教研室<br>现场为低多边形教学示意模型，设备参数以点位卡片为准<button id="btnReset">清空勘察进度</button></div>
+</div></div>
+<script>
+(function(){
+"use strict";
+var retries=0;
+function boot(){ if(typeof THREE==="undefined"){ if(retries++<50){ setTimeout(boot,150); return; } var iv=document.getElementById("intro"); if(iv){ iv.innerHTML="<div style=\"color:#f87171;font-size:15px;line-height:1.9;max-width:420px;text-align:center\">3D 引擎加载失败，请检查网络后刷新重试；若持续失败请联系任课教师。</div>"; } return; } init(); }
+boot();
+
+function init(){
+/* ================= 基础 ================= */
+var W=innerWidth,H=innerHeight,isTouch=("ontouchstart" in window)||navigator.maxTouchPoints>0;
+if(isTouch) document.body.classList.add("touch");
+var canvas=document.getElementById("c3d");
+var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+renderer.setSize(W,H);
+var scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0x0b1526,34,95);
+var camera=new THREE.PerspectiveCamera(72,W/H,0.08,150);
+camera.rotation.order="YXZ";
+scene.add(new THREE.HemisphereLight(0xdfe8f5,0x39404c,0.85));
+var sun=new THREE.DirectionalLight(0xffffff,0.55); sun.position.set(8,22,26); scene.add(sun);
+function pl(x,y,z,i,d){ var l=new THREE.PointLight(0xfff2df,i,d); l.position.set(x,y,z); scene.add(l); }
+pl(0,2.7,3,0.6,15); pl(2.1,2.7,12,0.5,14); pl(2.1,2.7,19,0.4,12);
+pl(2.1,5.5,25.5,0.45,11); pl(2.1,8.3,31.5,0.45,11); pl(2.1,8.7,39,0.5,12);
+pl(0.5,8.6,46.5,0.6,17); pl(0.5,8.6,53,0.6,17);
+
+/* ================= 材质/几何 ================= */
+var mWall=new THREE.MeshLambertMaterial({color:0xe9ebee});
+var mFloor=new THREE.MeshLambertMaterial({color:0xc9ced4});
+var mCeil=new THREE.MeshLambertMaterial({color:0xf4f6f8});
+var mCab=new THREE.MeshLambertMaterial({color:0x15181c});
+var mCabFace=new THREE.MeshLambertMaterial({color:0x242932});
+var mWhite=new THREE.MeshLambertMaterial({color:0xf3f5f7});
+var mYellow=new THREE.MeshLambertMaterial({color:0xf0b90b});
+var mCable=new THREE.MeshLambertMaterial({color:0xf2c200,emissive:0x453400,emissiveIntensity:0.35});
+var mRod=new THREE.MeshLambertMaterial({color:0x9aa3ad});
+var mLight=new THREE.MeshBasicMaterial({color:0xffffff});
+var mDoor=new THREE.MeshLambertMaterial({color:0x3a4553});
+var mFrame=new THREE.MeshLambertMaterial({color:0x46525e});
+var mStep=new THREE.MeshLambertMaterial({color:0xb6bcc4});
+var mRail=new THREE.MeshLambertMaterial({color:0x8b95a1});
+var mDesk=new THREE.MeshLambertMaterial({color:0x5b6570});
+var mScreenD=new THREE.MeshLambertMaterial({color:0x0b1220});
+var mCyan=new THREE.MeshBasicMaterial({color:0x22d3ee});
+var mGreen=new THREE.MeshLambertMaterial({color:0x1f5c3a});
+var mRed=new THREE.MeshLambertMaterial({color:0xc23b2e});
+var mGold=new THREE.MeshLambertMaterial({color:0xb9862f});
+var mBlack=new THREE.MeshLambertMaterial({color:0x101418});
+var mWarn=new THREE.MeshLambertMaterial({color:0xeab308});
+var mBoardF=new THREE.MeshLambertMaterial({color:0x1e2a3c});
+var mBoardS=new THREE.MeshLambertMaterial({color:0x2a4d6e,emissive:0x0d2136,emissiveIntensity:0.6});
+var mPole=new THREE.MeshLambertMaterial({color:0x6b7280});
+var mMil=new THREE.MeshLambertMaterial({color:0x3f4a2e});
+var mHot=new THREE.MeshBasicMaterial({color:0xffa726});
+var mHotF=new THREE.MeshBasicMaterial({color:0x4ade80});
+var mHit=new THREE.MeshBasicMaterial({visible:false});
+var geoCache={};
+function BG(w,h,d){ var k=w+"|"+h+"|"+d; return geoCache[k]||(geoCache[k]=new THREE.BoxGeometry(w,h,d)); }
+function bx(w,h,d,m,x,y,z,ry,parent){ var g=new THREE.Mesh(BG(w,h,d),m); g.position.set(x,y,z); if(ry)g.rotation.y=ry; (parent||scene).add(g); return g; }
+function cylB(ax,ay,az,bx2,by2,bz2,r,m,parent){ var a=new THREE.Vector3(ax,ay,az),b=new THREE.Vector3(bx2,by2,bz2); var d=new THREE.Vector3().subVectors(b,a),len=d.length(); var g=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,8),m); g.position.copy(a).lerp(b,0.5); g.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()); (parent||scene).add(g); return g; }
+function textPlane(text,w,h,fg,bg,x,y,z,ry){ var cv=document.createElement("canvas"); cv.width=512; cv.height=128; var c=cv.getContext("2d"); c.fillStyle=bg; c.fillRect(0,0,512,128); c.strokeStyle=fg; c.lineWidth=6; c.strokeRect(6,6,500,116); c.fillStyle=fg; c.font="bold 58px 'Microsoft YaHei',sans-serif"; c.textAlign="center"; c.textBaseline="middle"; c.fillText(text,256,68,452); var tx=new THREE.CanvasTexture(cv); tx.anisotropy=4; var g=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tx})); g.position.set(x,y,z); if(ry)g.rotation.y=ry; scene.add(g); return g; }
+function trayRun(x1,y1,z1,x2,y2,z2,hangY){
+  var dx=x2-x1,dy=y2-y1,dz=z2-z1,hl=Math.sqrt(dx*dx+dz*dz),len=Math.sqrt(hl*hl+dy*dy);
+  var g=new THREE.Group();
+  var base=new THREE.Mesh(BG(0.15,0.012,len),mYellow); base.position.set(0,-0.006,len/2); g.add(base);
+  var r1=new THREE.Mesh(BG(0.012,0.055,len),mYellow); r1.position.set(0.081,0.0275,len/2); g.add(r1);
+  var r2=r1.clone(); r2.position.x=-0.081; g.add(r2);
+  var n=Math.max(1,Math.floor(len/0.55));
+  for(var i=1;i<=n;i++){ var rg=new THREE.Mesh(BG(0.16,0.014,0.02),mYellow); rg.position.set(0,0.007,i*len/(n+1)); g.add(rg); }
+  g.position.set(x1,y1,z1);
+  g.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(dx,dy,dz).normalize());
+  scene.add(g);
+  if(hangY){ var dir=new THREE.Vector3(dx,dy,dz).normalize(); var cnt=Math.max(1,Math.round(len/1.5));
+    for(var j=1;j<=cnt;j++){ var p=new THREE.Vector3().copy(g.position).addScaledVector(dir,j*len/(cnt+1)); var hh=hangY-(p.y+0.03); if(hh>0.05) bx(0.014,hh,0.014,mRod,p.x,(p.y+0.03+hangY)/2,p.z); } }
+  return g;
+}
+
+/* ================= 一楼机房 ================= */
+bx(10.2,0.1,6.2,mFloor,0,-0.05,3);
+bx(10.4,3,0.2,mWall,0,1.5,-0.1);
+bx(0.2,3,6.4,mWall,-5.1,1.5,3);
+bx(0.2,3,6.4,mWall,5.1,1.5,3);
+bx(6.6,3,0.2,mWall,-1.9,1.5,6);
+bx(2.4,3,0.2,mWall,4.0,1.5,6);
+bx(1.4,0.7,0.2,mWall,2.1,2.65,6);
+bx(10.6,0.15,6.6,mCeil,0,3.075,3);
+bx(0.08,2.3,0.22,mFrame,1.42,1.15,6);
+bx(0.08,2.3,0.22,mFrame,2.78,1.15,6);
+bx(1.44,0.08,0.22,mFrame,2.1,2.34,6);
+bx(1.4,0.02,0.26,mRod,2.1,0.01,6.06);
+bx(0.9,0.06,0.9,mLight,-2.5,2.99,1.5); bx(0.9,0.06,0.9,mLight,2.5,2.99,1.5);
+bx(0.9,0.06,0.9,mLight,-2.5,2.99,4.5); bx(0.9,0.06,0.9,mLight,2.5,2.99,4.5);
+function cabinet(x,z,f){ /* f=+1 左排朝+x，-1 右排朝-x */
+  bx(0.62,2,0.62,mCab,x,1,z);
+  bx(0.56,1.9,0.02,mCabFace,x+f*0.33,1,z,f>0?Math.PI/2:-Math.PI/2);
+  bx(0.4,0.5,0.01,mScreenD,x+f*0.34,1.35,z,f>0?Math.PI/2:-Math.PI/2);
+  bx(0.03,0.03,0.03,mCyan,x+f*0.35,1.78,z-0.18);
+  bx(0.03,0.03,0.03,mCyan,x+f*0.35,1.78,z+0.18);
+}
+var zi;
+for(zi=0;zi<6;zi++){
+  var cz=0.9+zi*0.82;
+  cabinet(-4.55,cz,1); bx(0.5,0.22,0.02,mWhite,-4.21,1.25,cz,Math.PI/2);
+  cabinet(4.55,cz,-1); bx(0.45,0.07,0.02,mCyan,4.21,1.45,cz,-Math.PI/2); bx(0.45,0.07,0.02,mCyan,4.21,1.15,cz,-Math.PI/2);
+}
+bx(0.42,0.3,0.16,mWhite,0,1.85,0.12);
+var pig1=new THREE.Mesh(new THREE.TorusGeometry(0.08,0.018,8,16),mCable); pig1.position.set(0.5,1.7,0.22); pig1.rotation.x=Math.PI/2; scene.add(pig1);
+var pig2=pig1.clone(); pig2.position.x=-0.5; scene.add(pig2);
+cylB(-4.7,0.1,5.4,-4.7,0.62,5.4,0.09,mRed);
+bx(0.03,0.1,0.03,mRod,-4.7,0.68,5.4);
+textPlane("网络控制中心机房",1.9,0.48,"#fbbf24","#101826",2.1,2.62,6.13,0);
+textPlane("弱电走廊 →",1.5,0.38,"#7dd3fc","#101826",2.1,2.62,5.88,Math.PI);
+
+/* ================= 一楼弱电走廊 ================= */
+bx(2.4,0.1,16.6,mFloor,2.1,-0.05,14.2);
+bx(2.4,0.15,16.3,mCeil,2.1,3.075,14.25);
+bx(0.2,3,16.4,mWall,0.9,1.5,14.25);
+bx(0.2,3,16.4,mWall,3.3,1.5,14.25);
+for(zi=7.5;zi<22;zi+=3) bx(0.9,0.06,0.9,mLight,2.1,2.99,zi);
+bx(2.2,0.8,0.2,mWall,2.1,2.6,22.4);
+bx(0.08,2.2,0.22,mFrame,1.32,1.1,22.4);
+bx(0.08,2.2,0.22,mFrame,2.88,1.1,22.4);
+textPlane("楼梯间 · 展厅方向",1.8,0.45,"#fbbf24","#101826",2.1,2.55,22.28,Math.PI);
+
+/* ================= 楼梯间 ================= */
+bx(2.4,0.1,13.2,mFloor,2.1,-0.05,28.9);
+bx(0.2,9.4,13.2,mWall,0.9,4.7,28.9);
+bx(0.2,9.4,13.2,mWall,3.3,4.7,28.9);
+bx(2.6,0.15,13.4,mCeil,2.1,9.45,28.9);
+var si,sh,sz2;
+for(si=0;si<16;si++){ sh=(si+1)*0.1875; sz2=22.4+(si+0.5)*0.34375; bx(2.2,sh,0.34375,mStep,2.1,sh/2,sz2); }
+bx(2.2,3,2.0,mStep,2.1,1.5,28.9);
+for(si=0;si<16;si++){ sh=3+(si+1)*0.1875; sz2=29.9+(si+0.5)*0.34375; bx(2.2,sh,0.34375,mStep,2.1,sh/2,sz2); }
+function railY(z){ return groundY(z)+0.95; }
+cylB(1.18,0.95,22.4,1.18,3.95,27.9,0.035,mRail);
+cylB(1.18,3.95,27.9,1.18,3.95,29.9,0.035,mRail);
+cylB(1.18,3.95,29.9,1.18,6.95,35.4,0.035,mRail);
+cylB(3.02,0.95,22.4,3.02,3.95,27.9,0.035,mRail);
+cylB(3.02,3.95,27.9,3.02,3.95,29.9,0.035,mRail);
+cylB(3.02,3.95,29.9,3.02,6.95,35.4,0.035,mRail);
+var posts=[22.6,25.2,27.8,30.1,32.7,35.2];
+for(si=0;si<posts.length;si++){ var pz=posts[si],gy=railY(pz)-0.95+0.02; cylB(1.18,gy,pz,1.18,railY(pz),pz,0.022,mRail); cylB(3.02,gy,pz,3.02,railY(pz),pz,0.022,mRail); }
+bx(0.08,2.0,0.9,mDoor,3.14,4.0,28.9);
+textPlane("2F",0.7,0.35,"#cbd5e1","#334155",3.08,5.3,28.9,-Math.PI/2);
+bx(0.03,0.6,0.2,mLight,3.09,2.6,25.2);
+bx(0.03,0.6,0.2,mLight,3.09,5.4,31.5);
+
+/* ================= 三楼走廊 ================= */
+bx(2.4,0.15,8.1,mFloor,2.1,5.925,39.05);
+bx(0.2,3,8.0,mWall,0.9,7.5,39.2);
+bx(0.2,3,8.0,mWall,3.3,7.5,39.2);
+bx(2.4,0.15,8.0,mCeil,2.1,9.075,39.2);
+bx(0.9,0.06,0.9,mLight,2.1,8.99,36.8);
+bx(0.9,0.06,0.9,mLight,2.1,8.99,39.8);
+bx(0.9,0.06,0.9,mLight,2.1,8.99,42.2);
+textPlane("国防教育展厅 →",2.2,0.55,"#fbbf24","#101826",3.08,7.5,38.8,-Math.PI/2);
+
+/* ================= 三楼展厅 ================= */
+bx(13.4,0.15,15.2,mFloor,0.5,5.925,50.55);
+bx(7.6,3,0.2,mWall,-2.4,7.5,43);
+bx(4.4,3,0.2,mWall,5.0,7.5,43);
+bx(1.4,0.7,0.2,mWall,2.1,8.65,43);
+bx(13.4,3,0.2,mWall,0.5,7.5,58.1);
+bx(0.2,3,15.2,mWall,-6.1,7.5,50.55);
+bx(0.2,3,15.2,mWall,7.1,7.5,50.55);
+bx(13.4,0.15,15.2,mCeil,0.5,9.075,50.55);
+bx(0.08,2.3,0.22,mFrame,1.42,7.15,43);
+bx(0.08,2.3,0.22,mFrame,2.78,7.15,43);
+bx(1.44,0.08,0.22,mFrame,2.1,8.34,43);
+var hx2,hz2;
+for(hx2=-4;hx2<=5;hx2+=4.5){ for(hz2=45;hz2<=54.6;hz2+=3.2) bx(0.9,0.06,0.9,mLight,hx2,8.99,hz2); }
+textPlane("国防教育展厅",2.4,0.6,"#fbbf24","#101826",2.1,8.62,42.88,Math.PI);
+textPlane("出口 · 3F走廊",1.7,0.42,"#7dd3fc","#101826",2.1,8.62,43.13,0);
+/* 西墙·历史展区展板 */
+function board(wall,x,z,y,ry,w,h,frame){ bx(0.06,h,w,frame||mBoardF,x,y,z,ry); }
+var bz;
+for(bz=45.5;bz<=53;bz+=2.5){ board(null,-5.87,bz,7.7,Math.PI/2,2.0,1.15); bx(0.02,0.95,1.8,mBoardS,-5.83,7.68,bz,Math.PI/2); bx(0.02,0.14,1.8,mRed,-5.82,8.12,bz,Math.PI/2); }
+/* 南墙·武器装备区 */
+board(null,4.2,43.15,7.7,0,2.0,1.15); bx(2.0,0.95,0.02,mBoardS,4.2,7.68,43.19); bx(2.0,0.14,0.02,mRed,4.2,8.12,43.2);
+board(null,6.0,43.15,7.7,0,1.8,1.15,mMil); bx(1.8,0.95,0.02,mBoardS,6.0,7.68,43.19);
+bx(0.55,0.2,0.3,mMil,4.0,7.55,43.24); bx(0.3,0.14,0.22,mMil,4.05,7.72,43.24); cylB(4.3,7.72,43.24,4.62,7.72,43.24,0.025,mMil);
+cylB(6.2,7.9,43.24,6.2,7.35,43.24,0.05,mMil); bx(0.16,0.1,0.16,mMil,6.2,7.93,43.24);
+/* 北墙·荣誉墙 */
+board(null,-3.8,57.86,7.75,Math.PI,2.8,1.3,mGold); bx(2.8,1.0,0.02,new THREE.MeshLambertMaterial({color:0x7c2d12}),-3.8,7.72,57.89,Math.PI);
+for(bz=0;bz<3;bz++){ var md=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,0.02,14),mGold); md.position.set(-4.8+bz*1.0,7.75,57.84); md.rotation.x=Math.PI/2; scene.add(md); }
+/* 东墙·影音教育区 */
+bx(0.06,1.8,3.2,mBlack,6.86,7.6,46.2); bx(0.02,1.62,3.0,mScreenD,6.82,7.6,46.2);
+bx(0.1,0.14,2.6,mCab,6.8,6.62,46.2);
+/* 东墙·指挥中心 */
+bx(0.7,0.75,2.6,mDesk,6.35,6.375,51.0);
+bx(0.04,0.42,0.66,mBlack,6.9,6.98,50.3); bx(0.02,0.34,0.56,mCyan,6.88,6.98,50.3);
+bx(0.04,0.42,0.66,mBlack,6.9,6.98,51.0); bx(0.02,0.34,0.56,mCyan,6.88,6.98,51.0);
+bx(0.04,0.42,0.66,mBlack,6.9,6.98,51.7); bx(0.02,0.34,0.56,mCyan,6.88,6.98,51.7);
+bx(0.48,0.5,0.48,mChair||mDesk,5.55,6.25,51.0);
+/* 靶位互动区 */
+bx(3.2,2.5,0.08,mGreen,5.05,7.3,57.85);
+textPlane("模拟射击训练区",2.6,0.55,"#fbbf24","#14532d",5.05,8.32,57.79,Math.PI);
+bx(3.4,0.02,0.5,mWarn,5.0,6.01,56.35);
+for(bz=0;bz<7;bz++) bx(0.3,0.024,0.5,mBlack,3.5+bz*0.5,6.012,56.35);
+var tx2;
+for(tx2=0;tx2<5;tx2++){
+  var txx=3.9+tx2*0.65;
+  cylB(txx,6.02,57.2,txx,7.35,57.2,0.03,mPole);
+  var disc=new THREE.Mesh(new THREE.CylinderGeometry(0.24,0.24,0.03,20),mWhite); disc.position.set(txx,7.55,57.05); disc.rotation.x=Math.PI/2; scene.add(disc);
+  var ring=new THREE.Mesh(new THREE.TorusGeometry(0.15,0.012,8,20),mRed); ring.position.set(txx,7.55,57.03); scene.add(ring);
+  var dot=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,0.032,10),mRed); dot.position.set(txx,7.55,57.04); dot.rotation.x=Math.PI/2; scene.add(dot);
+}
+bx(2.8,0.06,0.75,mDesk,5.2,6.72,55.35);
+bx(0.06,0.66,0.06,mPole,4.0,6.39,55.05); bx(0.06,0.66,0.06,mPole,6.4,6.39,55.05);
+bx(0.06,0.66,0.06,mPole,4.0,6.39,55.65); bx(0.06,0.66,0.06,mPole,6.4,6.39,55.65);
+for(tx2=0;tx2<5;tx2++){ var txx2=3.9+tx2*0.65; bx(0.28,0.05,0.22,mBlack,txx2,6.78,55.3); bx(0.2,0.14,0.01,mCyan,txx2,6.84,55.42,-0.3); var st=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,0.05,14),mCab); st.position.set(txx2,6.28,54.65); scene.add(st); cylB(txx2,6.28,54.65,txx2,6.02,54.65,0.03,mPole); }
+/* 靶位终端盒·链路终点 */
+bx(0.16,0.3,0.42,mWhite,6.82,7.45,54.5);
+var pig3=new THREE.Mesh(new THREE.TorusGeometry(0.08,0.018,8,16),mCable); pig3.position.set(6.68,7.15,55.0); pig3.rotation.x=Math.PI/2; scene.add(pig3);
+for(tx2=0;tx2<5;tx2++){ var txx3=3.9+tx2*0.65; cylB(6.75,7.42,54.6,txx3,7.5,57.05,0.009,mCable); }
+cylB(4.75,6.1,43.7,4.75,6.62,43.7,0.09,mRed);
+/* 灭火器箱 */
+bx(0.35,0.5,0.18,mRed,4.75,6.35,43.7);
+/* 熔接操作台（施工模式） */
+var gFurn=new THREE.Group(); scene.add(gFurn); gFurn.visible=false;
+bx(1.6,0.05,0.75,mDesk,0,6.85,50,0,gFurn);
+bx(0.05,0.68,0.05,mPole,-0.72,6.49,49.72,0,gFurn); bx(0.05,0.68,0.05,mPole,0.72,6.49,49.72,0,gFurn);
+bx(0.05,0.68,0.05,mPole,-0.72,6.49,50.28,0,gFurn); bx(0.05,0.68,0.05,mPole,0.72,6.49,50.28,0,gFurn);
+bx(0.35,0.16,0.26,mWhite,-0.35,6.96,50,0,gFurn);
+bx(0.2,0.13,0.02,mCyan,-0.35,7.06,49.85,0,gFurn);
+bx(0.22,0.08,0.14,mRed,0.12,6.93,49.95,0,gFurn);
+bx(0.3,0.12,0.2,mCab,0.45,6.93,50.15,0,gFurn);
+var spo=new THREE.Mesh(new THREE.TorusGeometry(0.07,0.02,8,16),mCable); spo.position.set(-0.75,7.05,50.2); gFurn.add(spo);
+var ch1=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.17,0.05,14),mCab); ch1.position.set(0.95,6.27,50.6); gFurn.add(ch1);
+var ch2=ch1.clone(); ch2.position.set(-0.95,6.27,49.4); gFurn.add(ch2);
+bx(0.4,0.5,0.05,mCab,1.12,6.65,50.6,0,gFurn);
+bx(0.4,0.5,0.05,mCab,-1.12,6.65,49.4,0,gFurn);
+
+/* ================= 桥架与光缆 ================= */
+trayRun(0,2.6,0.75,0,2.6,4.3,3.0);
+trayRun(0,2.6,4.3,2.1,2.6,4.3,3.0);
+trayRun(2.1,2.6,4.3,2.1,2.6,6.0,3.0);
+trayRun(2.1,2.5,6.0,2.1,2.5,22.35,3.0);
+trayRun(2.1,2.5,22.35,2.95,2.7,23.5,null);
+trayRun(2.95,2.7,23.5,2.95,5.2,27.9,null);
+trayRun(2.95,5.2,27.9,2.95,5.2,29.9,null);
+trayRun(2.95,5.2,29.9,2.95,8.2,35.4,null);
+bx(0.2,0.02,0.02,mRod,3.02,3.27,24.5); bx(0.2,0.02,0.02,mRod,3.02,4.12,26.0);
+bx(0.2,0.02,0.02,mRod,3.02,5.6,31.0); bx(0.2,0.02,0.02,mRod,3.02,6.69,33.0);
+trayRun(2.95,8.2,35.4,2.1,8.5,36.0,null);
+trayRun(2.1,8.5,36.0,2.1,8.5,42.9,9.0);
+trayRun(2.1,8.5,42.9,2.1,8.5,44.2,9.0);
+trayRun(2.1,8.5,44.2,5.6,8.5,44.2,9.0);
+trayRun(5.6,8.5,44.2,5.6,8.5,54.0,9.0);
+trayRun(5.6,8.5,54.0,6.78,8.42,54.45,null);
+trayRun(6.78,8.42,54.45,6.78,7.62,54.45,null);
+var cablePts=[
+[0,1.92,0.32],[0,2.52,0.75],[0,2.52,3.4],[2.1,2.52,4.3],[2.1,2.47,6.05],
+[2.1,2.47,21.0],[2.1,2.47,22.3],[2.95,2.7,23.5],[2.95,5.15,27.8],[2.95,5.2,28.9],
+[2.95,5.25,29.9],[2.95,8.15,35.3],[2.95,8.35,35.5],[2.1,8.47,36.0],[2.1,8.47,42.6],
+[2.1,8.47,44.2],[5.6,8.47,44.2],[5.6,8.47,53.6],[6.55,8.42,54.3],[6.78,7.62,54.5]
+].map(function(p){ return new THREE.Vector3(p[0],p[1],p[2]); });
+var curve=new THREE.CatmullRomCurve3(cablePts,false,"centripetal");
+var cable=new THREE.Mesh(new THREE.TubeGeometry(curve,260,0.03,10,false),mCable);
+scene.add(cable);
+var flows=[];
+for(zi=0;zi<4;zi++){ var f=new THREE.Mesh(new THREE.SphereGeometry(0.06,10,10),new THREE.MeshBasicMaterial({color:0xfff59d})); f.visible=false; scene.add(f); flows.push(f); }
+
+/* ================= 热点数据 ================= */
+var HS=[
+{no:"01",t:"成端起点 · 12芯光纤终端盒",zone:"一楼机房 · 成端区",p:[0,2.05,0.35],imgs:["s01.jpg"],params:["类型：机架式/壁挂式 12 芯终端盒","颜色：白色（ABS/金属）","进出线：背部进线、正面出尾纤","起点功能：12 芯 G.652D 单模光缆成端","纤芯分配：6 业务芯 + 6 备份芯"],tip:"核对成端起点位置与纤芯分配表——这是整条链路的“0号桩”。"},
+{no:"02",t:"光纤配线柜（6台光柜）",zone:"一楼机房 · 左排",p:[-3.95,1.5,3.0],imgs:["s04.jpg"],params:["规格：600×600×2000mm 黑色 RAL9005","结构：19英寸标准机架、前后网孔门","内装：ODF 光纤配线架 24-48 芯 LC/SC","安装高度：机柜中部 1.0-1.5m","尾纤：黄色单模，成束盘绕"],tip:"光柜与网络柜分区布置，左排光柜负责光纤成端与配线。"},
+{no:"03",t:"网络机柜（6台）",zone:"一楼机房 · 右排",p:[3.95,1.5,3.0],imgs:["s03.jpg"],params:["规格：600×600×2000mm 黑色 RAL9005","门板：前网孔门（可选玻璃视窗）、后双开网孔门","供电：机柜后部 1U PDU","底部：进线孔带毛刷/橡胶密封"],tip:"确认设备安装朝向、散热通道与进线封堵。"},
+{no:"04",t:"机房环境勘察",zone:"一楼机房",p:[0,1.55,4.1],imgs:["s02.jpg"],params:["净高：2.8 - 3.0m","地面：浅灰防静电地板，架空 150-200mm","墙面：白色乳胶漆","照明：白色方形嵌入式面板灯","门：单开防火门，通向弱电走廊"],tip:"机房环境参数是布线方案设计的前置条件。"},
+{no:"05",t:"机房顶部桥架",zone:"一楼机房 · 天花",p:[-0.05,2.25,2.6],imgs:["s05.jpg"],params:["类型：黄色金属网格桥架（RAL1023 近似）","路径：终端盒上方 → 机房顶部 → 门口上方出机房","转弯处：预留光缆弯曲余量"],tip:"观察光缆从机柜到桥架、再到出机房的完整路径。"},
+{no:"06",t:"卡扣固定工艺",zone:"一楼弱电走廊",p:[2.1,2.2,8.6],imgs:["s17.jpg"],params:["桥架内绑带/卡扣分段固定","固定间距：0.8 - 1.0m","桥架内保留盘纤余量"],tip:"检查固定工艺与余缆预留，防止光缆受拉。"},
+{no:"07",t:"走廊桥架 · 水平敷设",zone:"一楼弱电走廊",p:[2.1,2.25,12],imgs:["s06.jpg","s08.jpg"],params:["安装高度：距地 2.5m","断面：宽 150mm × 高 50mm","吊杆：顶部丝杆悬挂，间距 1.5m","光缆固定：绑带/卡扣间距 0.8-1.0m"],tip:"核查安装高度、吊杆间距、绑扎间距三要素。"},
+{no:"08",t:"安装工艺参数",zone:"一楼弱电走廊",p:[2.1,2.25,17.5],imgs:["s07.jpg"],params:["剖面标注：距地 2.5m / 断面 150×50mm","固定：金属丝杆吊杆","结构：网格透空，便于检查","弯曲半径：≥ 40mm"],tip:"对照剖面图逐项记录桥架断面与安装参数。"},
+{no:"09",t:"走廊端部 · 通向楼梯间",zone:"一楼弱电走廊",p:[2.1,2.25,19.9],imgs:["s09.jpg","s16.jpg"],params:["走廊净宽 1.8-2.2m、净高 2.8-3.0m","地面：浅灰反光地砖","光缆沿桥架全程水平段敷设","转弯处保持弯曲半径"],tip:"记录走廊端部走向，衔接楼梯间入口节点。"},
+{no:"10",t:"楼梯间入口 · 水平转竖向",zone:"一楼走廊端部",p:[2.1,2.15,21.7],imgs:["s10.jpg","s11.jpg"],params:["走廊桥架在楼梯间入口前结束","平顺转入楼梯间侧墙竖向桥架","过渡段：弯曲半径 ≥ 40mm"],tip:"水平转竖向是整条链路的关键过渡节点。"},
+{no:"11",t:"竖向桥架 · 爬坡段",zone:"楼梯间 · 第一梯段",p:[2.8,3.4,25.4],imgs:["s13.jpg","s15.jpg"],params:["竖向桥架沿楼梯侧墙敷设","随梯段坡度同步爬升","侧墙支架固定、随坡敷设"],tip:"竖向段是链路的高差段，注意桥架与楼梯结构的关系。"},
+{no:"12",t:"楼梯间全景",zone:"楼梯间",p:[2.6,5.0,31.5],imgs:["s12.jpg","s14.jpg"],params:["形式：直跑双梯段 + 中间休息平台（2F）","梯段净宽 2.2m","桥架转弯处半径合规、平顺过渡"],tip:"观察楼梯间整体空间与桥架转弯处理。"},
+{no:"13",t:"展厅桥架引入",zone:"三楼走廊 → 展厅",p:[2.1,8.15,42.3],imgs:["s18.jpg"],params:["3F 走廊桥架吊装引入展厅","距 3F 地面 2.5m","吊杆间距 1.5m"],tip:"确认光缆进入展厅后的敷设路径与固定方式。"},
+{no:"14",t:"展厅总览",zone:"三楼展厅",p:[0.5,7.3,46.5],imgs:["s19.jpg","s20.jpg","s21.jpg"],params:["展区：历史/武器装备/互动体验（靶位）/影音教育/荣誉墙/指挥中心","链路终点：靶位区 12 芯终端盒","6 业务芯对应 6 个展区点位"],tip:"对照轴测图确认展区分布与光缆点位映射。"},
+{no:"15",t:"靶位区终端盒 · 链路终点",zone:"三楼展厅 · 靶位区",p:[6.45,7.5,54.5],imgs:["s22.jpg"],params:["12 芯光缆成端终点","分支尾纤至 5 个模拟射击靶位","互动体验区核心信息点位"],tip:"确认终点成端方式与靶位分支，形成完整链路闭环。"},
+{no:"16",t:"熔接操作台",zone:"三楼展厅 · 中央",p:[0,7.35,50],imgs:["s23.jpg"],params:["设备：熔接机 / 切割刀 / 米勒钳 / 清洁工具","布设：课中施工阶段进入现场","双模式：勘察阶段无台 / 施工阶段布台"],tip:"课前勘察阶段现场无熔接台，课中施工阶段按图布设。",build:true}
+];
+var octGeo=new THREE.OctahedronGeometry(0.11);
+var sphGeo=new THREE.SphereGeometry(0.5,8,8);
+var hsLayer=document.getElementById("hsLayer");
+var KEY="zwjx_survey3d_found_v1",found=new Set();
+try{ (JSON.parse(localStorage.getItem(KEY)||"[]")).forEach(function(i){ found.add(i); }); }catch(e){}
+var buildMode=false,tracing=false;
+HS.forEach(function(h,i){
+  var mk=new THREE.Mesh(octGeo,found.has(i)?mHotF:mHot);
+  mk.position.fromArray(h.p); scene.add(mk); h.mk=mk;
+  var hit=new THREE.Mesh(sphGeo,mHit); hit.position.fromArray(h.p); hit.userData.idx=i; scene.add(hit); h.hit=hit;
+  var el=document.createElement("div"); el.className="hs-label"+(found.has(i)?" found":"");
+  el.innerHTML="<b>"+h.no+"</b>"+h.t;
+  el.addEventListener("click",function(ev){ ev.stopPropagation(); openCard(i); });
+  hsLayer.appendChild(el); h.el=el;
+});
+function visTotal(){ return buildMode?16:15; }
+var progTxt=document.getElementById("progTxt"),progBar=document.getElementById("progBar");
+function updateProg(){
+  var tot=visTotal(),n=0;
+  HS.forEach(function(h,i){ if(found.has(i)&&( !h.build||buildMode )) n++; });
+  progTxt.textContent="勘察进度 "+n+"/"+tot;
+  progBar.style.width=(n/tot*100)+"%";
+}
+var card=document.getElementById("card"),toastEl=document.getElementById("toast"),toastT=null;
+function toast(msg,ms){ toastEl.textContent=msg; toastEl.style.opacity=1; clearTimeout(toastT); toastT=setTimeout(function(){ toastEl.style.opacity=0; },ms||2600); }
+function openCard(i){
+  var h=HS[i];
+  card.innerHTML='<div class="c-hd"><span class="c-no">'+h.no+'</span><span class="c-t">'+h.t+'</span><button id="cClose">✕</button></div>'
+    +'<div class="c-zone">'+h.zone+'</div>'
+    +h.imgs.map(function(im){ return '<img loading="lazy" src="survey-img/'+im+'" alt="'+h.t+'">'; }).join("")
+    +'<ul class="c-params">'+h.params.map(function(p){ return "<li>"+p+"</li>"; }).join("")+'</ul>'
+    +'<div class="c-tip">📌 '+h.tip+'</div>';
+  card.classList.add("show");
+  document.getElementById("cClose").onclick=function(){ card.classList.remove("show"); };
+  if(!found.has(i)){
+    found.add(i);
+    try{ localStorage.setItem(KEY,JSON.stringify(Array.from(found))); }catch(e){}
+    h.el.classList.add("found"); h.mk.material=mHotF;
+    updateProg();
+    var tot=visTotal(),n=0;
+    HS.forEach(function(hh,j){ if(found.has(j)&&(!hh.build||buildMode)) n++; });
+    if(n>=tot){ toast(tot===16?"🏆 16 个点位全部勘察完成！可提交任务单，或对比勘察/施工两种模式。":"勘察阶段点位全部完成！右上角开启【施工模式】可查看熔接台布设。",4200); }
+    else toast("已勘察 "+n+" / "+tot+" 个点位");
+  }
+}
+card.addEventListener("click",function(e){ if(e.target===card) card.classList.remove("show"); });
+
+/* ================= 控制 ================= */
+function groundY(z){
+  if(z<=22.4) return 0;
+  if(z<=27.9) return (z-22.4)/5.5*3;
+  if(z<=29.9) return 3;
+  if(z<=35.4) return 3+(z-29.9)/5.5*3;
+  return 6;
+}
+var BLOCKERS=[[3.6,6.8,54.85,55.85],[3.7,6.7,56.5,57.6],[-0.95,0.95,49.35,50.65],[4.9,6.8,49.0,51.2],[6.1,6.8,44.8,47.2]];
+function walkable(x,z){
+  var ok=(x>=-3.9&&x<=3.9&&z>=0.45&&z<=5.7)||(x>=1.25&&x<=2.95&&z>=5.7&&z<=42.6)||(x>=-5.7&&x<=6.7&&z>=43&&z<=57.6)||(x>=1.45&&x<=2.75&&z>=5.3&&z<=6.5)||(x>=1.45&&x<=2.75&&z>=42.4&&z<=43.4);
+  if(!ok) return false;
+  for(var i=0;i<BLOCKERS.length;i++){ var b=BLOCKERS[i]; if(x>b[0]&&x<b[1]&&z>b[2]&&z<b[3]) return false; }
+  return true;
+}
+var pos={x:0,z:3.4},yaw=0,pitch=0;
+function tryMove(nx,nz){
+  if(walkable(nx,nz)){ pos.x=nx; pos.z=nz; return; }
+  if(walkable(nx,pos.z)){ pos.x=nx; return; }
+  if(walkable(pos.x,nz)){ pos.z=nz; return; }
+}
+var keys={};
+addEventListener("keydown",function(e){ keys[e.code]=true; if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].indexOf(e.code)>=0) e.preventDefault(); });
+addEventListener("keyup",function(e){ keys[e.code]=false; });
+var joyAct=false,joyVec={x:0,y:0},joyId=null,lookId=null,lookLast=null,downInfo=null;
+var joyEl=document.getElementById("joy"),knob=document.getElementById("joyKnob");
+canvas.addEventListener("pointerdown",function(e){
+  canvas.setPointerCapture&&canvas.setPointerCapture(e.pointerId);
+  if(e.pointerType==="touch"&&e.clientX<W*0.42&&e.clientY>H*0.38&&joyId===null){
+    joyId=e.pointerId; joyAct=true; joyVec.x=0; joyVec.y=0; knob.style.left="33px"; knob.style.top="33px";
+  } else if(lookId===null){
+    lookId=e.pointerId; lookLast={x:e.clientX,y:e.clientY}; downInfo={x:e.clientX,y:e.clientY,t:Date.now()};
+  }
+});
+canvas.addEventListener("pointermove",function(e){
+  if(e.pointerId===joyId){
+    var r=joyEl.getBoundingClientRect(),cx=r.left+59,cy=r.top+59;
+    var dx=e.clientX-cx,dy=e.clientY-cy,d=Math.hypot(dx,dy),m=Math.min(d,40);
+    if(d>0){ var ux=dx/d,uy=dy/d; knob.style.left=(33+ux*m)+"px"; knob.style.top=(33+uy*m)+"px"; joyVec.x=ux*m/40; joyVec.y=-uy*m/40; }
+  } else if(e.pointerId===lookId&&lookLast){
+    var mx=e.clientX-lookLast.x,my=e.clientY-lookLast.y;
+    yaw-=mx*0.0042; pitch-=my*0.0042;
+    pitch=Math.max(-1.25,Math.min(1.25,pitch));
+    lookLast={x:e.clientX,y:e.clientY};
+  }
+});
+function endPointer(e){
+  if(e.pointerId===joyId){ joyId=null; joyAct=false; joyVec.x=0; joyVec.y=0; knob.style.left="33px"; knob.style.top="33px"; }
+  if(e.pointerId===lookId){
+    if(downInfo&&Math.hypot(e.clientX-downInfo.x,e.clientY-downInfo.y)<6&&Date.now()-downInfo.t<400) pick(e.clientX,e.clientY);
+    lookId=null; lookLast=null; downInfo=null;
+  }
+}
+canvas.addEventListener("pointerup",endPointer);
+canvas.addEventListener("pointercancel",endPointer);
+canvas.addEventListener("contextmenu",function(e){ e.preventDefault(); });
+var ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+function pick(ex,ey){
+  ndc.set(ex/W*2-1,-(ey/H)*2+1);
+  ray.setFromCamera(ndc,camera);
+  var list=[];
+  HS.forEach(function(h,i){ if(!h.build||buildMode) list.push(h.hit); });
+  var hits=ray.intersectObjects(list,false);
+  if(hits.length&&hits[0].distance<22) openCard(hits[0].object.userData.idx);
+}
+
+/* ================= UI ================= */
+var btnBuild=document.getElementById("btnBuild"),btnTrace=document.getElementById("btnTrace"),traceLeg=document.getElementById("traceLeg");
+btnBuild.addEventListener("click",function(){
+  buildMode=!buildMode; gFurn.visible=buildMode;
+  btnBuild.textContent="施工模式："+(buildMode?"开":"关");
+  btnBuild.classList.toggle("on",buildMode);
+  updateProg();
+  toast(buildMode?"已切换到施工模式：展厅中央布设熔接操作台":"已切换到勘察模式：现场无熔接台（课前勘察状态）");
+});
+btnTrace.addEventListener("click",function(){
+  tracing=!tracing;
+  btnTrace.classList.toggle("on",tracing);
+  traceLeg.classList.toggle("show",tracing);
+  flows.forEach(function(f){ f.visible=tracing; });
+  if(tracing) toast("光缆追踪中：从一楼成端起点流向三楼靶位终端盒",3200);
+});
+var TP={room:{x:0,z:3.4,yaw:0,pitch:0},corr:{x:2.1,z:11,yaw:Math.PI,pitch:0},stair:{x:2.1,z:24.3,yaw:Math.PI,pitch:-0.12},hall:{x:2.1,z:44.8,yaw:Math.PI,pitch:0}};
+var fadeEl=document.getElementById("fade");
+document.querySelectorAll("#telebar button").forEach(function(b){
+  b.addEventListener("click",function(){
+    var t=TP[b.dataset.t];
+    fadeEl.classList.add("on");
+    setTimeout(function(){ pos.x=t.x; pos.z=t.z; yaw=t.yaw; pitch=t.pitch; fadeEl.classList.remove("on"); },200);
+  });
+});
+document.getElementById("btnStart").addEventListener("click",function(){ document.getElementById("intro").style.display="none"; });
+document.getElementById("btnReset").addEventListener("click",function(){ try{ localStorage.removeItem(KEY); }catch(e){}; location.reload(); });
+var hintEl=document.getElementById("hint");
+hintEl.textContent=isTouch?"左下摇杆移动 · 拖动画面观察 · 点按橙色标记查看点位":"WASD移动 · 拖动鼠标观察 · 点击橙色标记查看点位 · Shift加速";
+setTimeout(function(){ hintEl.style.display="none"; },15000);
+updateProg();
+
+/* ================= 主循环 ================= */
+var clock=new THREE.Clock(),bobT=0,tmpV=new THREE.Vector3(),camDir=new THREE.Vector3(),pv=new THREE.Vector3();
+function animate(){
+  requestAnimationFrame(animate);
+  var dt=Math.min(clock.getDelta(),0.05),t=clock.elapsedTime;
+  var mx=0,mz=0;
+  if(keys.KeyW||keys.ArrowUp) mz+=1;
+  if(keys.KeyS||keys.ArrowDown) mz-=1;
+  if(keys.KeyA||keys.ArrowLeft) mx-=1;
+  if(keys.KeyD||keys.ArrowRight) mx+=1;
+  if(joyAct){ mx+=joyVec.x; mz+=joyVec.y; }
+  var moving=false;
+  if(mx||mz){
+    var len=Math.hypot(mx,mz); mx/=len; mz/=len;
+    var sp=(keys.ShiftLeft||keys.ShiftRight)?5.4:3.1;
+    var fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
+    tryMove(pos.x+(rx*mx+fx*mz)*sp*dt,pos.z+(rz*mx+fz*mz)*sp*dt);
+    moving=true; bobT+=dt*9;
+  }
+  var bob=moving?Math.sin(bobT)*0.035:0;
+  camera.position.set(pos.x,groundY(pos.z)+1.62+bob,pos.z);
+  camera.rotation.y=yaw; camera.rotation.x=pitch;
+  camera.getWorldDirection(camDir);
+  mCable.emissiveIntensity=tracing?0.85+0.5*Math.sin(t*5):0.35;
+  if(tracing){ flows.forEach(function(f,i){ var u=(t*0.055+i/4)%1; curve.getPointAt(u,f.position); }); }
+  for(var i=0;i<HS.length;i++){
+    var h=HS[i],vis=!h.build||buildMode;
+    h.mk.visible=vis;
+    if(!vis){ h.el.style.display="none"; continue; }
+    h.mk.scale.setScalar(1+0.14*Math.sin(t*3.5+i)); h.mk.rotation.y=t*1.6+i;
+    pv.fromArray(h.p);
+    var dist=pv.distanceTo(camera.position);
+    tmpV.subVectors(pv,camera.position);
+    if(dist>26||tmpV.dot(camDir)<0.4){ h.el.style.display="none"; continue; }
+    pv.project(camera);
+    if(pv.z>1){ h.el.style.display="none"; continue; }
+    h.el.style.display="block";
+    h.el.style.left=((pv.x+1)/2*W)+"px";
+    h.el.style.top=((1-pv.y)/2*H)+"px";
+  }
+  renderer.render(scene,camera);
+}
+animate();
+addEventListener("resize",function(){ W=innerWidth; H=innerHeight; camera.aspect=W/H; camera.updateProjectionMatrix(); renderer.setSize(W,H); });
+}
+})();
+</script>
+</body>
+</html>

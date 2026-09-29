@@ -31,7 +31,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;c
 .card.soon .arrow{color:#94a3b8}
 
 /* 数据外露看板 */
-.dashboard{margin-top:48px;background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:20px;padding:32px;color:#fff;position:relative;overflow:hidden}
+.dashboard{grid-column:1/-1;margin-top:48px;background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:20px;padding:32px;color:#fff;position:relative;overflow:hidden}
 .dashboard::before{content:"";position:absolute;top:0;right:0;width:320px;height:320px;background:radial-gradient(circle,rgba(167,139,250,.2),transparent 70%);pointer-events:none}
 .dashboard::after{content:"";position:absolute;bottom:-60px;left:-40px;width:260px;height:260px;background:radial-gradient(circle,rgba(14,165,233,.18),transparent 70%);pointer-events:none}
 .db-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;position:relative;z-index:1}
@@ -128,12 +128,13 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;c
 <div class="arrow">进入实训 →</div>
 </a>
 
-<div class="card soon">
-<span class="badge b-dev">开发中</span>
+<a class="card ready" href="survey-3d.html">
+<span class="badge b-ok">已上线</span>
 <div class="ico">🗺️</div>
 <h3>任务三维勘察</h3>
-<p>现场漫游视频+全景视角热点标注，学生带任务单自主勘察信息点位与桥架走向。</p>
-<div class="arrow">敬请期待</div>
+<p>3D漫游展厅布线全链路：一楼机房→弱电走廊→楼梯间→三楼展厅，16个勘察点位+光缆追踪，学生带任务单自主勘察。</p>
+<div class="arrow">进入勘察 →</div>
+</a>
 
 <!-- 实训数据看板（实时外露） -->
 <div class="dashboard">
@@ -169,7 +170,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;c
   </div>
 </div>
 
-</div>
+
 
 <div class="card soon">
 <span class="badge b-dev">开发中</span>
