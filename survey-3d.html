@@ -118,10 +118,24 @@ body.touch #joy{display:block}
 <div class="i-note">山东工业技师学院 信息工程系 计网教研室<br>现场为低多边形教学示意模型，设备参数以点位卡片为准<button id="btnReset">清空勘察进度</button></div>
 </div></div>
 <script>
+/* 按钮立即绑定：不依赖3D脚本，加载慢或脚本报错时也能关闭任务单 */
+(function(){
+var b=document.getElementById("btnStart");
+if(b)b.addEventListener("click",function(){var i=document.getElementById("intro");if(i)i.style.display="none";});
+var r=document.getElementById("btnReset");
+if(r)r.addEventListener("click",function(){try{localStorage.removeItem("zwjx_survey3d_found_v1")}catch(e){};location.reload();});
+})();
+</script>
+<script>
 (function(){
 "use strict";
+/* 运行错误收集 + 3D启动失败兜底：任何异常可见，不再静默卡死 */
+var __errs=[];
+addEventListener("error",function(e){__errs.push(String(e.message||"error")+(e.lineno?"（line "+e.lineno+"）":""));});
+function __esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function __fatal(html){var iv=document.getElementById("intro");if(iv){iv.style.display="flex";iv.innerHTML='<div class="i-card"><h1 style="color:#f87171">⚠️ 3D 场景启动失败</h1><div class="i-sec"><p style="line-height:2">'+html+'</p></div><div class="i-sec"><b>可以这样试</b><p>① 下拉刷新页面重试<br>② 关闭浏览器「省电模式 / 智能省电」后重开<br>③ 换 Chrome 浏览器打开本页</p></div><div class="i-note">持续失败请截图反馈给任课教师'+(__errs.length?'<br>错误信息：'+__esc(__errs.join("；")):'')+'</div></div>';}}
 var retries=0;
-function boot(){ if(typeof THREE==="undefined"){ if(retries++<50){ setTimeout(boot,150); return; } var iv=document.getElementById("intro"); if(iv){ iv.innerHTML="<div style=\"color:#f87171;font-size:15px;line-height:1.9;max-width:420px;text-align:center\">3D 引擎加载失败，请检查网络后刷新重试；若持续失败请联系任课教师。</div>"; } return; } init(); }
+function boot(){ if(typeof THREE==="undefined"){ if(retries++<50){ setTimeout(boot,150); return; } var iv=document.getElementById("intro"); if(iv){ iv.innerHTML="<div style=\"color:#f87171;font-size:15px;line-height:1.9;max-width:420px;text-align:center\">3D 引擎加载失败，请检查网络后刷新重试；若持续失败请联系任课教师。</div>"; } return; } try{ init(); }catch(err){ __fatal(__esc((err&&err.message)||err)); } }
 boot();
 
 function init(){
@@ -129,8 +143,17 @@ function init(){
 var W=innerWidth,H=innerHeight,isTouch=("ontouchstart" in window)||navigator.maxTouchPoints>0;
 if(isTouch) document.body.classList.add("touch");
 var canvas=document.getElementById("c3d");
-var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+var renderer;
+try{
+renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+}catch(e){
+/* 高配上下文创建失败：换新画布降级重试（关抗锯齿+1倍像素比，兼容省电模式/低配GPU） */
+var c2=document.createElement("canvas"); c2.id="c3d";
+canvas.parentNode.replaceChild(c2,canvas); canvas=c2;
+renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:false});
+renderer.setPixelRatio(1);
+}
 renderer.setSize(W,H);
 var scene=new THREE.Scene();
 scene.fog=new THREE.Fog(0x0b1526,34,95);
@@ -537,8 +560,7 @@ document.querySelectorAll("#telebar button").forEach(function(b){
     setTimeout(function(){ pos.x=t.x; pos.z=t.z; yaw=t.yaw; pitch=t.pitch; fadeEl.classList.remove("on"); },200);
   });
 });
-document.getElementById("btnStart").addEventListener("click",function(){ document.getElementById("intro").style.display="none"; });
-document.getElementById("btnReset").addEventListener("click",function(){ try{ localStorage.removeItem(KEY); }catch(e){}; location.reload(); });
+/* 按钮绑定已前移至页面顶部，与3D初始化彻底解耦 */
 var hintEl=document.getElementById("hint");
 hintEl.textContent=isTouch?"左下摇杆移动 · 拖动画面观察 · 点按橙色标记查看点位":"WASD移动 · 拖动鼠标观察 · 点击橙色标记查看点位 · Shift加速";
 setTimeout(function(){ hintEl.style.display="none"; },15000);
