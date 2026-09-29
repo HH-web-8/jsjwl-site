@@ -1535,7 +1535,7 @@ function renderScr(){
  }
 }
 function drawScr3D(){
- var c=SP.scrCtx;if(!c)return;
+ var c=SP.scrCtx;if(!c||!F)return;
  c.fillStyle='#0a2440';c.fillRect(0,0,256,160);
  c.strokeStyle='#123055';c.strokeRect(4,4,248,152);
  c.fillStyle='#5eead4';c.font='11px monospace';
@@ -1662,9 +1662,7 @@ function boot(){
   return;
  }
  try{
-  document.title='BOOT|three r'+THREE.REVISION;
   init3D();
-  document.title='OK|3D ready';
  }catch(e){
   __fatal((e&&e.message)||String(e));
   return;
