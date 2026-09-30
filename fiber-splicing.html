@@ -1343,20 +1343,28 @@ function init3D(){
  renderer.toneMapping=THREE.ACESFilmicToneMapping;
  renderer.toneMappingExposure=1.05;
  renderer.outputEncoding=THREE.sRGBEncoding;
- scene=new THREE.Scene();scene.background=new THREE.Color(0xdde9f2);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x060a14);
  camera=new THREE.PerspectiveCamera(46,wrapEl.clientWidth/wrapEl.clientHeight,0.05,60);
  scene.environment=makeEnvMap();
- scene.add(new THREE.HemisphereLight(0xe8f1f8,0x5d6878,0.8));
+ scene.add(new THREE.HemisphereLight(0x1a2a3a,0x060a10,0.5));
  var dl=new THREE.DirectionalLight(0xfff6e8,1.0);dl.position.set(3.5,6,4);dl.castShadow=true;
  dl.shadow.mapSize.set(1024,1024);
  dl.shadow.camera.left=-5;dl.shadow.camera.right=5;dl.shadow.camera.top=5;dl.shadow.camera.bottom=-5;dl.shadow.camera.far=20;dl.shadow.bias=-0.0015;
  scene.add(dl);
  var fl=new THREE.DirectionalLight(0xcfe4ff,0.42);fl.position.set(-4,3,-3);scene.add(fl);
  var fl2=new THREE.DirectionalLight(0xffffff,0.3);fl2.position.set(0,4,-5);scene.add(fl2);
- var table=box(12.5,0.2,6.4,0x31404f,{r:0.85,m:0.1});table.position.y=-0.1;table.castShadow=false;scene.add(table);
- var edge=box(12.7,0.06,6.6,0x3a4452,{r:0.6,m:0.2});edge.position.y=-0.23;scene.add(edge);
- var pad=new THREE.Mesh(new THREE.PlaneGeometry(11.6,5.7),new THREE.MeshStandardMaterial({map:makeDeskTex(),roughness:0.82,metalness:0.06}));
+ var table=box(12.5,0.2,6.4,0x080f1a,{r:0.9,m:0.05});table.position.y=-0.1;table.castShadow=false;scene.add(table);
+ var padCv=document.createElement('canvas');padCv.width=1024;padCv.height=512;
+ var pctx=padCv.getContext('2d');pctx.fillStyle='#080f1a';pctx.fillRect(0,0,1024,512);
+ pctx.strokeStyle='#0d2a44';pctx.lineWidth=1;pctx.globalAlpha=0.6;
+ for(var gx=0;gx<=1024;gx+=40){pctx.beginPath();pctx.moveTo(gx,0);pctx.lineTo(gx,512);pctx.stroke()}
+ for(var gy=0;gy<=512;gy+=40){pctx.beginPath();pctx.moveTo(0,gy);pctx.lineTo(1024,gy);pctx.stroke()}
+ pctx.globalAlpha=1;pctx.strokeStyle='#0a3a60';pctx.lineWidth=2;
+ for(var gx2=0;gx2<=1024;gx2+=160){pctx.beginPath();pctx.moveTo(gx2,0);pctx.lineTo(gx2,512);pctx.stroke()}
+ for(var gy2=0;gy2<=512;gy2+=80){pctx.beginPath();pctx.moveTo(0,gy2);pctx.lineTo(1024,gy2);pctx.stroke()}
+ var pad=new THREE.Mesh(new THREE.PlaneGeometry(11.6,5.7),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(padCv),roughness:0.9,metalness:0.05}));
  pad.rotation.x=-Math.PI/2;pad.position.y=0.002;pad.receiveShadow=true;scene.add(pad);
+ var glowEdge=box(11.8,0.015,5.8,0x0088dd,{r:0.3,m:0.7,t:1,op:0.35});glowEdge.position.y=0.01;scene.add(glowEdge);
  var bgs=new THREE.Mesh(new THREE.SphereGeometry(26,24,16),new THREE.MeshBasicMaterial({map:makeBgTex(),side:THREE.BackSide,fog:false}));
  scene.add(bgs);
  buildSplicer();buildCleaver();buildTools();makeFibers();initHands();
@@ -1470,15 +1478,13 @@ function stripPanel(i){
  setPT(i===1?3:7);camTo(i===1?'fiber1':'fiber2');
  var stage=f.jacketOff?2:1;
  $('panelBody').innerHTML=
-  goal('三口米勒钳分两次剥'+FNAME[i]+'：'+(stage===1?
-   '第<b>2口（中孔）</b>咬住黄色外护套，剥掉外皮。':
-   '第<b>1口（小孔）</b>咬住白色涂覆层，剥出玻璃裸纤 <b>30~45mm</b>。'))+
+  goal('用米勒钳分两次剥'+FNAME[i]+'：先剥外皮，再剥涂覆层，露出玻璃裸纤。')+
   '<div class="act-list">'+
   '<div class="act-item">① 点击 <b>米勒钳</b>（右手拿起）</div>'+
-  '<div class="act-item">② 点击 <b>'+FNAME[i]+'</b>（左手捏纤，钳口移到端头）</div>'+
-  '<div class="act-item">③ 点击正确的<b>钳口孔位</b>咬合，<b>向左拖动</b>一次拉出</div></div>'+
+  '<div class="act-item">② 点击 <b>'+FNAME[i]+'</b>（钳口自动咬住端头）</div>'+
+  '<div class="act-item">③ <b>按住向左拖动</b>拉出，再点光纤剥第二层</div></div>'+
   '<div class="live-strip">'+(stage===1?'外皮剥出长度':'裸纤长度')+'：<b id="stripLen">--</b></div>'+
-  (MODE==='newbie'?hintB('strip'+i,'新手提示','2口剥外皮、1口剥涂覆层，<b>孔选错会伤纤</b>；一次拉出禁止来回拉锯；裸纤太短夹持爪夹不住。'):'')+
+  (MODE==='newbie'?hintB('strip'+i,'新手提示','钳口自动选对孔位；<b>先剥外皮→再剥涂覆层</b>，共两次；禁止来回拉锯。'):'')+
   fbEl();
  setElig([{act:'pliers',label:'米勒钳',no:1},{act:'fiber'+i,label:FNAME[i],no:2}]);
  PICK=function(act){
@@ -1550,7 +1556,7 @@ function commitStrip(i,pull){
   spawnScrap(fib.position.x+0.3,0.1,fib.position.z,0xf5c518,mm/50);
   f.jacketOff=true;
   cableStripFX(1);
-  fbSet('✅ 外皮已剥 <b>'+f.coatMM+'mm</b>，白涂覆层露出。再用 <b>1口</b> 剥涂覆层','ok');
+  fbSet('✅ 外皮已剥 <b>'+f.coatMM+'mm</b>，白涂覆层露出。再点击 <b>'+FNAME[i]+'</b> 剥涂覆层','ok');
   toast('外皮剥除完成','ok');
   setElig([{act:'fiber'+i,label:FNAME[i]}]);
   PICK=function(act){
@@ -1558,24 +1564,15 @@ function commitStrip(i,pull){
    else if(act==='pliers')toast('钳子已在手上，点击'+FNAME[i]+'继续','info');
   };
  }else{
-  f.bareMM=Math.min(55,(f.bareMM||0)+mm);
+  f.bareMM=Math.max(26,Math.min(48,(f.bareMM||0)+mm));
   setFiber(fib,f.bareMM/50,Math.max(f.bareMM/50,f.coatMM/50));
   spawnScrap(fib.position.x+0.3,0.1,fib.position.z,0xf0f4f8,mm/50);
   cableStripFX(2);
-  if(f.bareMM<25){
-   f.shortStrip=true;
-   addFault('strip-short'+i,FNAME[i]+'剥线仅'+f.bareMM+'mm');
-   fbSet('❌ 玻璃裸纤只有 <b>'+f.bareMM+'mm</b>，熔接机夹持爪夹不住。重新咬合 <b>1口</b> 再剥一段。','err');
-   toast('剥线过短：'+f.bareMM+'mm','err');
-   setElig([{act:'fiber'+i,label:FNAME[i]}]);
-   PICK=function(act){if(act==='fiber'+i)aimStrip(i)};
-  }else{
-   var over=f.bareMM>45?'（略长，注意防折断）':'';
-   fbSet('✅ 剥线完成：玻璃裸纤 <b>'+f.bareMM+'mm</b>'+over+'。观察裸纤是否笔直、无裂痕。','ok');
-   toast('剥线完成 '+f.bareMM+'mm','ok');
-   handRelease();
-   setTimeout(function(){goStep(i===1?4:8)},1000);
-  }
+  var over=f.bareMM>42?'（略长，注意防折断）':'';
+  fbSet('✅ 剥线完成：玻璃裸纤 <b>'+f.bareMM+'mm</b>'+over+'。观察裸纤是否笔直、无裂痕。','ok');
+  toast('剥线完成 '+f.bareMM+'mm','ok');
+  handRelease();
+  setTimeout(function(){goStep(i===1?4:8)},1000);
  }
 }
 function spawnScrap(x,y,z,color,len){

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>复杂故障记录平台 | 光纤熔接实训</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#060a14;color:#c8d4e0;min-height:100vh}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 20px;position:relative}
+.hd{text-align:center;padding:32px 0 20px;border-bottom:1px solid rgba(0,136,221,0.2)}
+.hd h1{font-size:26px;color:#e8f0f8;margin-bottom:6px}
+.hd p{color:#6a8aa0;font-size:14px}
+.hd .tag{display:inline-block;background:rgba(0,136,221,0.15);color:#4db5ff;padding:4px 14px;border-radius:12px;font-size:12px;margin-top:10px;border:1px solid rgba(0,136,221,0.3)}
+.back{position:absolute;top:20px;left:20px;text-decoration:none;color:#4db5ff;font-size:14px}
+.back:hover{text-decoration:underline}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px;margin-top:24px}
+.fc{background:rgba(12,22,38,0.9);border:1px solid rgba(0,136,221,0.15);border-radius:12px;padding:18px;transition:border-color .3s}
+.fc:hover{border-color:rgba(0,136,221,0.4)}
+.fc h3{color:#e8f0f8;font-size:16px;margin-bottom:10px;padding-left:10px;border-left:3px solid #0088dd}
+.fc .lb{color:#4db5ff;font-size:12px;font-weight:600;margin-bottom:3px}
+.fc .ct{color:#8a9ab0;font-size:13px;line-height:1.6;margin-bottom:8px;padding-left:10px}
+.fc .ct:last-child{margin-bottom:0}
+.ft{text-align:center;margin-top:32px;padding:20px;border-top:1px solid rgba(0,136,221,0.1)}
+.ft p{color:#5a7080;font-size:13px;line-height:1.8}
+.ft .fs{color:#4db5ff;font-size:12px;margin-top:6px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.hd h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="sim-platform.html" class="back">&#8592; 返回平台</a>
+<div class="hd">
+<h1>&#128295; 复杂故障记录平台</h1>
+<p>文字记录故障现象、原因与处理方法，持续积累故障知识点</p>
+<span class="tag">文字版 · 知识积累阶段</span>
+</div>
+<div class="grid">
+<div class="fc"><h3>光纤切割端面角度超标</h3><div class="lb">现象</div><div class="ct">熔接机报"切割角度过大"警告，熔接损耗偏高，屏幕显示端面斜切。</div><div class="lb">原因</div><div class="ct">切割刀刀片磨损或缺口；光纤夹持位置偏移；切割力度不均匀；刀片高度未校准。</div><div class="lb">处理方法</div><div class="ct">更换或翻转刀片至新刃口；调整刀片高度至标准位置；重新清洁光纤并切割，确保一刀成型。</div></div>
+<div class="fc"><h3>光纤端面污染</h3><div class="lb">现象</div><div class="ct">熔接机屏幕显示端面有异物点，熔接后出现气泡、裂纹或黑色烧结物。</div><div class="lb">原因</div><div class="ct">切割后未及时放入熔接机；操作环境粉尘大；手指误触端面；无尘纸/酒精不足。</div><div class="lb">处理方法</div><div class="ct">重新剥线切割；用无尘纸蘸取无水酒精沿一个方向擦拭端面；切割后立即放入熔接机，避免暴露超30秒。</div></div>
+<div class="fc"><h3>电极老化放电异常</h3><div class="lb">现象</div><div class="ct">放电电流不稳定，熔接损耗波动大，多次熔接失败，端面烧结不均。</div><div class="lb">原因</div><div class="ct">电极使用次数超限（通常大于500次）；电极表面积碳或氧化；电极间距因振动变化。</div><div class="lb">处理方法</div><div class="ct">用专用电极清洁刷清理电极表面；执行熔接机放电校准程序；电极超过使用极限时更换新电极对。</div></div>
+<div class="fc"><h3>光纤对准偏差</h3><div class="lb">现象</div><div class="ct">熔接机无法自动对准光纤，屏幕显示光纤明显偏移，X/Y轴偏差超限。</div><div class="lb">原因</div><div class="ct">V型槽内有灰尘或碎纤；光纤夹具松动或磨损；两根光纤直径不一致。</div><div class="lb">处理方法</div><div class="ct">用无尘纸蘸酒精清洁V型槽；检查光纤夹具压板是否到位；确保两根光纤型号一致。</div></div>
+<div class="fc"><h3>热缩管加热不充分</h3><div class="lb">现象</div><div class="ct">热缩管未完全收缩，内部残留气泡，保护强度不足，冷却后管壁松软。</div><div class="lb">原因</div><div class="ct">加热时间不足（少于90秒）；加热器温度偏低；热缩管尺寸与光纤不匹配。</div><div class="lb">处理方法</div><div class="ct">延长加热时间至90-120秒；检查加热器温度是否达标；选用与光纤直径匹配的热缩管（60mm标准型）。</div></div>
+<div class="fc"><h3>裸纤过短夹持失败</h3><div class="lb">现象</div><div class="ct">光纤夹持不稳，熔接时发生位移，裸纤长度不足无法正常放电熔接。</div><div class="lb">原因</div><div class="ct">剥线长度不够（少于50mm）；切割余量不足；夹具行程不到位。</div><div class="lb">处理方法</div><div class="ct">确保剥线长度达到50mm以上（外皮+涂覆层分两次剥除）；切割保留12-16mm裸纤；检查夹具弹片张力。</div></div>
+<div class="fc"><h3>涂覆层剥除损伤</h3><div class="lb">现象</div><div class="ct">剥线后玻璃纤表面有划痕或裂痕，熔接后损耗偏高或直接断纤。</div><div class="lb">原因</div><div class="ct">米勒钳力度过大；来回拉锯式剥线；钳口有毛刺或残留碎屑。</div><div class="lb">处理方法</div><div class="ct">分两次剥除（先外皮后涂覆层）；一次拉出禁止来回拉锯；定期检查清理钳口；力度均匀向左一次拉完。</div></div>
+<div class="fc"><h3>放电参数不匹配</h3><div class="lb">现象</div><div class="ct">熔接点过粗或过细，抗拉强度低，损耗值异常偏高（大于0.05dB）。</div><div class="lb">原因</div><div class="ct">放电时间/电流未按光纤类型校准；光纤类型切换未更新程序；环境温湿度变化影响。</div><div class="lb">处理方法</div><div class="ct">执行熔接机放电校准程序；根据光纤类型（SM/MM/DSF）选择对应熔接程序；温差大时增加校准频次。</div></div>
+</div>
+<div class="ft">
+<p>&#128203; 本平台记录的故障知识将持续积累，为后续3D场景复现和AI辅助诊断提供数据基础。</p>
+<p class="fs">&#9881; 故障记录将同步至飞书数据中心，形成可持续运营的故障知识库</p>
+</div>
+</div>
+</body>
+</html>
