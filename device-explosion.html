@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>3D设备与工具 · 动态拆解</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:#0b1220;color:#e6eefc;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0f1a2e;border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:20}
+.bar b{font-size:15px;letter-spacing:.5px;color:#7fd4ff}
+.bar a{color:#38bdf8;text-decoration:none;font-size:14px;padding:6px 10px;border:1px solid #1e3a5f;border-radius:8px;background:#0b1626}
+.bar a:active{background:#123252}
+main{max-width:1100px;margin:0 auto;padding:12px 12px 24px}
+section{margin-bottom:14px}
+.sec-t{font-size:13px;color:#9db4d8;margin:6px 2px 8px;letter-spacing:.5px}
+.sec-t b{color:#7fd4ff}
+.wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid #1e3a5f;background:radial-gradient(1200px 500px at 50% -10%,#12233f,#0b1220)}
+canvas{display:block;width:100%}
+.taglayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.tag{position:absolute;transform:translate(-50%,-120%);background:rgba(13,25,45,.88);border:1px solid #2c5f8f;border-radius:10px;padding:4px 9px;font-size:12px;color:#cfe8ff;pointer-events:auto;cursor:pointer;white-space:nowrap;transition:border-color .2s}
+.tag i{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#1d7ed0;color:#fff;font-style:normal;font-size:11px;margin-right:4px}
+.tag.on{border-color:#7fd4ff;color:#fff;box-shadow:0 0 10px rgba(56,189,248,.35)}
+.tag:active{background:#123a5e}
+.card{position:absolute;right:8px;top:8px;width:240px;max-width:46%;background:rgba(13,25,45,.9);border:1px solid #1e3a5f;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7;color:#bcd6f5;display:none}
+.card.show{display:block}
+.card h4{font-size:14px;color:#7fd4ff;margin-bottom:4px}
+.card ol{padding-left:18px}
+.card ol li{margin:2px 0}
+.card .cls{float:right;color:#5a7899;cursor:pointer;font-size:14px;padding:0 4px}
+.ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 6px}
+.ctrl span{font-size:12px;color:#8aa8cc}
+.ctrl input[type=range]{flex:1;min-width:140px;height:34px;accent-color:#38bdf8}
+.ctrl button{font-size:13px;padding:8px 14px;border-radius:9px;border:1px solid #1e3a5f;background:#0f1f36;color:#cfe8ff;cursor:pointer}
+.ctrl button:active{background:#153a63}
+.ctrl button.on{border-color:#38bdf8;color:#7fd4ff}
+.steps{display:flex;gap:6px;flex-wrap:wrap;padding:0 4px}
+.steps button{font-size:12px;padding:7px 10px;border-radius:9px;border:1px solid #1e3a5f;background:#0f1f36;color:#bcd6f5;cursor:pointer}
+.steps button.on{border-color:#38bdf8;color:#fff;background:#123252}
+.dcard{background:rgba(13,25,45,.9);border:1px solid #1e3a5f;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.8;color:#bcd6f5;display:none}
+.dcard.show{display:block}
+.dcard h4{font-size:15px;color:#7fd4ff;margin-bottom:6px}
+.dcard ol{padding-left:20px}
+.dcard ol li{margin:3px 0}
+.dcard .cls{float:right;color:#5a7899;cursor:pointer;padding:0 4px}
+.go{text-align:center;padding:16px 0 4px}
+.go a{display:inline-block;font-size:15px;padding:12px 34px;border-radius:12px;background:linear-gradient(135deg,#1d7ed0,#38bdf8);color:#fff;text-decoration:none;font-weight:600}
+.go a:active{filter:brightness(1.15)}
+.go .hint{font-size:11px;color:#5a7899;margin-top:10px}
+@media(max-width:640px){.card{font-size:11px;width:210px}.bar b{font-size:13px}}
+</style>
+<script src="assets/three-r128.min.js"></script>
+<script src="assets/GLTFLoader.js"></script>
+</head>
+<body>
+<header class="bar">
+ <a href="index.html">‹ 门户</a>
+ <b>3D设备与工具 · 动态拆解</b>
+ <a href="fiber-splicing.html">熔接实训 ›</a>
+</header>
+<main>
+
+<section>
+ <div class="sec-t">① <b>12芯光缆分层拆解</b> —— 拖动滑杆或点"播放拆解"，逐层剖开：外护套 → 芳纶纱 → 钢铠装 → 松套管 → 12色纤芯；点击 3D 里的层标签查看讲解</div>
+ <div class="wrap">
+  <canvas id="cvA"></canvas>
+  <div id="tagsA" class="taglayer"></div>
+  <aside id="cardA" class="card"><span class="cls">✕</span><h4></h4><p></p></aside>
+ </div>
+ <div class="ctrl">
+  <span>组装</span>
+  <input id="slider" type="range" min="0" max="100" value="0">
+  <span>完全拆解</span>
+  <button id="btnPlay">▶ 播放拆解</button>
+  <button id="btnReset">重置</button>
+  <button id="btnSpin" class="on">自转</button>
+ </div>
+ <div class="steps" id="layerBtns"></div>
+</section>
+
+<section>
+ <div class="sec-t">② <b>核心器材 3D 展台</b> —— 点标签或模型查看部件图解（88S 熔接机 / CT50 切割刀 / 米勒钳）</div>
+ <div class="wrap">
+  <canvas id="cvB"></canvas>
+  <div id="tagsB" class="taglayer"></div>
+ </div>
+ <div class="dcard" id="cardB"><span class="cls">✕</span><h4></h4><ol></ol></div>
+</section>
+
+<div class="go">
+ <a href="fiber-splicing.html">进入光纤熔接实训 ›</a>
+ <p class="hint">88S / CT50 分离部件模型（Tripo 制作中）上传后将接入逐部件真爆炸动画</p>
+</div>
+
+</main>
+<script>
+'use strict';
+function $(id){return document.getElementById(id)}
+function clamp(v,a,b){return v<a?a:(v>b?b:v)}
+var COL={bg:0x0b1220};
+
+/* ================= 场景A：12芯光缆分层爆炸 ================= */
+var AS={};
+function initA(){
+ var cv=$('cvA'),wrap=cv.parentNode;
+ var W=wrap.clientWidth,H=Math.max(340,Math.min(innerHeight*0.58,520));
+ var R=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+ R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(W,H,false);
+ R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+ var sc=new THREE.Scene();sc.background=new THREE.Color(COL.bg);
+ sc.fog=new THREE.Fog(COL.bg,7,16);
+ var cam=new THREE.PerspectiveCamera(46,W/H,0.1,60);cam.position.set(0,1.6,5.2);cam.lookAt(0,0.1,0);
+ var amb=new THREE.AmbientLight(0x9db8d8,0.55);sc.add(amb);
+ var key=new THREE.DirectionalLight(0xffffff,0.9);key.position.set(3,6,4);key.castShadow=true;
+ key.shadow.mapSize.set(1024,1024);sc.add(key);
+ var rim=new THREE.DirectionalLight(0x38bdf8,0.35);rim.position.set(-4,2,-3);sc.add(rim);
+ // 地面
+ var gnd=new THREE.Mesh(new THREE.CircleGeometry(8,48),new THREE.MeshStandardMaterial({color:0x101d33,roughness:0.95}));
+ gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;sc.add(gnd);
+ var grid=new THREE.GridHelper(14,28,0x1c3252,0x14243d);grid.position.y=0.001;sc.add(grid);
+ AS.R=R;AS.sc=sc;AS.cam=cam;AS.cv=cv;AS.W=W;AS.H=H;
+
+ buildCable();
+ buildLayerBtns();
+ bindACtrl();
+}
+/* ---- 12色标准纤芯色序 ---- */
+var FIBCOL=['#2f6fd0','#f28c28','#37a34a','#8a5a2b','#8d949c','#e8e8e8','#d92b2b','#1f2226','#f5c518','#8d4bbf','#f27fb2','#2fbfa8'];
+var LAYERS=[]; // {g,half?,tag,desc,mat...}
+function jacketTexture(){
+ var c=document.createElement('canvas');c.width=512;c.height=128;
+ var x=c.getContext('2d');x.fillStyle='#f5c518';x.fillRect(0,0,512,128);
+ x.fillStyle='rgba(255,255,255,.16)';x.fillRect(0,0,512,26);
+ x.fillStyle='#141414';x.font='bold 34px sans-serif';
+ x.fillText('12芯 G.652D 单模光缆',22,86);
+ var t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;t.repeat.x=2;
+ return t;
+}
+function halfTube(r,mat){ // 沿X轴的半剖圆管
+ var g=new THREE.CylinderGeometry(r,r,2.3,26,1,true,0,Math.PI); // θ0=0..π → +Z侧半管
+ var m=new THREE.Mesh(g,mat);m.rotation.z=Math.PI/2; // Y轴躺到X
+ m.castShadow=true;m.receiveShadow=true;return m;
+}
+function buildCable(){
+ var root=new THREE.Group();root.position.set(-0.15,0.55,0);AS.sc.add(root);AS.root=root;
+ // 地台柱
+ var ped=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,0.55,14),new THREE.MeshStandardMaterial({color:0x24344f,roughness:.6,metalness:.3}));
+ ped.position.y=0.27;ped.castShadow=true;AS.sc.add(ped);
+
+ // L1 外护套（黄色半剖两片，印字）
+ var jt=new THREE.MeshStandardMaterial({map:jacketTexture(),roughness:.5,metalness:.05,side:THREE.DoubleSide});
+ var L1=new THREE.Group();
+ var jA=halfTube(0.115,jt);           // θ0=0..π（+Z侧）
+ var gB=new THREE.CylinderGeometry(0.115,0.115,2.3,26,1,true,Math.PI,Math.PI); // -Z侧
+ var jB=new THREE.Mesh(gB,jt);jB.rotation.z=Math.PI/2;jB.castShadow=true;
+ // 端盖环（堵头观感）
+ var ring=new THREE.Mesh(new THREE.TorusGeometry(0.115,0.008,10,40),new THREE.MeshStandardMaterial({color:0xd9a521,roughness:.6}));
+ ring.rotation.y=Math.PI/2;
+ L1.add(jA);L1.add(jB);L1.add(ring);
+ L1.userData={halves:[{m:jA,ax:1},{m:jB,ax:-1}],ring:ring};
+ root.add(L1);LAYERS[0]={g:L1,name:'外护套',lift:-0.52,open:0.85,tag:[0,1.05,-0.75],
+  desc:'PE 外护套：光缆最外层保护，黄色，表面印型号"12芯 G.652D 单模光缆"。开剥时用米勒钳 2 号孔（0.30mm口）环切后剥除。'};
+
+ // L2 芳纶纱（16根米白细束）
+ var L2=new THREE.Group();
+ var yarnM=new THREE.MeshStandardMaterial({color:0xe8dcc3,roughness:.85});
+ L2.userData={yarns:[]};
+ for(var i=0;i<16;i++){
+  var ym=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,2.25,6),yarnM);
+  ym.rotation.z=Math.PI/2;ym.castShadow=true;
+  var a=i/16*Math.PI*2;
+  ym.userData.a=a;L2.add(ym);L2.userData.yarns.push(ym);
+ }
+ root.add(L2);LAYERS[1]={g:L2,name:'芳纶纱',lift:-0.26,open:0,spread:0.3,tag:[0,0.62,-0.75],
+  desc:'芳纶纱（Kevlar）：米白色抗拉加强纤维，承受光缆拉力、保护内部纤芯。开剥护套后需用剪刀剪断，切勿用钳口硬拽。'};
+
+ // L3 钢铠装（金属半剖两片）
+ var am=new THREE.MeshStandardMaterial({color:0xb8c2cc,roughness:.35,metalness:.85,side:THREE.DoubleSide});
+ var L3=new THREE.Group();
+ var aA=halfTube(0.078,am);
+ var g3=new THREE.CylinderGeometry(0.078,0.078,2.25,26,1,true,Math.PI,Math.PI);
+ var aB=new THREE.Mesh(g3,am);aB.rotation.z=Math.PI/2;aB.castShadow=true;
+ // 皱纹钢带纹理感：加窄环
+ for(var k=0;k<10;k++){
+  var rg=new THREE.Mesh(new THREE.TorusGeometry(0.079,0.004,8,36),am);
+  rg.rotation.y=Math.PI/2;rg.position.x=-1+k*0.24;L3.add(rg);
+ }
+ L3.userData={halves:[{m:aA,ax:1},{m:aB,ax:-1}]};
+ L3.add(aA);L3.add(aB);
+ root.add(L3);LAYERS[2]={g:L3,name:'钢铠装',lift:0,open:0.55,tag:[0,0.28,-0.72],
+  desc:'皱纹钢带铠装层：金属保护层，抗压、防鼠咬、防雷击直埋。纵包在松套管束外，开剥时用米勒钳 3 号孔沿周剪断。'};
+
+ // L4 松套管×6（彩色PBT管，每管2芯）
+ var L4=new THREE.Group();L4.userData={tubes:[]};
+ var tubeCol=[0x2f6fd0,0xf28c28,0x37a34a,0x8a5a2b,0x8d949c,0xd92b2b];
+ for(var t6=0;t6<6;t6++){
+  var tm=new THREE.MeshStandardMaterial({color:tubeCol[t6],roughness:.45});
+  var tu=new THREE.Mesh(new THREE.CylinderGeometry(0.026,0.026,2.2,14),tm);
+  tu.rotation.z=Math.PI/2;tu.castShadow=true;
+  tu.userData.a=t6/6*Math.PI*2+0.5;L4.add(tu);L4.userData.tubes.push(tu);
+ }
+ root.add(L4);LAYERS[3]={g:L4,name:'松套管',lift:0.3,open:0,spread:0.5,tag:[0,-0.06,-0.7],
+  desc:'松套管×6：彩色PBT管，每管穿2根光纤并充纤膏（防水缓震）。颜色对色序便于识别：蓝/橙/绿/棕/灰/红。'};
+
+ // L5 12色纤芯（每管2根）
+ var L5=new THREE.Group();L5.userData={fibs:[]};
+ for(var f=0;f<12;f++){
+  var fm=new THREE.MeshStandardMaterial({color:FIBCOL[f],roughness:.4});
+  var fi=new THREE.Mesh(new THREE.CylinderGeometry(0.0075,0.0075,2.15,8),fm);
+  fi.rotation.z=Math.PI/2;fi.castShadow=true;
+  var tt=Math.floor(f/2),iso=(f%2===0)?1:-1;
+  var base=tt/6*Math.PI*2+0.5;
+  fi.userData={base:base,iso:iso};
+  L5.add(fi);L5.userData.fibs.push(fi);
+  // 端头小玻璃珠（纤芯断面）
+ }
+ root.add(L5);LAYERS[4]={g:L5,name:'12色纤芯',lift:0.62,open:0,spread:0.9,tag:[0,-0.42,-0.66],
+  desc:'12根单模光纤（G.652D，250μm 裸纤），国际标准色序：蓝橙绿棕灰白红黑黄紫粉青。熔接时逐色谱管、剥除松套管后上切割刀。'};
+
+ // 层标签
+ var tagL=$('tagsA');
+ LAYERS.forEach(function(L,i){
+  var d=document.createElement('div');d.className='tag';
+  d.innerHTML='<i>'+(i+1)+'</i>'+L.name;
+  d.onclick=function(){focusLayer(i)};
+  tagL.appendChild(d);L.tagEl=d;
+ });
+}
+/* ---- 爆炸控制 ---- */
+var CUR={t:0,target:0,spin:true,focus:-1};
+function ease(u){return u*u*(3-2*u)}
+function setExplode(t){
+ AS.root.position.y=0.55+t*0.5;
+ LAYERS.forEach(function(L,li){
+  var g=L.g;
+  g.position.y=L.lift*ease(t);
+  if(L.open){ // 半剖张开
+   g.userData.halves.forEach(function(h){
+    h.m.rotation.x=h.ax*L.open*ease(t);
+    h.m.position.y=Math.sin(L.open*ease(t))*0.115*h.ax*0.0; // 绕轴翻开即可
+   });
+  }
+  if(L.spread){ // 径向散开
+   if(li===1){ // 芳纶纱
+    g.userData.yarns.forEach(function(y){
+     var a=y.userData.a,r=0.055+L.spread*ease(t);
+     y.position.z=Math.cos(a)*r;y.position.y=Math.sin(a)*r*0.55;
+    });
+   }
+   if(li===3){ // 松套管
+    g.userData.tubes.forEach(function(tu){
+     var a=tu.userData.a,r=0.045+L.spread*ease(t);
+     tu.position.z=Math.cos(a)*r;tu.position.y=Math.sin(a)*r;
+    });
+   }
+   if(li===4){ // 纤芯
+    g.userData.fibs.forEach(function(fi){
+     var a=fi.userData.base,r=0.02+L.spread*ease(t)*0.7+ (fi.userData.iso>0?0:0.035);
+     fi.position.z=Math.cos(a)*r+ (fi.userData.iso*0.014);
+     fi.position.y=Math.sin(a)*r;
+    });
+   }
+  }
+ });
+}
+function focusLayer(i){
+ CUR.focus=(CUR.focus===i)?-1:i;
+ LAYERS.forEach(function(L,li){L.tagEl.classList.toggle('on',CUR.focus===li)});
+ var c=$('cardA');
+ if(CUR.focus<0){c.classList.remove('show');return}
+ c.querySelector('h4').textContent='第'+(i+1)+'层 · '+LAYERS[i].name;
+ c.querySelector('p').textContent=LAYERS[i].desc;
+ c.classList.add('show');
+ // 目标爆炸度：至少拉开到能看清该层
+ if(CUR.target<0.35&&i>0)sliderTo(70);
+}
+function buildLayerBtns(){
+ var w=$('layerBtns');
+ LAYERS.forEach(function(L,i){
+  var b=document.createElement('button');b.textContent='①②③④⑤'[i]+' '+L.name;
+  b.onclick=function(){focusLayer(i)};
+  w.appendChild(b);
+ });
+}
+function sliderTo(p){
+ $('slider').value=p;CUR.target=p/100;
+}
+function bindACtrl(){
+ $('slider').oninput=function(){CUR.target=this.value/100;CUR.playing=false};
+ $('btnPlay').onclick=function(){
+  CUR.playing=!CUR.playing;
+  if(CUR.playing){CUR.target=1;this.textContent='⏸ 拆解中…'}
+  else{this.textContent='▶ 播放拆解'}
+ };
+ $('btnReset').onclick=function(){CUR.target=0;CUR.playing=false;$('btnPlay').textContent='▶ 播放拆解';CUR.focus=-1;LAYERS.forEach(function(L){L.tagEl.classList.remove('on')});$('cardA').classList.remove('show')};
+ $('btnSpin').onclick=function(){CUR.spin=!CUR.spin;this.classList.toggle('on',CUR.spin)};
+ document.querySelectorAll('#cardA .cls').forEach(function(x){x.onclick=function(){$('cardA').classList.remove('show');CUR.focus=-1;LAYERS.forEach(function(L){L.tagEl.classList.remove('on')})}});
+}
+
+/* ================= 场景B：器材展台 ================= */
+var BS={};
+var DEVINFO=[
+ {key:'s88',name:'藤仓88S 熔接机',file:'assets/models/fujikura-88s.glb?v=slim3',x:-2.35,fitW:1.35,ry:-Math.PI/2,
+  parts:['<b>防风罩</b>：熔接时防风防尘，作业前必须合上','<b>V型槽 + 电极</b>：高压电弧放电 2~3 秒完成熔接','<b>LED 操作屏</b>：显示熔接损耗估算、加热、菜单','<b>左右光纤压柄</b>：固定两端裸纤位置','<b>加热槽</b>：热缩管保护套加热收缩','<b>电源键 + 电池仓</b>：整机供电']},
+ {key:'ct50',name:'CT50 光纤切割刀',file:'assets/models/ct50-cleaver.glb?v=slim4',x:0,fitW:0.85,ry:0,
+  parts:['<b>底座</b>：整体承载体，含吸附面','<b>刀片滑轨</b>：金刚石刀片单程划切','<b>刀盖</b>：压下定位光纤、防止碎屑飞溅','<b>光纤夹持臂</b>：固定裸纤，保证切面角度（通常≤0.5°）','<b>压柄</b>：单手操作切割','<b>废料盒</b>：收集切割碎屑']},
+ {key:'miller',name:'米勒钳（三口）',file:'assets/models/miller-pliers.glb?v=slim4',x:2.35,fitW:0.85,ry:0,rz:Math.PI/2,
+  parts:['<b>双柄</b>：绝缘手柄，握持省力','<b>1号孔（0.16mm）</b>：剥除 250μm 涂覆层','<b>2号孔（0.30mm）</b>：剥除松套管/外护套','<b>3号孔（0.50mm）</b>：剪断纱线/芳纶','<b>钳刃</b>：剪切钢丝铠装']}
+];
+function initB(){
+ var cv=$('cvB'),wrap=cv.parentNode;
+ var W=wrap.clientWidth,H=Math.max(300,Math.min(innerHeight*0.42,400));
+ var R=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+ R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(W,H,false);
+ R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+ var sc=new THREE.Scene();sc.background=new THREE.Color(COL.bg);
+ sc.fog=new THREE.Fog(COL.bg,8,18);
+ var cam=new THREE.PerspectiveCamera(44,W/H,0.1,60);cam.position.set(0,1.35,4.6);cam.lookAt(0,0.25,0);
+ var amb=new THREE.AmbientLight(0x9db8d8,0.55);sc.add(amb);
+ var key=new THREE.DirectionalLight(0xffffff,0.85);key.position.set(4,6,4);key.castShadow=true;
+ key.shadow.mapSize.set(1024,1024);sc.add(key);
+ var rim=new THREE.DirectionalLight(0x38bdf8,0.3);rim.position.set(-5,2,-4);sc.add(rim);
+ var gnd=new THREE.Mesh(new THREE.CircleGeometry(9,48),new THREE.MeshStandardMaterial({color:0x101d33,roughness:0.95}));
+ gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;sc.add(gnd);
+ var grid=new THREE.GridHelper(16,32,0x1c3252,0x14243d);grid.position.y=0.001;sc.add(grid);
+ BS.R=R;BS.sc=sc;BS.cam=cam;BS.cv=cv;BS.W=W;BS.H=H;BS.devs=[];BS.focusX=0;
+
+ var loader=new THREE.GLTFLoader();
+ DEVINFO.forEach(function(dv){
+  var grp=new THREE.Group();grp.position.set(dv.x,0,0);sc.add(grp);
+  var tag=document.createElement('div');tag.className='tag';tag.innerHTML=dv.name;
+  tag.onclick=function(){focusDev(dv)};
+  $('tagsB').appendChild(tag);
+  BS.devs.push({info:dv,g:grp,tag:tag});
+  loader.load(dv.file,function(g){
+   var m=g.scene;
+   var bb=new THREE.Box3().setFromObject(m);
+   var w0=bb.max.x-bb.min.x,h0=bb.max.y-bb.min.y,d0=bb.max.z-bb.min.z;
+   var sc0=dv.fitW/Math.max(w0,d0,h0);
+   m.scale.set(sc0,sc0,sc0);
+   if(dv.rz)m.rotation.z=dv.rz;
+   if(dv.ry)m.rotation.y=dv.ry;
+   bb.setFromObject(m);
+   m.position.x-=(bb.max.x+bb.min.x)/2;
+   m.position.z-=(bb.max.z+bb.min.z)/2;
+   m.position.y-=bb.min.y;
+   m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+   grp.add(m);
+   var dev=BS.devs.filter(function(x){return x.info.key===dv.key})[0];
+   if(dev){dev.loaded=true}
+  },undefined,function(){/* GLB失败：程序化占位盒 */
+   var pm=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.45,0.5),new THREE.MeshStandardMaterial({color:0x24344f,roughness:.6}));
+   pm.position.y=0.24;grp.add(pm);
+  });
+ });
+ cv.addEventListener('pointerdown',onBTap);
+}
+function onBTap(e){
+ var r=BS.cv.getBoundingClientRect();
+ var nx=(e.clientX-r.left)/r.width*2-1,ny=-((e.clientY-r.top)/r.height*2-1);
+ var ray=new THREE.Raycaster();ray.setFromCamera({x:nx,y:ny},BS.cam);
+ var hits=ray.intersectObjects(BS.sc.children,true);
+ for(var i=0;i<hits.length;i++){
+  var o=hits[i].object;
+  while(o&&o.parent&&o.parent!==BS.sc)o=o.parent;
+  var dv=BS.devs.filter(function(x){return x.g===o})[0];
+  if(dv){focusDev(dv.info);return}
+  o=null;
+ }
+}
+function focusDev(dv){
+ BS.focusX=dv.x;
+ var c=$('cardB');
+ c.querySelector('h4').textContent=dv.name;
+ var ol=c.querySelector('ol');ol.innerHTML='';
+ dv.parts.forEach(function(p){var li=document.createElement('li');li.innerHTML=p;ol.appendChild(li)});
+ c.classList.add('show');
+ BS.devs.forEach(function(x){x.tag.classList.toggle('on',x.info.key===dv.key)});
+}
+
+/* ================= 主循环 ================= */
+var _v3=null;
+function tick(){
+ requestAnimationFrame(tick);
+ var t=performance.now()*0.001;
+ // A：缓动到目标
+ CUR.t+=(CUR.target-CUR.t)*0.07;
+ if(Math.abs(CUR.target-CUR.t)<0.002)CUR.t=CUR.target;
+ setExplode(CUR.t);
+ if(CUR.spin)AS.root.rotation.y+=0.003;
+ // 层标签投影
+ if(!_v3)_v3=new THREE.Vector3();
+ LAYERS.forEach(function(L){
+  L.g.getWorldPosition(_v3);_v3.project(AS.cam);
+  if(_v3.z<1&&Math.abs(_v3.x)<1.1&&Math.abs(_v3.y)<1.1){
+   L.tagEl.style.display='block';
+   L.tagEl.style.left=((_v3.x*0.5+0.5)*AS.W)+'px';
+   L.tagEl.style.top=((-_v3.y*0.5+0.5)*AS.H)+'px';
+  }else{L.tagEl.style.display='none'}
+ });
+ // B：器材自转+聚焦缓动
+ BS.devs.forEach(function(d){
+  if(d.loaded)d.g.rotation.y+=0.005;
+  d.g.getWorldPosition(_v3);_v3.project(BS.cam);
+  if(_v3.z<1&&Math.abs(_v3.x)<1.1&&Math.abs(_v3.y)<1.1){
+   d.tag.style.display='block';
+   d.tag.style.left=((_v3.x*0.5+0.5)*BS.W)+'px';
+   d.tag.style.top=((-_v3.y*0.5+0.5)*BS.H-26)+'px';
+  }else{d.tag.style.display='none'}
+ });
+ BS.cam.position.x+=(BS.focusX*0.55-BS.cam.position.x)*0.06;
+ BS.cam.lookAt(BS.focusX*0.55,0.25,0);
+ AS.R.render(AS.sc,AS.cam);
+ BS.R.render(BS.sc,BS.cam);
+}
+document.querySelectorAll('#cardB .cls').forEach(function(x){x.onclick=function(){$('cardB').classList.remove('show');BS.focusX=0;BS.devs.forEach(function(d){d.tag.classList.remove('on')})}});
+addEventListener('resize',function(){
+ var wrapA=$('cvA').parentNode,wrapB=$('cvB').parentNode;
+ var W=wrapA.clientWidth,H=Math.max(340,Math.min(innerHeight*0.58,520));
+ AS.R.setSize(W,H,false);AS.cam.aspect=W/H;AS.cam.updateProjectionMatrix();AS.W=W;AS.H=H;
+ var W2=wrapB.clientWidth,H2=Math.max(300,Math.min(innerHeight*0.42,400));
+ BS.R.setSize(W2,H2,false);BS.cam.aspect=W2/H2;BS.cam.updateProjectionMatrix();BS.W=W2;BS.H=H2;
+});
+initA();initB();tick();
+</script>
+</body>
+</html>
