@@ -785,7 +785,7 @@ function buildTools(){
  }
  reg(head,'pliers');TL.pliers=pg;TL.holeY=[0.085-0.052,0.085,0.085+0.052];
  // AI实物GLB：米勒钳（加载成功→隐藏程序化钳身、锚点转移；失败→程序化兜底）
- loadGLB('assets/models/miller-pliers.glb?v=slim4',function(m){
+ loadGLB('assets/models/miller-pliers.glb?v=slim5',function(m){
   if(!m||!TL.pliers)return;
   var bb=new THREE.Box3().setFromObject(m);
   var sy=bb.max.y-bb.min.y;
