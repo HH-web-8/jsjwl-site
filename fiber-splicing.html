@@ -1496,26 +1496,8 @@ function aimStrip(i){
  handPinchFiber(i);
  var tip=fib.position;
  handTo(HANDS.R,tip.x+0.34,0.15,tip.z,0.5,function(){
-  setElig([
-   {act:'plierHole1',label:'1口·涂覆层',no:3},
-   {act:'plierHole2',label:'2口·外护套',no:3},
-   {act:'plierHole3',label:'3口·剪断',no:3}]);
-  fbSet('钳口已到端头：<b>点击孔位</b>选择咬合位置（'+(fi(i).jacketOff?'现在剥涂覆层，用 1口':'现在剥外护套，用 2口')+'）','info');
-  PICK=function(act){
-   if(act==='pliers'){toast('点击钳身上的彩色孔环选孔位（'+(fi(i).jacketOff?'剥涂覆层用 1口小孔':'剥外护套用 2口中孔')+'）','info');return}
-   if(act==='plierHole3'){toast('3口是剪断口，剥线不用它','warn');return}
-   var need=fi(i).jacketOff?'plierHole1':'plierHole2';
-   if(act!==need){
-    var f=fi(i);f.wrongHole=(f.wrongHole||0)+1;
-    AU.play('buzz');
-    if(f.wrongHole===3&&!f.flagHole){f.flagHole=1;addFault('wronghole'+i,FNAME[i]+'米勒钳孔位选错×3')}
-    fbSet(fi(i).jacketOff?
-     '❌ <b>2口太大</b>：夹不住细涂覆层，还会咬碎玻璃纤！剥涂覆层用 <b>1口（小孔）</b>':
-     '❌ <b>1口太小</b>：咬不进外护套！剥外皮用 <b>2口（中孔）</b>','err');
-    return;
-   }
-   startStrip(i);
-  };
+  fbSet('钳口已咬住端头，<b>按住向左拖动</b>一次拉出','info');
+  startStrip(i);
  });
 }
 function startStrip(i){
@@ -1723,7 +1705,7 @@ function fireCleave(i){
  if(chance(0.18))f.debris=true;
  spawnStub();
  handRelease();
- fbSet('✅ 切割完成，废纤头弹入废料盒。端面角度由熔接机影像检测。','ok');
+ fbSet('✅ 切割完成，废纤头已弹除。端面角度由熔接机影像检测。','ok');
  toast('端面切割完成','ok');
  setTimeout(function(){
   rotTo(CT.clamp,'x',(CT.clampOpenX!=null)?CT.clampOpenX:0.8,0.3);
