@@ -292,7 +292,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
     <div class="video-panel-body">
       <div class="video-player" id="videoPlayer">
         <video id="videoEl" autoplay muted loop playsinline>
-          <source src="fiber-video2.mp4" type="video/mp4">
+          <source src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v2-h264.mp4" type="video/mp4">
         </video>
       </div>
       <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center;align-items:center;flex-wrap:wrap">
@@ -463,7 +463,7 @@ function toggleVideoSound(){
 }
 function switchVideo(n){
  var v=$('videoEl'),name=$('videoStepName');
- var map={1:{src:'fiber-video1.mp4',title:'熔接机与切割刀功能介绍'},2:{src:'fiber-video2.mp4',title:'光纤熔接完整流程'},3:{src:'fiber-video3.mp4',title:'光纤盘纤工艺'}};
+ var map={1:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v1-h264.mp4',title:'熔接机与切割刀功能介绍'},2:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v2-h264.mp4',title:'光纤熔接完整流程'},3:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v3-h264.mp4',title:'光纤盘纤工艺'}};
  v.src=map[n].src;v.muted=_videoMuted;v.load();v.play();name.textContent=map[n].title;
  for(var i=1;i<=3;i++){var b=$('btnVideo'+i),a=(i===n);b.style.background=a?'var(--cyan)':'var(--bg2)';b.style.color=a?'#000':'var(--txt)';b.style.borderColor=a?'var(--cyan)':'var(--bg3)';b.style.fontWeight=a?'600':'400';}
 }
@@ -711,7 +711,7 @@ function buildSplicer(){
  SP.slotL=new THREE.Object3D();SP.slotL.position.set(-0.18,0.71,0.05);g.add(SP.slotL);
  SP.slotR=new THREE.Object3D();SP.slotR.position.set(0.18,0.71,0.05);g.add(SP.slotR);
  // ===== AI实物模型上线：88S部件版GLB（42部件），可动件锚定实物部件，锚点动态对位 =====
- loadGLB('assets/models/f88s-parts.glb?v=p1',function(m){
+ loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/f88s-parts.glb?v=p1',function(m){
   if(!m||!SP.grp){return}
   var bb=new THREE.Box3().setFromObject(m);
   var sx=bb.max.x-bb.min.x,sy=bb.max.y-bb.min.y,sz=bb.max.z-bb.min.z;
@@ -789,7 +789,7 @@ function buildSplicer(){
 
 /* ---------- 藤仓CT50 切割刀 ---------- */
 function buildCleaver(){
- var g=new THREE.Group();g.position.set(-2.2,0,-0.3);scene.add(g);CT.grp=g;
+ var g=new THREE.Group();g.position.set(-2.2,0,-0.3);g.rotation.y=0.34;scene.add(g);CT.grp=g;
  var base=box(1.4,0.24,0.9,0x39404d,{r:0.45,m:0.3});base.position.y=0.12;g.add(base);
  var plate=box(1.34,0.05,0.85,0x9aa2ac,{r:0.2,m:0.95,env:1.5});plate.position.y=0.265;g.add(plate);
  // 夹持机构（前）
@@ -812,7 +812,7 @@ function buildCleaver(){
  // 切割光纤锚位（刀片上方）
  CT.fiberPose=new THREE.Object3D();CT.fiberPose.position.set(-0.12,0.36,-0.02);CT.fiberPose.rotation.y=0;g.add(CT.fiberPose);
  // ===== AI实物模型上线：CT50部件版GLB（11部件），三可动件锚定实物 =====
- loadGLB('assets/models/ct50-parts.glb?v=p1',function(m){
+ loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/ct50-parts.glb?v=p1',function(m){
   if(!m||!CT.grp){return}
   var bb=new THREE.Box3().setFromObject(m);
   var sx=bb.max.x-bb.min.x,sy=bb.max.y-bb.min.y,sz=bb.max.z-bb.min.z;
@@ -890,7 +890,7 @@ function buildTools(){
  }
  reg(head,'pliers');TL.pliers=pg;TL.holeY=[0.085-0.052,0.085,0.085+0.052];
  // AI实物GLB：米勒钳部件版（加载成功→隐藏程序化钳身、三孔贴实物钳头；失败→程序化兜底）
- loadGLB('assets/models/pliers-parts.glb?v=p1',function(m){
+ loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/pliers-parts.glb?v=p1',function(m){
   if(!m||!TL.pliers)return;
   var bb=new THREE.Box3().setFromObject(m);
   var dz=bb.max.z-bb.min.z; // 钳长轴=model Z
@@ -937,7 +937,7 @@ function buildTools(){
  var noz=cyl(0.014,0.014,0.09,0x2a6fb0,{r:0.3,m:0.5});noz.rotation.z=0.6;noz.position.set(0.045,0.46,0);bg.add(noz);
  reg(body,'bottle');TL.bottle=bg;
  // AI实物GLB：酒精喷壶（加载成功→隐藏程序化壶，锚点转移到壶身主mesh；失败→保留程序化）
- loadGLB('assets/models/alcoholp-parts.glb?v=p1',function(m){
+ loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/alcoholp-parts.glb?v=p1',function(m){
   if(!m||!TL.bottle)return;
   var bb=new THREE.Box3().setFromObject(m);
   var sy=bb.max.y-bb.min.y;
@@ -964,7 +964,7 @@ function buildTools(){
  var paper=box(0.26,0.01,0.2,0xf2f5f8,{r:0.85,m:0});paper.position.set(-2.05,0.03,1.65);scene.add(paper);reg(paper,'paper');
  TL.paper=paper;TL.paperHome={x:-2.05,y:0.03,z:1.65};
  var pgp=new THREE.Group();pgp.position.set(-2.05,0,1.65);scene.add(pgp);
- loadGLB('assets/models/wipepaper-parts.glb?v=p1',function(m){
+ loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/wipepaper-parts.glb?v=p1',function(m){
   if(!m)return;
   var bb=new THREE.Box3().setFromObject(m);
   var mx=Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z);
@@ -994,7 +994,7 @@ function buildTools(){
  });
  /* 12芯光缆 · 三分离剥线演示 */
  var cbg=new THREE.Group();cbg.position.set(0.2,0,2.75);scene.add(cbg);
- loadGLB('assets/models/cable-parts.glb?v=p1',function(m){
+ loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/cable-parts.glb?v=p1',function(m){
   if(!m)return;
   var bb=new THREE.Box3().setFromObject(m);
   var mx=Math.max(bb.max.x-bb.min.x,bb.max.y-bb.min.y,bb.max.z-bb.min.z);
@@ -1348,7 +1348,7 @@ function init3D(){
  renderer.toneMapping=THREE.ACESFilmicToneMapping;
  renderer.toneMappingExposure=1.05;
  renderer.outputEncoding=THREE.sRGBEncoding;
- scene=new THREE.Scene();scene.background=new THREE.Color(0x9db3c8);scene.fog=new THREE.Fog(0x9db3c8,16,46);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0xbfd5e8);scene.fog=new THREE.Fog(0xbfd5e8,42,90);
  camera=new THREE.PerspectiveCamera(46,wrapEl.clientWidth/wrapEl.clientHeight,0.05,60);
  scene.environment=makeEnvMap();
  scene.add(new THREE.HemisphereLight(0xdfeaf5,0x6b7686,0.95));
@@ -2196,7 +2196,7 @@ function resetScene3D(){
  if(TL.tubeRack)TL.tubeRack.position.set(0.35,0,1.95);
  if(TL.rackA)TL.rackA.position.set(-0.6,0.025,1.95);
  if(TL.rackB)TL.rackB.position.set(-0.6,0.025,2.3);
- if(CT.grp)CT.grp.position.set(-2.2,0,-0.3);
+ if(CT.grp){CT.grp.position.set(-2.2,0,-0.3);CT.grp.rotation.y=0.34}
  if(SP.grp)SP.grp.position.set(0,0,-0.9);
  if(SP.clampL)SP.clampL.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
  if(SP.clampR)SP.clampR.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
