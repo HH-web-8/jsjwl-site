@@ -790,7 +790,7 @@ function buildSplicer(){
 
 /* ---------- 藤仓CT50 切割刀 ---------- */
 function buildCleaver(){
- var g=new THREE.Group();g.position.set(-2.2,0,-0.3);g.rotation.y=0.34;scene.add(g);CT.grp=g;
+ var g=new THREE.Group();g.position.set(-2.2,0,-0.3);g.rotation.y=0.785;scene.add(g);CT.grp=g;
  var base=box(1.4,0.24,0.9,0x39404d,{r:0.45,m:0.3});base.position.y=0.12;g.add(base);
  var plate=box(1.34,0.05,0.85,0x9aa2ac,{r:0.2,m:0.95,env:1.5});plate.position.y=0.265;g.add(plate);
  // 夹持机构（前）
@@ -807,7 +807,7 @@ function buildCleaver(){
  var grip=box(1.12,0.06,0.075,0xc7ced6,{m:0.95,r:0.18,env:1.5});grip.position.set(0,0.045,0.92);hp.add(grip);
  hp.rotation.x=-0.5;g.add(hp);CT.handle=hp;reg(grip,'ctHandle');
  // 废料盒
- var bin=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.14,0.5),mat(0x141922,{t:1,op:0.55,r:0.3}));bin.position.set(0.84,0.32,0.05);g.add(bin);
+ 
  CT.bin=new THREE.Object3D();CT.bin.position.set(0.84,0.36,0.05);g.add(CT.bin);reg(CT.bin,'cbin');
  var bl=box(0.9,0.012,0.025,0xb8c2cc,{m:0.95,r:0.12,env:1.7});bl.position.set(0,0.295,0.0);g.add(bl);
  // 切割光纤锚位（刀片上方）
@@ -1186,7 +1186,7 @@ var IDLE_TAGS=[
  {act:'fiber2',label:'光纤②'},
  {act:'splicer',label:'88S熔接机'},
  {act:'ctcleaver',label:'CT50切割刀'},
- {act:'cbin',label:'废料盒'},
+ 
  {act:'tuberack',label:'热缩管架'},
  {act:'cable',label:'12芯光缆'}
 ];
@@ -2201,7 +2201,7 @@ function resetScene3D(){
  if(TL.tubeRack)TL.tubeRack.position.set(1.05,0,2.55);
  if(TL.rackA)TL.rackA.position.set(-0.6,0.025,1.95);
  if(TL.rackB)TL.rackB.position.set(-0.6,0.025,2.3);
- if(CT.grp){CT.grp.position.set(-2.2,0,-0.3);CT.grp.rotation.y=0.34}
+ if(CT.grp){CT.grp.position.set(-2.2,0,-0.3);CT.grp.rotation.y=0.785}
  if(SP.grp)SP.grp.position.set(0,0,-0.9);
  if(SP.clampL)SP.clampL.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
  if(SP.clampR)SP.clampR.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
