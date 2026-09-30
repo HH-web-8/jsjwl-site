@@ -807,7 +807,7 @@ function buildCleaver(){
  hp.rotation.x=-0.5;g.add(hp);CT.handle=hp;reg(grip,'ctHandle');
  // 废料盒
  var bin=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.14,0.5),mat(0x141922,{t:1,op:0.55,r:0.3}));bin.position.set(0.84,0.32,0.05);g.add(bin);
- CT.bin=new THREE.Object3D();CT.bin.position.set(0.84,0.36,0.05);g.add(CT.bin);
+ CT.bin=new THREE.Object3D();CT.bin.position.set(0.84,0.36,0.05);g.add(CT.bin);reg(CT.bin,'cbin');
  var bl=box(0.9,0.012,0.025,0xb8c2cc,{m:0.95,r:0.12,env:1.7});bl.position.set(0,0.295,0.0);g.add(bl);
  // 切割光纤锚位（刀片上方）
  CT.fiberPose=new THREE.Object3D();CT.fiberPose.position.set(-0.12,0.36,-0.02);CT.fiberPose.rotation.y=0;g.add(CT.fiberPose);
@@ -1023,7 +1023,7 @@ function buildTools(){
   }
  });
  // 热缩管架
- var rg=new THREE.Group();rg.position.set(0.35,0,1.95);scene.add(rg);
+ var rg=new THREE.Group();rg.position.set(1.05,0,2.55);scene.add(rg);
  var tray=box(0.75,0.04,0.26,0x2a3038);tray.position.y=0.02;rg.add(tray);
  for(var i=0;i<3;i++){var tb=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.55,10,1,true),mat(0xf0c88f,{t:1,op:0.42,r:0.4}));tb.rotation.z=Math.PI/2;tb.position.set(0,0.1,-0.06+i*0.06);rg.add(tb)}
  reg(rg.children[2],'tubePick');TL.tube=rg.children[2];
@@ -1193,7 +1193,12 @@ var IDLE_TAGS=[
  {act:'paper',label:'无尘纸'},
  {act:'tubePick',label:'热缩管'},
  {act:'fiber1',label:'光纤①'},
- {act:'fiber2',label:'光纤②'}
+ {act:'fiber2',label:'光纤②'},
+ {act:'splicer',label:'88S熔接机'},
+ {act:'ctcleaver',label:'CT50切割刀'},
+ {act:'cbin',label:'废料盒'},
+ {act:'tuberack',label:'热缩管架'},
+ {act:'cable',label:'12芯光缆'}
 ];
 function mountIdleTags(items){
  if(MODE!=='newbie'||F.touring)return;
@@ -2184,7 +2189,7 @@ function resetScene3D(){
  }
  if(HANDS.R)handsIdle();
  if(TL.tube){
-  TL.tube.position.set(0.35,0.1,2.07);
+  TL.tube.position.set(1.05,0.1,2.61);
   TL.tube.scale.set(1,1,1);
   TL.tube.material.opacity=0.42;
   TL.tube.material.color.setHex(0xf0c88f);
@@ -2193,7 +2198,7 @@ function resetScene3D(){
  paperHome();
  cableReset();
  if(TL.cable&&TL.cable.grp)TL.cable.grp.position.set(0.2,0,2.75);
- if(TL.tubeRack)TL.tubeRack.position.set(0.35,0,1.95);
+ if(TL.tubeRack)TL.tubeRack.position.set(1.05,0,2.55);
  if(TL.rackA)TL.rackA.position.set(-0.6,0.025,1.95);
  if(TL.rackB)TL.rackB.position.set(-0.6,0.025,2.3);
  if(CT.grp){CT.grp.position.set(-2.2,0,-0.3);CT.grp.rotation.y=0.34}
