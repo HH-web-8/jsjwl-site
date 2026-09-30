@@ -1182,7 +1182,7 @@ function endTour(){
 var RINGS=[];
 function mkRing(){var r=new THREE.Mesh(new THREE.RingGeometry(0.13,0.19,40),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.8,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.renderOrder=2;scene.add(r);return r}
 function rootOf(o){var p=o;while(p.parent&&p.parent!==scene)p=p.parent;return p}
-var FREE_DRAG={bottle:1,paper:1,pliers:1};
+var FREE_DRAG={bottle:1,paper:1,pliers:1,splicer:1};
 function setElig(items){
  for(var a in ANCH){if(ANCH[a].userData)ANCH[a].userData._pulse=false}
  var layer=$('labelLayer');layer.innerHTML='';labelDefs=[];
@@ -1804,14 +1804,14 @@ function trySplice(){
  },800);
 }
 function fiberAdvance(){
- var g=SP.grp.position;
- moveTo(FIB3D[0],g.x-0.012,0.705,g.z+0.05,0.6);
- moveTo(FIB3D[1],g.x+0.012,0.705,g.z+0.05,0.6);
+ var jp=SP.joint.getWorldPosition(new THREE.Vector3());
+ moveTo(FIB3D[0],jp.x-0.012,jp.y,jp.z,0.6);
+ moveTo(FIB3D[1],jp.x+0.012,jp.y,jp.z,0.6);
 }
 function fiberRetract(){
- var g=SP.grp.position;
- moveTo(FIB3D[0],g.x-0.032,0.705,g.z+0.05,0.5);
- moveTo(FIB3D[1],g.x+0.032,0.705,g.z+0.05,0.5);
+ var jp=SP.joint.getWorldPosition(new THREE.Vector3());
+ moveTo(FIB3D[0],jp.x-0.032,jp.y,jp.z,0.5);
+ moveTo(FIB3D[1],jp.x+0.032,jp.y,jp.z,0.5);
 }
 function inspect(){
  var probs=[],i,f;
