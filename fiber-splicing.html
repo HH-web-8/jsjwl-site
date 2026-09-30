@@ -600,11 +600,51 @@ function makeBgTex(){
 
 /* ---------- 藤仓88S 熔接机 ---------- */
 /* ---------- AI实物GLB加载（失败自动回退程序化模型） ---------- */
+/* ---------- GLB加载状态（进度+失败显式报错，不静默回退） ---------- */
+var GLBST={};
+function glbEl(id){
+ var el=document.getElementById(id);
+ if(!el){
+  el=document.createElement('div');el.id=id;document.body.appendChild(el);
+  if(id==='glbTip'){
+   el.style.cssText='position:fixed;left:12px;bottom:110px;z-index:900;background:rgba(8,14,28,.86);color:#7dd3fc;font:12px/1.6 -apple-system,"PingFang SC",sans-serif;padding:5px 12px;border-radius:8px;border:1px solid rgba(125,211,252,.42);pointer-events:none;transition:opacity .6s';
+  }else{
+   el.style.cssText='position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:999;background:#7f1d1d;color:#fecaca;font:600 13px/1.5 -apple-system,"PingFang SC",sans-serif;padding:8px 16px;border-radius:8px;border:1px solid #fca5a5;box-shadow:0 6px 22px rgba(0,0,0,.45);max-width:88vw;text-align:center';
+  }
+ }
+ return el;
+}
+function glbProg(nm,st){
+ if(nm)GLBST[nm]=st;
+ var parts=[];
+ for(var k in GLBST){if(k[0]!=='_')parts.push(k+' '+(GLBST[k]>=1?'\u2713':(GLBST[k]<0?'\u2717':Math.round(GLBST[k]*100)+'%')))}
+ var el=glbEl('glbTip');
+ el.textContent='实物模型：'+parts.join(' \u00b7 ');
+ el.style.opacity='1';
+ clearTimeout(GLBST._t);
+ var keys=Object.keys(GLBST).filter(function(k){return k[0]!=='_'});
+ if(keys.length&&keys.every(function(k){return GLBST[k]===1||GLBST[k]===-1})){
+  if(keys.every(function(k){return GLBST[k]===1}))GLBST._t=setTimeout(function(){el.style.opacity='0'},2200);
+ }
+}
+function glbFail(nm,why){
+ GLBST[nm]=-1;
+ var el=glbEl('glbErr');
+ el.textContent='\u26a0 实物模型['+nm+']加载失败：'+why+'，已临时用简化模型，请截图反馈';
+ glbProg(null,0);
+}
 function loadGLB(path,cb){
  try{
-  if(!THREE.GLTFLoader){cb(null);return}
-  new THREE.GLTFLoader().load(path,function(g){cb(g.scene||null)},undefined,function(){cb(null)});
- }catch(e){cb(null)}
+  var nm=/_88s/.test(path)?'88S熔接机':(/bottle/.test(path)?'酒精喷壶':'模型');
+  if(!THREE.GLTFLoader){glbFail(nm,'GLTFLoader未就绪');cb(null);return}
+  glbProg(nm,0);
+  new THREE.GLTFLoader().load(path,function(g){glbProg(nm,1);cb(g.scene||null)},
+   function(ev){if(ev.lengthComputable&&ev.total>0)glbProg(nm,ev.loaded/ev.total)},
+   function(err){
+    var st=(err&&err.target&&err.target.status)?('HTTP '+err.target.status):'解析失败';
+    glbFail(nm,st);cb(null);
+   });
+ }catch(e){glbFail('模型',e.message);cb(null)}
 }
 function buildSplicer(){
  var g=new THREE.Group();g.position.set(0,0,-0.9);scene.add(g);SP.grp=g;
@@ -666,13 +706,14 @@ function buildSplicer(){
  SP.slotL=new THREE.Object3D();SP.slotL.position.set(-0.18,0.71,0.05);g.add(SP.slotL);
  SP.slotR=new THREE.Object3D();SP.slotR.position.set(0.18,0.71,0.05);g.add(SP.slotR);
  // ===== AI实物模型上线：88S GLB替换程序化机身，可动件全部保留叠加 =====
- loadGLB('assets/models/fujikura-88s.glb',function(m){
+ loadGLB('assets/models/fujikura-88s.glb?v=slim3',function(m){
   if(!m||!SP.grp){return}
   var bb=new THREE.Box3().setFromObject(m);
   var sx=bb.max.x-bb.min.x,sy=bb.max.y-bb.min.y,sz=bb.max.z-bb.min.z;
   if(!(sx>0.01&&sy>0.01&&sz>0.01)){return}
   var sc=1.75/sx;
   m.scale.set(sc,sc,sc);
+  m.rotation.y=-Math.PI/2;
   bb.setFromObject(m);
   var H=bb.max.y-bb.min.y;
   var dy=Math.max(0,H*0.5-0.585);
@@ -749,7 +790,7 @@ function buildTools(){
  var noz=cyl(0.014,0.014,0.09,0x2a6fb0,{r:0.3,m:0.5});noz.rotation.z=0.6;noz.position.set(0.045,0.46,0);bg.add(noz);
  reg(body,'bottle');TL.bottle=bg;
  // AI实物GLB：酒精喷壶（加载成功→隐藏程序化壶，锚点转移到壶身主mesh；失败→保留程序化）
- loadGLB('assets/models/alcohol-bottle.glb',function(m){
+ loadGLB('assets/models/alcohol-bottle.glb?v=slim3',function(m){
   if(!m||!TL.bottle)return;
   var bb=new THREE.Box3().setFromObject(m);
   var sy=bb.max.y-bb.min.y;
