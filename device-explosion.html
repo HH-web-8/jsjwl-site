@@ -37,12 +37,17 @@ canvas{display:block;width:100%}
 .steps{display:flex;gap:6px;flex-wrap:wrap;padding:0 4px}
 .steps button{font-size:12px;padding:7px 10px;border-radius:9px;border:1px solid #bae6fd;background:#fff;color:#475569;cursor:pointer}
 .steps button.on{border-color:#0891b2;color:#0c4a6e;background:#e0f2fe}
-.dcard{background:rgba(13,25,45,.9);border:1px solid #1e3a5f;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.8;color:#bcd6f5;display:none}
+.dcard{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.8;color:#334155;display:none;box-shadow:0 2px 10px rgba(0,0,0,.06)}
 .dcard.show{display:block}
-.dcard h4{font-size:15px;color:#7fd4ff;margin-bottom:6px}
+.dcard h4{font-size:15px;color:#0e7490;margin-bottom:8px}
 .dcard ol{padding-left:20px}
 .dcard ol li{margin:3px 0}
-.dcard .cls{float:right;color:#5a7899;cursor:pointer;padding:0 4px}
+.dcard .cls{float:right;color:#94a3b8;cursor:pointer;padding:0 4px}
+.dc-body{display:flex;gap:14px;align-items:flex-start}
+.dc-body ol{flex:1.1;min-width:0}
+.dc-body img{flex:1;width:46%;max-width:400px;height:auto;border:1px solid #e0f2fe;border-radius:10px;display:block}
+.dc-cap{font-size:11px;color:#64748b;margin-top:4px}
+@media(max-width:640px){.dc-body{flex-direction:column-reverse}.dc-body img{width:100%;max-width:none}}
 .vids{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 2px 4px}
 @media(max-width:640px){.vids{grid-template-columns:1fr}}
 .vid{border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.06)}
@@ -104,7 +109,7 @@ canvas{display:block;width:100%}
   <canvas id="cvB"></canvas>
   <div id="tagsB" class="taglayer"></div>
  </div>
- <div class="dcard" id="cardB"><span class="cls">✕</span><h4></h4><ol></ol></div>
+ <div class="dcard" id="cardB"><span class="cls">✕</span><h4></h4><div class="dc-body"><ol></ol><div><img id="cardBImg" alt="部件爆炸图"><div class="dc-cap" id="cardBCap"></div></div></div></div>
 </section>
 
 <section>
@@ -420,10 +425,14 @@ function onBTap(e){
   o=null;
  }
 }
+var DEV_IMG={s88:'assets/img/d-88s-parts.jpg',ct50:'assets/img/d-ct50-parts.jpg',miller:'assets/img/d-pliers-parts.jpg'};
 function focusDev(dv){
  BS.focusX=dv.x;
  var c=$('cardB');
  c.querySelector('h4').textContent=dv.name;
+ var img=$('cardBImg'),cap=$('cardBCap');
+ if(DEV_IMG[dv.key]){img.src=DEV_IMG[dv.key];img.style.display='block';cap.textContent='▲ '+dv.name+' 部件爆炸图解（带序号标注）'}
+ else{img.style.display='none';cap.textContent=''}
  var ol=c.querySelector('ol');ol.innerHTML='';
  dv.parts.forEach(function(p){var li=document.createElement('li');li.innerHTML=p;ol.appendChild(li)});
  c.classList.add('show');
