@@ -62,9 +62,9 @@ canvas{display:block;width:100%}
 .go .hint{font-size:11px;color:#64748b;margin-top:10px}
 .hero{position:relative;height:40vh;min-height:250px;max-height:440px;overflow:hidden}
 .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;background-repeat:no-repeat;opacity:0;filter:contrast(1.08) saturate(1.1) brightness(1.05);animation:hb 24s ease-in-out infinite}
-.hb1{background-image:url('assets/img/bg-tool-1.jpg')}
-.hb2{background-image:url('assets/img/bg-tool-2.jpg');animation-delay:8s}
-.hb3{background-image:url('assets/img/bg-tool-3.jpg');animation-delay:16s}
+.hb1{background-image:url('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/bg-tool-1.jpg')}
+.hb2{background-image:url('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/bg-tool-2.jpg');animation-delay:8s}
+.hb3{background-image:url('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/bg-tool-3.jpg');animation-delay:16s}
 @keyframes hb{0%{opacity:0}5%{opacity:1}29%{opacity:1}33%{opacity:0}100%{opacity:0}}
 .hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,20,40,.35) 0%,rgba(15,40,70,.45) 45%,rgba(240,249,255,.15) 100%)}
 .hero-txt{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:0 16px}
@@ -97,9 +97,9 @@ canvas{display:block;width:100%}
 <section>
  <div class="sec-t"><b>认识工具 · 了解工具，是学习技能的开始</b> —— 三大核心器材 3D 拆解视频</div>
  <div class="vids">
-  <div class="vid"><video id="vd88s" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/v-88s-720.mp4" poster="assets/img/bg-tool-1.jpg" playsinline preload="none"></video><div class="vt"><b>① 藤仓88S 熔接机 · 3D拆解</b><button data-v="vd88s">播放</button></div></div>
-  <div class="vid"><video id="vdCT50" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/v-ct50-720.mp4" poster="assets/img/bg-tool-2.jpg" playsinline preload="none"></video><div class="vt"><b>② CT50 光纤切割刀 · 3D拆解</b><button data-v="vdCT50">播放</button></div></div>
-  <div class="vid"><video id="vdPL" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/v-pliers-720.mp4" poster="assets/img/bg-tool-3.jpg" playsinline preload="none"></video><div class="vt"><b>③ 米勒钳（三口）· 3D拆解</b><button data-v="vdPL">播放</button></div></div>
+  <div class="vid"><video id="vd88s" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/v-88s-720.mp4" poster="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/bg-tool-1.jpg" playsinline preload="none"></video><div class="vt"><b>① 藤仓88S 熔接机 · 3D拆解</b><button data-v="vd88s">播放</button></div></div>
+  <div class="vid"><video id="vdCT50" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/v-ct50-720.mp4" poster="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/bg-tool-2.jpg" playsinline preload="none"></video><div class="vt"><b>② CT50 光纤切割刀 · 3D拆解</b><button data-v="vdCT50">播放</button></div></div>
+  <div class="vid"><video id="vdPL" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/v-pliers-720.mp4" poster="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/bg-tool-3.jpg" playsinline preload="none"></video><div class="vt"><b>③ 米勒钳（三口）· 3D拆解</b><button data-v="vdPL">播放</button></div></div>
  </div>
 </section>
 
@@ -425,7 +425,7 @@ function onBTap(e){
   o=null;
  }
 }
-var DEV_IMG={s88:'assets/img/d-88s-parts.jpg',ct50:'assets/img/d-ct50-parts.jpg',miller:'assets/img/d-pliers-parts.jpg'};
+var DEV_IMG={s88:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/d-88s-parts.jpg',ct50:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/d-ct50-parts.jpg',miller:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/d-pliers-parts.jpg'};
 function focusDev(dv){
  BS.focusX=dv.x;
  var c=$('cardB');
