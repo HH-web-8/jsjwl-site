@@ -927,7 +927,7 @@ function buildTools(){
  var noz=cyl(0.014,0.014,0.09,0x2a6fb0,{r:0.3,m:0.5});noz.rotation.z=0.6;noz.position.set(0.045,0.46,0);bg.add(noz);
  reg(body,'bottle');TL.bottle=bg;
  // AI实物GLB：酒精喷壶（加载成功→隐藏程序化壶，锚点转移到壶身主mesh；失败→保留程序化）
- loadGLB('assets/models/alcohol-bottle.glb?v=slim3',function(m){
+ loadGLB('assets/models/alcoholp-parts.glb?v=p1',function(m){
   if(!m||!TL.bottle)return;
   var bb=new THREE.Box3().setFromObject(m);
   var sy=bb.max.y-bb.min.y;
@@ -950,9 +950,38 @@ function buildTools(){
   bg.add(m);
   if(main){body.visible=false;cap.visible=false;noz.visible=false;reg(main,'bottle');TL.bottleGlbed=true}
  });
- // 无尘纸
+ // 无尘纸（程序化兜底 + AI实物部件版）
  var paper=box(0.26,0.01,0.2,0xf2f5f8,{r:0.85,m:0});paper.position.set(-2.05,0.03,1.65);scene.add(paper);reg(paper,'paper');
  TL.paper=paper;TL.paperHome={x:-2.05,y:0.03,z:1.65};
+ var pgp=new THREE.Group();pgp.position.set(-2.05,0,1.65);scene.add(pgp);
+ loadGLB('assets/models/wipepaper-parts.glb?v=p1',function(m){
+  if(!m)return;
+  var bb=new THREE.Box3().setFromObject(m);
+  var mx=Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z);
+  if(!(mx>0.02))return;
+  var sc=0.32/mx; // 纸包约0.3
+  m.scale.set(sc,sc,sc);
+  bb.setFromObject(m);
+  m.position.x-=(bb.max.x+bb.min.x)/2;
+  m.position.z-=(bb.max.z+bb.min.z)/2;
+  m.position.y-=bb.min.y;
+  var main=null,vol=0;
+  m.traverse(function(o){
+   if(o.isMesh){
+    o.castShadow=true;o.receiveShadow=true;
+    var b2=new THREE.Box3().setFromObject(o);
+    var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);
+    if(v>vol){vol=v;main=o}
+   }
+  });
+  pgp.add(m);
+  if(main){
+   paper.visible=false;
+   reg(main,'paper');
+   TL.paper=pgp;TL.paperMesh=main;TL.paperHome={x:-2.05,y:0,z:1.65};
+   F.glbOn=F.glbOn||{};F.glbOn.paper=true;
+  }
+ });
  // 热缩管架
  var rg=new THREE.Group();rg.position.set(0.35,0,1.95);scene.add(rg);
  var tray=box(0.75,0.04,0.26,0x2a3038);tray.position.y=0.02;rg.add(tray);
@@ -1532,7 +1561,7 @@ function wipePanel(i){
      var ph=TL.paperHome;
      handTo(HANDS.R,ph.x,0.32,ph.z+0.1,0.4,function(){
       AU.play('pop');TL.soaked=true;
-      TL.paper.material.color.setHex(0xd8ecff);
+      var pm=TL.paperMesh||TL.paper;if(pm&&pm.material&&pm.material.color)pm.material.color.setHex(0xd8ecff);
       handRelease();
       fbSet('✅ 酒精已喷洒，无尘纸浸润。点击<b>无尘纸</b>换手持纸','ok');
       toast('无尘纸已浸润酒精','ok',1500);
