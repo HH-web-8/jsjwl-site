@@ -551,15 +551,19 @@ function makeEnvMap(){
  var cv=document.createElement('canvas');cv.width=1024;cv.height=512;
  var c=cv.getContext('2d');
  var g=c.createLinearGradient(0,0,0,512);
- g.addColorStop(0,'#f4f8fc');g.addColorStop(0.38,'#c2d2e0');g.addColorStop(0.5,'#8a9aac');g.addColorStop(1,'#3a424e');
+ g.addColorStop(0,'#ffffff');g.addColorStop(0.28,'#dceaf6');g.addColorStop(0.5,'#9eb0c4');g.addColorStop(0.72,'#5a6878');g.addColorStop(1,'#2a323c');
  c.fillStyle=g;c.fillRect(0,0,1024,512);
- c.fillStyle='rgba(255,253,248,0.98)';c.fillRect(70,26,360,110);c.fillRect(600,20,300,90);
- c.fillStyle='rgba(214,232,255,0.92)';c.fillRect(420,52,160,130);
- c.fillStyle='rgba(160,180,200,0.4)';c.fillRect(0,286,1024,58);
+ c.fillStyle='rgba(255,252,245,0.98)';c.fillRect(36,18,400,150);c.fillRect(560,12,360,110);
+ c.fillStyle='rgba(200,222,255,0.9)';c.fillRect(446,40,100,160);
+ c.fillStyle='rgba(170,190,210,0.3)';c.fillRect(0,298,1024,64);
  function blob(x,y,r,col){var rg=c.createRadialGradient(x,y,4,x,y,r);rg.addColorStop(0,col);rg.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=rg;c.fillRect(x-r,y-r,r*2,r*2)}
- blob(880,150,130,'rgba(255,205,130,0.85)');
- blob(170,210,105,'rgba(150,200,255,0.75)');
- blob(560,120,90,'rgba(255,240,220,0.55)');
+ blob(860,130,170,'rgba(255,215,145,0.92)');
+ blob(180,170,130,'rgba(135,185,255,0.82)');
+ blob(540,90,110,'rgba(255,248,225,0.7)');
+ blob(340,150,85,'rgba(255,232,200,0.5)');
+ blob(720,190,75,'rgba(200,222,255,0.45)');
+ blob(400,430,220,'rgba(255,205,155,0.22)');
+ blob(820,390,160,'rgba(205,185,255,0.18)');
  var tex=new THREE.Texture(cv);
  tex.mapping=THREE.EquirectangularReflectionMapping;
  tex.needsUpdate=true;
@@ -568,6 +572,16 @@ function makeEnvMap(){
   var rt=pm.fromEquirectangular(tex);pm.dispose();
   return rt.texture;
  }catch(e){return tex}
+}
+function glbEnhance(m){
+ m.traverse(function(o){
+  if(o.isMesh&&o.material){
+   if(o.material.envMapIntensity!==undefined)o.material.envMapIntensity=1.6;
+   if(o.material.roughness!==undefined&&o.material.roughness>0.75)o.material.roughness=0.65;
+   o.material.side=THREE.DoubleSide;
+   o.material.needsUpdate=true;
+  }
+ });
 }
 function makeDeskTex(){
  var cv=document.createElement('canvas');cv.width=512;cv.height=256;
@@ -726,7 +740,7 @@ function buildSplicer(){
   m.position.x-=(bb.max.x+bb.min.x)/2;
   m.position.z-=(bb.max.z+bb.min.z)/2;
   m.position.y-=bb.min.y;       // 落地
-  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});glbEnhance(m);
   SP.grp.add(m);SP.glb=m;SP.glbScale=sc;
   // 收集部件（mesh_N 名保留）
   var P={};
@@ -824,7 +838,7 @@ function buildCleaver(){
   m.position.x-=(bb.max.x+bb.min.x)/2;
   m.position.z-=(bb.max.z+bb.min.z)/2;
   m.position.y-=bb.min.y;
-  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});glbEnhance(m);
   CT.grp.add(m);CT.glb=m;CT.glbScale=sc;
   var P={};
   m.traverse(function(o){if(o.isMesh&&/^mesh_(\d+)$/.test(o.name))P[+RegExp.$1]=o});
@@ -902,7 +916,7 @@ function buildTools(){
   m.position.x-=(bb.max.x+bb.min.x)/2;
   m.position.z-=(bb.max.z+bb.min.z)/2;
   m.position.y-=bb.min.y;
-  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});glbEnhance(m);
   pg.add(m);
   h1.visible=false;h2.visible=false;head.visible=false;
   m.traverse(function(o){if(o.isMesh)reg(o,'pliers')});
@@ -947,7 +961,7 @@ function buildTools(){
   m.position.x-=(bb.max.x+bb.min.x)/2;
   m.position.z-=(bb.max.z+bb.min.z)/2;
   m.position.y-=bb.min.y;
-  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true;reg(o,'bottle')}});
+  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true;reg(o,'bottle')}});glbEnhance(m);
   bg.add(m);
   body.visible=false;cap.visible=false;noz.visible=false;TL.bottleGlbed=true
  });
@@ -975,6 +989,7 @@ function buildTools(){
     if(v>pvol){pvol=v;pmain=o}
    }
   });
+  glbEnhance(m);
   pgp.add(m);
   if(pmain){
    paper.visible=false;
@@ -1003,6 +1018,7 @@ function buildTools(){
     if(nm)CM[+nm[1]]=o;
    }
   });
+  glbEnhance(m);
   cbg.add(m);
   if(CM[0]){
    for(var ck in CM){if(CM[ck])reg(CM[ck],'cable')}
@@ -1333,7 +1349,7 @@ function init3D(){
  if(!r){
   var c2=document.createElement('canvas');c2.id='three-canvas';
   canvasEl.parentNode.replaceChild(c2,canvasEl);canvasEl=c2;
-  r=new THREE.WebGLRenderer({canvas:c2,antialias:false});
+  r=new THREE.WebGLRenderer({canvas:c2,antialias:true});
   r.setPixelRatio(1);
  }
  renderer=r;
@@ -1347,7 +1363,7 @@ function init3D(){
  camera=new THREE.PerspectiveCamera(46,wrapEl.clientWidth/wrapEl.clientHeight,0.05,60);
  scene.environment=makeEnvMap();
  scene.add(new THREE.HemisphereLight(0x1a2a3a,0x060a10,0.5));
- var dl=new THREE.DirectionalLight(0xfff6e8,1.0);dl.position.set(3.5,6,4);dl.castShadow=true;
+ var dl=new THREE.DirectionalLight(0xfff6e8,1.0);dl.position.set(3.5,6,4);dl.intensity=1.15;dl.castShadow=true;
  dl.shadow.mapSize.set(1024,1024);
  dl.shadow.camera.left=-5;dl.shadow.camera.right=5;dl.shadow.camera.top=5;dl.shadow.camera.bottom=-5;dl.shadow.camera.far=20;dl.shadow.bias=-0.0015;
  scene.add(dl);
