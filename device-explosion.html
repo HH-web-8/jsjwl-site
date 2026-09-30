@@ -22,6 +22,8 @@ canvas{display:block;width:100%}
 .tag i{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#1d7ed0;color:#fff;font-style:normal;font-size:11px;margin-right:4px}
 .tag.on{border-color:#7fd4ff;color:#fff;box-shadow:0 0 10px rgba(56,189,248,.35)}
 .tag:active{background:#123a5e}
+#tagsB{position:absolute;left:0;right:0;top:auto;bottom:10px;height:auto;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;pointer-events:auto;padding:0 8px}
+#tagsB .tag{position:static;transform:none}
 .card{position:absolute;right:8px;top:8px;width:240px;max-width:46%;background:rgba(13,25,45,.9);border:1px solid #1e3a5f;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7;color:#bcd6f5;display:none}
 .card.show{display:block}
 .card h4{font-size:14px;color:#7fd4ff;margin-bottom:4px}
@@ -357,11 +359,11 @@ function bindACtrl(){
 /* ================= 场景B：器材展台 ================= */
 var BS={};
 var DEVINFO=[
- {key:'s88',name:'藤仓88S 熔接机',file:'assets/models/fujikura-88s.glb?v=slim3',x:-2.35,fitW:1.35,ry:-Math.PI/2,
+ {key:'s88',name:'藤仓88S 熔接机',file:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/fujikura-88s.glb?v=slim3',x:-2.35,fitW:1.35,ry:-Math.PI/2,
   parts:['<b>防风罩</b>：熔接时防风防尘，作业前必须合上','<b>V型槽 + 电极</b>：高压电弧放电 2~3 秒完成熔接','<b>LED 操作屏</b>：显示熔接损耗估算、加热、菜单','<b>左右光纤压柄</b>：固定两端裸纤位置','<b>加热槽</b>：热缩管保护套加热收缩','<b>电源键 + 电池仓</b>：整机供电']},
- {key:'ct50',name:'CT50 光纤切割刀',file:'assets/models/ct50-cleaver.glb?v=slim5',x:0,fitW:0.85,ry:0,
+ {key:'ct50',name:'CT50 光纤切割刀',file:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/ct50-cleaver.glb?v=slim5',x:0,fitW:0.85,ry:0,
   parts:['<b>底座</b>：整体承载体，含吸附面','<b>刀片滑轨</b>：金刚石刀片单程划切','<b>刀盖</b>：压下定位光纤、防止碎屑飞溅','<b>光纤夹持臂</b>：固定裸纤，保证切面角度（通常≤0.5°）','<b>压柄</b>：单手操作切割','<b>废料盒</b>：收集切割碎屑']},
- {key:'miller',name:'米勒钳（三口）',file:'assets/models/miller-pliers.glb?v=slim4',x:2.35,fitW:0.85,ry:0,rz:Math.PI/2,
+ {key:'miller',name:'米勒钳（三口）',file:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/miller-pliers.glb?v=slim4',x:2.35,fitW:0.85,ry:0,rz:Math.PI/2,
   parts:['<b>双柄</b>：绝缘手柄，握持省力','<b>1号孔（0.16mm）</b>：剥除 250μm 涂覆层','<b>2号孔（0.30mm）</b>：剥除松套管/外护套','<b>3号孔（0.50mm）</b>：剪断纱线/芳纶','<b>钳刃</b>：剪切钢丝铠装']}
 ];
 function initB(){
@@ -428,6 +430,7 @@ function onBTap(e){
 var DEV_IMG={s88:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/d-88s-parts.jpg',ct50:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/d-ct50-parts.jpg',miller:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/d-pliers-parts.jpg'};
 function focusDev(dv){
  BS.focusX=dv.x;
+ BS.focusKey=dv.key;BS.focusZ=3.05;BS.focusY=1.0;BS.focusS=1.5;
  var c=$('cardB');
  c.querySelector('h4').textContent=dv.name;
  var img=$('cardBImg'),cap=$('cardBCap');
@@ -462,19 +465,19 @@ function tick(){
  // B：器材自转+聚焦缓动
  BS.devs.forEach(function(d){
   if(d.loaded)d.g.rotation.y+=0.005;
-  d.g.getWorldPosition(_v3);_v3.project(BS.cam);
-  if(_v3.z<1&&Math.abs(_v3.x)<1.1&&Math.abs(_v3.y)<1.1){
-   d.tag.style.display='block';
-   d.tag.style.left=((_v3.x*0.5+0.5)*BS.W)+'px';
-   d.tag.style.top=((-_v3.y*0.5+0.5)*BS.H-26)+'px';
-  }else{d.tag.style.display='none'}
+  var tgt=(d.info.key===BS.focusKey)?(BS.focusS||1):1;
+  d.g.scale.x+=(tgt-d.g.scale.x)*0.07;
+  d.g.scale.y+=(tgt-d.g.scale.y)*0.07;
+  d.g.scale.z+=(tgt-d.g.scale.z)*0.07;
  });
  BS.cam.position.x+=(BS.focusX*0.55-BS.cam.position.x)*0.06;
+ BS.cam.position.y+=((BS.focusY!=null?BS.focusY:1.35)-BS.cam.position.y)*0.06;
+ BS.cam.position.z+=((BS.focusZ!=null?BS.focusZ:4.6)-BS.cam.position.z)*0.06;
  BS.cam.lookAt(BS.focusX*0.55,0.25,0);
  AS.R.render(AS.sc,AS.cam);
  BS.R.render(BS.sc,BS.cam);
 }
-document.querySelectorAll('#cardB .cls').forEach(function(x){x.onclick=function(){$('cardB').classList.remove('show');BS.focusX=0;BS.devs.forEach(function(d){d.tag.classList.remove('on')})}});
+document.querySelectorAll('#cardB .cls').forEach(function(x){x.onclick=function(){$('cardB').classList.remove('show');BS.focusX=0;BS.focusKey=null;BS.focusZ=4.6;BS.focusY=1.35;BS.focusS=1;BS.devs.forEach(function(d){d.tag.classList.remove('on')})}});
 addEventListener('resize',function(){
  var wrapA=$('cvA').parentNode,wrapB=$('cvB').parentNode;
  var W=wrapA.clientWidth,H=Math.max(340,Math.min(innerHeight*0.58,520));
