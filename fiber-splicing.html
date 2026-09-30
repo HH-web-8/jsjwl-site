@@ -512,7 +512,7 @@ window.addEventListener('error',function(e){
  * CHUNK B · 3D场景（全程序化建模，零素材）
  * ============================================================ */
 var scene,camera,renderer,canvasEl,wrapEl,_clock=null;
-var ANCH={},labelDefs=[],tweens=[];
+var ANCH={},ANCH_LIST={},labelDefs=[],tweens=[];
 var SP={},CT={},TL={},FIB3D=[],WASTES=[];
 var rig={yaw:0.5,pitch:0.95,dist:8.4,tx:0,ty:0.45,tz:0,gyaw:0.5,gpitch:0.95,gdist:8.4,gtx:0,gty:0.45,gtz:0,shake:0};
 var CAM={
@@ -540,6 +540,8 @@ function box(w,h,d,c,o){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c,
 function cyl(rt,rb,h,c,o,seg){var m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||14),mat(c,o));m.castShadow=true;return m}
 function reg(mesh,act){
  mesh.userData.act=act;ANCH[act]=mesh;
+ var L=ANCH_LIST[act]||(ANCH_LIST[act]=[]);
+ if(L.indexOf(mesh)<0)L.push(mesh);
  if(mesh.material&&mesh.material.emissive){mesh.userData._ee=mesh.material.emissive.getHex();mesh.userData._ei=mesh.material.emissiveIntensity}
  return mesh}
 
@@ -594,7 +596,7 @@ function makeBgTex(){
  var cv=document.createElement('canvas');cv.width=512;cv.height=512;
  var c=cv.getContext('2d');
  var g=c.createLinearGradient(0,0,0,512);
- g.addColorStop(0,'#c8d8e8');g.addColorStop(0.5,'#8ba2b8');g.addColorStop(1,'#54637a');
+ g.addColorStop(0,'#e9f1f7');g.addColorStop(0.5,'#b6c6d6');g.addColorStop(1,'#7d8ea1');
  c.fillStyle=g;c.fillRect(0,0,512,512);
  return new THREE.CanvasTexture(cv);
 }
@@ -779,10 +781,8 @@ function buildSplicer(){
   ssp.position.copy(loc2(new THREE.Vector3(0,H*0.5,bb.min.z-0.05)));
   pk.position.copy(loc2(new THREE.Vector3(0.16,0.24,bb.max.z+0.012)));
   lamp.position.copy(loc2(new THREE.Vector3(0.16,0.35,bb.max.z+0.012)));
-  // 整机可拖动：注册提手（最大体积件）
-  var vol=0,main=null;
-  m.traverse(function(o){if(o.isMesh){var b2=new THREE.Box3().setFromObject(o);var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);if(v>vol){vol=v;main=o}}});
-  if(main)reg(main,'splicer');
+  // 整机可拖动：全部件注册为拾取热区
+  m.traverse(function(o){if(o.isMesh)reg(o,'splicer')});
   F.glbOn=F.glbOn||{};F.glbOn.splicer=true;
  });
 }
@@ -856,10 +856,8 @@ function buildCleaver(){
   bin.position.set(0.52,0.64,0.05);bin.material.opacity=0.75;
   CT.bin.position.set(0.52,0.68,0.05);
   bl.visible=false;
-  // 整机可拖动：注册机身（最大体积件）
-  var cvol=0,cmain=null;
-  m.traverse(function(o){if(o.isMesh){var b3=new THREE.Box3().setFromObject(o);var v3=(b3.max.x-b3.min.x)*(b3.max.y-b3.min.y)*(b3.max.z-b3.min.z);if(v3>cvol){cvol=v3;cmain=o}}});
-  if(cmain)reg(cmain,'ctcleaver');
+  // 整机可拖动：全部件注册为拾取热区
+  m.traverse(function(o){if(o.isMesh)reg(o,'ctcleaver')});
   F.glbOn=F.glbOn||{};F.glbOn.cleaver=true;
  });
 }
@@ -881,9 +879,9 @@ function buildTools(){
   hr.rotation.y=Math.PI/2;hr.rotation.z=Math.PI/2;
   hr.position.set(-0.2,0.085+(hi-1)*0.052,0);
   pg.add(hr);
-  var cap=new THREE.Mesh(new THREE.SphereGeometry(0.014,8,8),new THREE.MeshBasicMaterial({color:holeCols[hi]}));
-  cap.position.set(-0.13,0.085+(hi-1)*0.052,0);pg.add(cap);
-  var hb2=box(0.14,0.05,0.09,0xffffff,{t:1,op:0.02,r:1,m:0});
+  var cap=new THREE.Mesh(new THREE.SphereGeometry(0.014,10,10),new THREE.MeshBasicMaterial({color:holeCols[hi]}));
+  cap.position.set(-0.13,0.085+(hi-1)*0.052,0);cap.scale.set(1.6,1.6,1.6);pg.add(cap);
+  var hb2=box(0.14,0.05,0.09,holeCols[hi],{t:1,op:0.32,r:0.6,m:0});hb2.castShadow=false;
   hb2.position.set(-0.2,0.085+(hi-1)*0.052,0);pg.add(hb2);
   holeFX.push({hb:hb,hr:hr,cap:cap,hb2:hb2});
   reg(hb2,'plierHole'+(hi+1));
@@ -905,10 +903,8 @@ function buildTools(){
   m.position.y-=bb.min.y;
   m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
   pg.add(m);
-  var vol=0,main=null;
-  m.traverse(function(o){if(o.isMesh){var b2=new THREE.Box3().setFromObject(o);var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);if(v>vol){vol=v;main=o}}});
   h1.visible=false;h2.visible=false;head.visible=false;
-  if(main)reg(main,'pliers');
+  m.traverse(function(o){if(o.isMesh)reg(o,'pliers')});
   // 三孔件贴实物钳头：沿长轴排、孔面朝操作者(+z)——用pg局部坐标（世界bb换算）
   bb.setFromObject(m);
   var mn=new THREE.Vector3(1e9,1e9,1e9),mx=new THREE.Vector3(-1e9,-1e9,-1e9);
@@ -927,6 +923,8 @@ function buildTools(){
    fx.cap.position.set(hx,hy,0.055);
    fx.hb2.position.set(hx,hy,0.04);
    fx.hb2.scale.set(2.2,1.6,3.0);
+   fx.hb2.material.color.setHex(holeCols2[k]);fx.hb2.material.opacity=0.32;
+   fx.cap.scale.set(1.6,1.6,1.6);
   }
   F.glbOn=F.glbOn||{};F.glbOn.pliers=true;
  });
@@ -948,17 +946,9 @@ function buildTools(){
   m.position.x-=(bb.max.x+bb.min.x)/2;
   m.position.z-=(bb.max.z+bb.min.z)/2;
   m.position.y-=bb.min.y;
-  var main=null,vol=0;
-  m.traverse(function(o){
-   if(o.isMesh){
-    o.castShadow=true;o.receiveShadow=true;
-    var b2=new THREE.Box3().setFromObject(o);
-    var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);
-    if(v>vol){vol=v;main=o}
-   }
-  });
+  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true;reg(o,'bottle')}});
   bg.add(m);
-  if(main){body.visible=false;cap.visible=false;noz.visible=false;reg(main,'bottle');TL.bottleGlbed=true}
+  body.visible=false;cap.visible=false;noz.visible=false;TL.bottleGlbed=true
  });
  // 无尘纸（程序化兜底 + AI实物部件版）
  var paper=box(0.26,0.01,0.2,0xf2f5f8,{r:0.85,m:0});paper.position.set(-2.05,0.03,1.65);scene.add(paper);reg(paper,'paper');
@@ -975,20 +965,19 @@ function buildTools(){
   m.position.x-=(bb.max.x+bb.min.x)/2;
   m.position.z-=(bb.max.z+bb.min.z)/2;
   m.position.y-=bb.min.y;
-  var main=null,vol=0;
+  var pmain=null,pvol=0;
   m.traverse(function(o){
    if(o.isMesh){
-    o.castShadow=true;o.receiveShadow=true;
+    o.castShadow=true;o.receiveShadow=true;reg(o,'paper');
     var b2=new THREE.Box3().setFromObject(o);
     var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);
-    if(v>vol){vol=v;main=o}
+    if(v>pvol){pvol=v;pmain=o}
    }
   });
   pgp.add(m);
-  if(main){
+  if(pmain){
    paper.visible=false;
-   reg(main,'paper');
-   TL.paper=pgp;TL.paperMesh=main;TL.paperHome={x:-2.05,y:0,z:1.65};
+   TL.paper=pgp;TL.paperMesh=pmain;TL.paperHome={x:-2.05,y:0,z:1.65};
    F.glbOn=F.glbOn||{};F.glbOn.paper=true;
   }
  });
@@ -1015,7 +1004,7 @@ function buildTools(){
   });
   cbg.add(m);
   if(CM[0]){
-   reg(CM[0],'cable');
+   for(var ck in CM){if(CM[ck])reg(CM[ck],'cable')}
    TL.cable={grp:cbg,m0:CM[0],m1:CM[1]||null,m2:CM[2]||null,
     p0:CM[0].position.clone(),p1:(CM[1]?CM[1].position.clone():null),
     home:{x:0.2,y:0,z:2.75}};
@@ -1353,10 +1342,10 @@ function init3D(){
  renderer.toneMapping=THREE.ACESFilmicToneMapping;
  renderer.toneMappingExposure=1.05;
  renderer.outputEncoding=THREE.sRGBEncoding;
- scene=new THREE.Scene();scene.background=new THREE.Color(0xbfd5e8);scene.fog=new THREE.Fog(0xbfd5e8,42,90);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0xdde9f2);
  camera=new THREE.PerspectiveCamera(46,wrapEl.clientWidth/wrapEl.clientHeight,0.05,60);
  scene.environment=makeEnvMap();
- scene.add(new THREE.HemisphereLight(0xdfeaf5,0x6b7686,0.95));
+ scene.add(new THREE.HemisphereLight(0xe8f1f8,0x5d6878,0.8));
  var dl=new THREE.DirectionalLight(0xfff6e8,1.0);dl.position.set(3.5,6,4);dl.castShadow=true;
  dl.shadow.mapSize.set(1024,1024);
  dl.shadow.camera.left=-5;dl.shadow.camera.right=5;dl.shadow.camera.top=5;dl.shadow.camera.bottom=-5;dl.shadow.camera.far=20;dl.shadow.bias=-0.0015;
@@ -2337,7 +2326,7 @@ function pickAt(cx,cy){
  ptr.y=-((cy-r.top)/r.height)*2+1;
  ray.setFromCamera(ptr,camera);
  var meshes=[],a;
- for(a in ANCH){if(ANCH[a]&&ANCH[a].visible!==false)meshes.push(ANCH[a])}
+ for(a in ANCH_LIST){var L=ANCH_LIST[a];for(var mi=0;mi<L.length;mi++){var mm=L[mi];if(mm&&mm.visible!==false)meshes.push(mm)}}
  var hits=ray.intersectObjects(meshes,false);
  return hits.length?(hits[0].object.userData.act||null):null;
 }
@@ -2352,6 +2341,11 @@ function onDown(e){
  }
  var act=pickAt(e.clientX,e.clientY);
  if(!act)return;
+ if((e.button===2||(e.button===0&&e.altKey))&&FREE_DRAG[act]&&rootOf(ANCH[act]).parent===scene&&DRAG.mode!=='strip'&&DRAG.mode!=='wipe'&&DRAG.mode!=='tube'){
+  DRAG.mode='rot';DRAG.holding=true;DRAG.sx=e.clientX;DRAG.sy=e.clientY;DRAG.dragObj=rootOf(ANCH[act]);DRAG.r0x=DRAG.dragObj.rotation.x;DRAG.r0y=DRAG.dragObj.rotation.y;
+  try{canvasEl.setPointerCapture(e.pointerId)}catch(err){}
+  e.preventDefault();return;
+ }
  if(FREE_DRAG[act]&&rootOf(ANCH[act]).parent===scene&&DRAG.mode!=='strip'&&DRAG.mode!=='wipe'&&DRAG.mode!=='tube'){
   DRAG.mode='free';DRAG.holding=true;DRAG.sx=e.clientX;DRAG.sy=e.clientY;DRAG.dragAct=act;DRAG.dragObj=rootOf(ANCH[act]);DRAG.moved=false;DRAG.off0=null;
   try{e.target.setPointerCapture(e.pointerId)}catch(err){}
@@ -2377,6 +2371,13 @@ function onMove(e){
     DRAG.dragObj.position.x=clamp(pf.x+DRAG.off0.x,-4.4,4.4);
     DRAG.dragObj.position.z=clamp(pf.z+DRAG.off0.z,-1.5,3.2);
    }
+  }
+  return;
+ }
+ if(DRAG.mode==='rot'){
+  if(DRAG.dragObj){
+   DRAG.dragObj.rotation.y=DRAG.r0y+(e.clientX-DRAG.sx)*0.011;
+   DRAG.dragObj.rotation.x=clamp(DRAG.r0x+(e.clientY-DRAG.sy)*0.011,-1.35,1.35);
   }
   return;
  }
@@ -2441,6 +2442,7 @@ function onUp(e){
   DRAG.mode=null;DRAG.dragObj=null;
   return;
  }
+ if(DRAG.mode==='rot'){DRAG.mode=null;DRAG.dragObj=null;return}
  if(DRAG.mode==='strip'){
   commitStrip(DRAG.fib,DRAG.pull||0);
  }else if(DRAG.mode==='wipe'){
@@ -2468,6 +2470,19 @@ function onUp(e){
   DRAG.mode=null;
  }
 }
+function onDbl(e){
+ var act=pickAt(e.clientX,e.clientY);if(!act)return;
+ if(FREE_OPEN[act]){FREE_OPEN[act]();AU.play('click')}
+}
+var FREE_OPEN={
+ shield:function(){if(SP.shield){if(F.shield==='closed')openShield();else closeShield()}},
+ clampL:function(){if(SP.clampL){var o=(typeof SP.clampOpenX==='number')?SP.clampOpenX:0.72;rotTo(SP.clampL,'x',(Math.abs(SP.clampL.rotation.x-o)<0.05?0:o),0.35)}},
+ clampR:function(){if(SP.clampR){var o=(typeof SP.clampOpenX==='number')?SP.clampOpenX:0.72;rotTo(SP.clampR,'x',(Math.abs(SP.clampR.rotation.x-o)<0.05?0:o),0.35)}},
+ ovenDoor:function(){if(SP.ovDoor){rotTo(SP.ovDoor,'x',(SP.ovDoor.rotation.x<-0.5?0:-1.4),0.4)}},
+ ctLid:function(){if(CT.lid){var o=(CT.lidOpenX!=null)?CT.lidOpenX:-0.95;rotTo(CT.lid,'x',(Math.abs(CT.lid.rotation.x-o)<0.05?0:o),0.35)}},
+ ctClamp:function(){if(CT.clamp){var o=(CT.clampOpenX!=null)?CT.clampOpenX:-0.8;rotTo(CT.clamp,'x',(Math.abs(CT.clamp.rotation.x-o)<0.05?0:o),0.35)}},
+ ctHandle:function(){if(CT.handle){rotTo(CT.handle,'x',(CT.handle.rotation.x>0.05?(CT.handleRange?CT.handleRange[0]:-0.2):(CT.handleRange?CT.handleRange[1]:0.45)),0.35)}}
+};
 document.addEventListener('touchstart',function(){AU.ensure()},{once:true,passive:true});
 // 键盘方向键：左右旋转视角、上下俯仰
 document.addEventListener('keydown',function(e){
@@ -2507,6 +2522,9 @@ function boot(){
   window.addEventListener('pointermove',onMove);
   window.addEventListener('pointerup',onUp);
   window.addEventListener('pointercancel',onUp);
+  canvasEl.addEventListener('contextmenu',function(ev){ev.preventDefault()});
+  canvasEl.addEventListener('dblclick',onDbl);
+  setTimeout(function(){toast('💡 左键拖动=移动 · 右键拖动=旋转(手机长按无效,建议电脑调) · 双击盖/门/压板=开合','info',6000)},5000);
  }catch(e){}
  resetState();
  renderStepBar();
