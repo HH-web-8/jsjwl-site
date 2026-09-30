@@ -873,11 +873,11 @@ function buildTools(){
  var holeFX=[];
  for(var hi=0;hi<3;hi++){
   var hb=box(0.13,0.05,0.055,0x2c333d,{m:0.7,r:0.35});hb.position.set(-0.2,0.055+(hi-1)*0.0,0);pg.add(hb);
-  var hr=new THREE.Mesh(new THREE.TorusGeometry(holeR[hi],0.007,8,18,Math.PI),mat(0xeadfc8,{m:0.5,r:0.4}));
+  var hr=new THREE.Mesh(new THREE.TorusGeometry(holeR[hi],0.012,10,24),mat(0xeadfc8,{m:0.5,r:0.4}));
   hr.rotation.y=Math.PI/2;hr.rotation.z=Math.PI/2;
   hr.position.set(-0.2,0.085+(hi-1)*0.052,0);
   pg.add(hr);
-  var cap=new THREE.Mesh(new THREE.SphereGeometry(0.006,6,6),new THREE.MeshBasicMaterial({color:holeCols[hi]}));
+  var cap=new THREE.Mesh(new THREE.SphereGeometry(0.014,8,8),new THREE.MeshBasicMaterial({color:holeCols[hi]}));
   cap.position.set(-0.13,0.085+(hi-1)*0.052,0);pg.add(cap);
   var hb2=box(0.14,0.05,0.09,0xffffff,{t:1,op:0.02,r:1,m:0});
   hb2.position.set(-0.2,0.085+(hi-1)*0.052,0);pg.add(hb2);
@@ -905,18 +905,24 @@ function buildTools(){
   m.traverse(function(o){if(o.isMesh){var b2=new THREE.Box3().setFromObject(o);var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);if(v>vol){vol=v;main=o}}});
   h1.visible=false;h2.visible=false;head.visible=false;
   if(main)reg(main,'pliers');
-  // 三孔件贴实物钳头：沿长轴排、孔面朝操作者(+z)
+  // 三孔件贴实物钳头：沿长轴排、孔面朝操作者(+z)——用pg局部坐标（世界bb换算）
   bb.setFromObject(m);
-  var hy=(bb.min.y+bb.max.y)/2+0.02;
+  var mn=new THREE.Vector3(1e9,1e9,1e9),mx=new THREE.Vector3(-1e9,-1e9,-1e9);
+  for(var ci=0;ci<8;ci++){
+   var cv=pg.worldToLocal(new THREE.Vector3(ci&1?bb.max.x:bb.min.x,ci&2?bb.max.y:bb.min.y,ci&4?bb.max.z:bb.min.z));
+   mn.min(cv);mx.max(cv);
+  }
+  var hy=(mn.y+mx.y)/2+0.015;
+  var holeCols2=[0x7fd4ff,0xffd166,0xff9d6b];
   for(var k=0;k<holeFX.length;k++){
    var fx=holeFX[k];if(!fx)continue;
-   var hx=bb.min.x+(bb.max.x-bb.min.x)*(0.62+k*0.13);
+   var hx=mn.x+(mx.x-mn.x)*(0.62+k*0.13);
    fx.hb.visible=false;
    fx.hr.rotation.set(0,0,0);
-   fx.hr.position.set(hx,hy,0.04);
-   fx.cap.position.set(hx,hy,0.045);
-   fx.hb2.position.set(hx,hy,0.03);
-   fx.hb2.scale.set(1.5,1.8,2.2);
+   fx.hr.position.set(hx,hy,0.05);
+   fx.cap.position.set(hx,hy,0.055);
+   fx.hb2.position.set(hx,hy,0.04);
+   fx.hb2.scale.set(2.2,1.6,3.0);
   }
   F.glbOn=F.glbOn||{};F.glbOn.pliers=true;
  });
@@ -1465,6 +1471,7 @@ function aimStrip(i){
    {act:'plierHole3',label:'3口·剪断',no:3}]);
   fbSet('钳口已到端头：<b>点击孔位</b>选择咬合位置（'+(fi(i).jacketOff?'现在剥涂覆层，用 1口':'现在剥外护套，用 2口')+'）','info');
   PICK=function(act){
+   if(act==='pliers'){toast('点击钳身上的彩色孔环选孔位（'+(fi(i).jacketOff?'剥涂覆层用 1口小孔':'剥外护套用 2口中孔')+'）','info');return}
    if(act==='plierHole3'){toast('3口是剪断口，剥线不用它','warn');return}
    var need=fi(i).jacketOff?'plierHole1':'plierHole2';
    if(act!==need){
