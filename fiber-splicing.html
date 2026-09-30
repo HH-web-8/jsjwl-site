@@ -59,6 +59,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 .obj-label{position:absolute;transform:translate(-50%,-130%);background:rgba(15,23,42,.88);border:1px solid #38bdf8;color:#bae6fd;font-size:.7rem;padding:3px 9px;border-radius:10px;white-space:nowrap;pointer-events:none;animation:lblPulse 1.6s infinite}
 @keyframes lblPulse{0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,.35)}50%{box-shadow:0 0 0 5px rgba(56,189,248,0)}}
 .obj-label.idle{opacity:.6;font-size:.62rem;padding:2px 7px;border-color:rgba(56,189,248,.45);animation:none}
+.lbl-no{display:inline-block;min-width:1.3em;height:1.3em;line-height:1.3em;text-align:center;background:#2563eb;color:#fff;font-weight:700;border-radius:50%;margin-right:5px;font-size:.66rem;padding:0 2px;vertical-align:-2px}
 
 /* 提示浮条 */
 #toastBox{position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%}
@@ -830,27 +831,29 @@ function buildTools(){
 var HANDS={L:null,R:null,holdR:null,holdL:null,follow:false,_pt:null};
 function makeHand(side){ // side: 1=右手(画面右) -1=左手
  var g=new THREE.Group();
+ var inner=new THREE.Group();g.add(inner); // 翻转层：手臂朝镜头、指尖朝桌内
  var skin=0xf4f6f9,glove={r:0.62,m:0.02};
  // 掌
- var palm=box(0.115,0.032,0.125,skin,glove);palm.position.y=0.016;g.add(palm);
+ var palm=box(0.115,0.032,0.125,skin,glove);palm.position.y=0.016;inner.add(palm);
  // 四指
  for(var i=0;i<4;i++){
   var f=box(0.02,0.024,0.088,skin,glove);
   f.position.set(-0.042+i*0.028,0.02,0.098);
   f.rotation.x=-0.18-i*0.03;
-  g.add(f);
+  inner.add(f);
  }
  // 拇指
  var th=box(0.026,0.026,0.07,skin,glove);
- th.position.set(side*-0.062,0.026,0.05);th.rotation.y=side*0.55;th.rotation.x=-0.25;
- g.add(th);
+ th.position.set(side*0.062,0.026,0.05);th.rotation.y=-side*0.55;th.rotation.x=-0.25;
+ inner.add(th);
  // 袖口（实训服）
  var cuff=cyl(0.062,0.072,0.16,0x2b3a4d,{r:0.85,m:0.05});
  cuff.rotation.x=Math.PI/2;cuff.position.set(0,0.005,-0.24);
- g.add(cuff);
+ inner.add(cuff);
  // 腕部
- var wrist=box(0.07,0.024,0.14,skin,glove);wrist.position.set(0,0.014,-0.14);g.add(wrist);
- g.rotation.x=0.42; // 手背朝镜头微抬（第一人称俯视感）
+ var wrist=box(0.07,0.024,0.14,skin,glove);wrist.position.set(0,0.014,-0.14);inner.add(wrist);
+ inner.rotation.y=Math.PI;
+ g.rotation.x=-0.42; // 指尖轻压桌面、手臂朝镜头（坐桌前第一人称）
  scene.add(g);
  return g;
 }
@@ -870,10 +873,9 @@ function handGrab(tool,cb){
  var wp=tool.getWorldPosition(new THREE.Vector3());
  handTo(HANDS.R,wp.x,wp.y,wp.z,0.35,function(){
   HANDS.R.attach(tool);
-  tool.position.set(0,0.05,0.16);
+  tool.position.set(0,0.05,-0.16);
   tool.rotation.set(0,0,0);
   HANDS.holdR=tool;
-  HANDS.follow=true;
   AU.play('pop');
   if(cb)cb();
  });
@@ -1049,7 +1051,7 @@ function setElig(items){
   var m=ANCH[it.act];
   if(m&&m.userData)m.userData._pulse=true;
   if(it.label){
-   var el=document.createElement('div');el.className='obj-label';el.innerHTML=it.label;layer.appendChild(el);
+   var el=document.createElement('div');el.className='obj-label';el.innerHTML=(it.no?'<span class="lbl-no">'+it.no+'</span>':'')+it.label;layer.appendChild(el);
    labelDefs.push({act:it.act,obj:it.obj||m,el:el});
   }
  }
@@ -1187,7 +1189,7 @@ function enterStep(n){
 function panelStep_1(){
  setPT(1);camTo('wide');
  handsIdle();
- setElig([{act:'powerKey',label:'电源键'}]);
+ setElig([{act:'powerKey',label:'电源键',no:1}]);
  PICK=function(act){
   if(act==='powerKey'&&!F.power){
    F.power=true;AU.play('pop');
@@ -1222,7 +1224,7 @@ function panelStep_2(){
   '<div class="act-item">② 点击 <b>光纤①</b>：左手捏纤，右手把管从端头穿入、滑到远端</div></div>'+
   (MODE==='newbie'?hintB('tube2','新手提示','热缩管必须<b>熔接前</b>穿上！忘了穿，加热工序直接报废，只能剪断整根光纤重做。'):'')+
   fbEl();
- setElig([{act:'tubePick',label:'热缩管'},{act:'fiber1',label:'光纤①'}]);
+ setElig([{act:'tubePick',label:'热缩管',no:1},{act:'fiber1',label:'光纤①',no:2}]);
  PICK=function(act){
   if(act==='tubePick'){
    if(TL.tube.parent===FIB3D[0]){toast('管已在光纤上','info');return}
@@ -1266,7 +1268,7 @@ function stripPanel(i){
   '<div class="live-strip">'+(stage===1?'外皮剥出长度':'裸纤长度')+'：<b id="stripLen">--</b></div>'+
   (MODE==='newbie'?hintB('strip'+i,'新手提示','2口剥外皮、1口剥涂覆层，<b>孔选错会伤纤</b>；一次拉出禁止来回拉锯；裸纤太短夹持爪夹不住。'):'')+
   fbEl();
- setElig([{act:'pliers',label:'米勒钳'},{act:'fiber'+i,label:FNAME[i]}]);
+ setElig([{act:'pliers',label:'米勒钳',no:1},{act:'fiber'+i,label:FNAME[i],no:2}]);
  PICK=function(act){
   if(act==='pliers'){
    if(HANDS.holdR===TL.pliers){toast('钳子已在手上','info');return}
@@ -1283,9 +1285,9 @@ function aimStrip(i){
  var tip=fib.position;
  handTo(HANDS.R,tip.x+0.34,0.15,tip.z,0.5,function(){
   setElig([
-   {act:'plierHole1',label:'1口·涂覆层'},
-   {act:'plierHole2',label:'2口·外护套'},
-   {act:'plierHole3',label:'3口·剪断'}]);
+   {act:'plierHole1',label:'1口·涂覆层',no:3},
+   {act:'plierHole2',label:'2口·外护套',no:3},
+   {act:'plierHole3',label:'3口·剪断',no:3}]);
   fbSet('钳口已到端头：<b>点击孔位</b>选择咬合位置（'+(fi(i).jacketOff?'现在剥涂覆层，用 1口':'现在剥外护套，用 2口')+'）','info');
   PICK=function(act){
    if(act==='plierHole3'){toast('3口是剪断口，剥线不用它','warn');return}
@@ -1375,7 +1377,7 @@ function wipePanel(i){
   '<div class="live-strip">擦拭次数：<b id="wipeN">0</b> / 3</div>'+
   (MODE==='newbie'?hintB('wipe'+i,'新手提示','擦一次换一面/换纸，脏纸反复擦等于没擦；擦拭质量熔接时屏幕影像见分晓。'):'')+
   fbEl();
- setElig([{act:'bottle',label:'酒精壶'},{act:'paper',label:'无尘纸'}]);
+ setElig([{act:'bottle',label:'酒精壶',no:1},{act:'paper',label:'无尘纸',no:2}]);
  fi(i).strokes=0;
  PICK=function(act){
   if(act==='bottle'){
@@ -1437,12 +1439,12 @@ function cutPanel(i){
   '<div class="live-strip">端面角度：<b id="cutAngle">待切割后由熔接机检测</b></div>'+
   (MODE==='newbie'?hintB('cut'+i,'新手提示','端面角度>1°真机<b>拒绝熔接</b>必须重切；压柄快压到底，犹豫慢压会产生斜端面。'):'')+
   fbEl();
- setElig([{act:'fiber'+i,label:FNAME[i]}]);
+ setElig([{act:'fiber'+i,label:FNAME[i],no:1}]);
  PICK=function(act){
   if(act==='fiber'+i){
    fiberToCleave(i);
    setTimeout(function(){
-    setElig([{act:'ctHandle',label:'压柄'}]);
+    setElig([{act:'ctHandle',label:'压柄',no:2}]);
     handTo(HANDS.R,CT.grp.position.x,0.78,CT.grp.position.z-0.55,0.5);
     fbSet('光纤已入座、夹持已压紧。右手已就位：<b>按住压柄向下压到底</b>','info');
    },900);
@@ -1542,7 +1544,7 @@ function placeFiber(i){
  setTimeout(function(){
   f.slot=(i===1?'L':'R');
   var cl=(i===1)?'clampL':'clampR';
-  setElig([{act:cl,label:'压板'}]);
+  setElig([{act:cl,label:'压板',no:1}]);
   fbSet('✅ '+FNAME[i]+'已放入'+(i===1?'左':'右')+'V型槽。点击<b>压板</b>压紧','ok');
  },900);
 }
@@ -1585,7 +1587,7 @@ function panelStep_11(){
   '<div class="check-item" id="preCheck">前置：--</div>'+
   (MODE==='newbie'?hintB('scr','屏幕影像怎么看','X/Y是端面显微影像：<b>规整亮点</b>=合格端面；<b>斜椭圆</b>=切割角度超差(>1°)；<b>灰雾斑</b>=端面污染。三项全过机器才放电。'):'')+
   fbEl();
- setElig([{act:'shield',label:'防风罩'}]);
+ setElig([{act:'shield',label:'防风罩',no:1}]);
  PICK=function(act){
   if(act==='shield'){if(F.shield==='closed')openShield();else closeShield()}
  };
@@ -1774,7 +1776,7 @@ function panelStep_12(){
   '<div class="back-row">'+btn('pullOut(true)','提前取出（想试试报错可以点）','ghost')+'</div>'+
   fbEl();
  if(f1.tubeAtEnd){
-  setElig([{act:'tubePick',label:'热缩管'}]);
+  setElig([{act:'tubePick',label:'热缩管',no:1}]);
   fbSet('热缩管还在光纤①远端：<b>按住它向左拖</b>，套到中间熔接点上','info');
   PICK=function(act){
    if(act==='tubePick'){
