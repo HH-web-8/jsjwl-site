@@ -634,14 +634,18 @@ function glbFail(nm,why){
  el.textContent='\u26a0 实物模型['+nm+']加载失败：'+why+'，已临时用简化模型，请截图反馈';
  glbProg(null,0);
 }
-function loadGLB(path,cb){
+function loadGLB(path,cb,rt){
  try{
-  var nm=/_88s/.test(path)?'88S熔接机':(/bottle/.test(path)?'酒精喷壶':'模型');
+  var nm=/_88s|f88s/.test(path)?'88S熔接机':(/bottle|alcohol/.test(path)?'酒精喷壶':(/ct50/.test(path)?'CT50切割刀':(/plier/.test(path)?'米勒钳':'模型')));
   if(!THREE.GLTFLoader){glbFail(nm,'GLTFLoader未就绪');cb(null);return}
-  glbProg(nm,0);
+  if(!rt)glbProg(nm,0);
   new THREE.GLTFLoader().load(path,function(g){glbProg(nm,1);cb(g.scene||null)},
    function(ev){if(ev.lengthComputable&&ev.total>0)glbProg(nm,ev.loaded/ev.total)},
    function(err){
+    if(!rt){ // 首次失败→破缓存自动重试一次
+     loadGLB(path.split('?')[0]+'?r='+Date.now(),cb,1);
+     return;
+    }
     var st=(err&&err.target&&err.target.status)?('HTTP '+err.target.status):'解析失败';
     glbFail(nm,st);cb(null);
    });
@@ -706,31 +710,79 @@ function buildSplicer(){
  SP.joint=new THREE.Object3D();SP.joint.position.set(0,0.705,0.05);g.add(SP.joint);
  SP.slotL=new THREE.Object3D();SP.slotL.position.set(-0.18,0.71,0.05);g.add(SP.slotL);
  SP.slotR=new THREE.Object3D();SP.slotR.position.set(0.18,0.71,0.05);g.add(SP.slotR);
- // ===== AI实物模型上线：88S GLB替换程序化机身，可动件全部保留叠加 =====
- loadGLB('assets/models/fujikura-88s.glb?v=slim3',function(m){
+ // ===== AI实物模型上线：88S部件版GLB（42部件），可动件锚定实物部件，锚点动态对位 =====
+ loadGLB('assets/models/f88s-parts.glb?v=p1',function(m){
   if(!m||!SP.grp){return}
   var bb=new THREE.Box3().setFromObject(m);
   var sx=bb.max.x-bb.min.x,sy=bb.max.y-bb.min.y,sz=bb.max.z-bb.min.z;
-  if(!(sx>0.01&&sy>0.01&&sz>0.01)){return}
-  var sc=1.75/sx;
+  if(!(sx>0.05&&sy>0.05&&sz>0.05)){return}
+  var sc=0.87/sx;               // 深度(model X)→世界Z≈0.87，光纤轴(model Z)→世界X
   m.scale.set(sc,sc,sc);
-  m.rotation.y=-Math.PI/2;
+  m.rotation.y=Math.PI/2;       // model +z(前缘)→世界+x，与加热炉同侧
   bb.setFromObject(m);
-  var H=bb.max.y-bb.min.y;
-  var dy=Math.max(0,H*0.5-0.585);
   m.position.x-=(bb.max.x+bb.min.x)/2;
   m.position.z-=(bb.max.z+bb.min.z)/2;
-  m.position.y-=bb.min.y;
+  m.position.y-=bb.min.y;       // 落地
   m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
   SP.grp.add(m);SP.glb=m;SP.glbScale=sc;
-  base.visible=false;plate.visible=false;silk.visible=false;wa.visible=false;gl1.visible=false;gl2.visible=false;
-  if(dy>0.015){
-   var keep=[base,plate,wa,gl1,gl2,ssp,silk,ovb,slot,odp,glow,SP.ovLight,m];
-   SP.grp.children.slice().forEach(function(c){
-    if(keep.indexOf(c)<0&&c.position)c.position.y+=dy;
-   });
-   SP.dy=dy;
+  // 收集部件（mesh_N 名保留）
+  var P={};
+  m.traverse(function(o){if(o.isMesh&&/^mesh_(\d+)$/.test(o.name))P[+RegExp.$1]=o});
+  base.visible=false;plate.visible=false;wa.visible=false;gl1.visible=false;gl2.visible=false;silk.visible=false;
+  bb.setFromObject(m);
+  var W=bb.max.x-bb.min.x,H=bb.max.y-bb.min.y,D=bb.max.z-bb.min.z;
+  // 世界bbox建后缘铰链pivot：先挂scene（世界=局部）→attach部件→再挂回SP.grp
+  function glbPivot(mesh){
+   var b=new THREE.Box3().setFromObject(mesh);
+   var p=new THREE.Group();
+   p.position.set((b.min.x+b.max.x)/2,(b.min.y+b.max.y)/2,b.min.z);
+   scene.add(p);p.attach(mesh);SP.grp.attach(p);
+   return p}
+  if(P[38]&&P[39]&&P[17]){ // 关键可动件齐备→挂实物
+   var bL0=new THREE.Box3().setFromObject(P[38]),bR0=new THREE.Box3().setFromObject(P[39]);
+   var L=(bL0.min.x+bL0.max.x)/2<(bR0.min.x+bR0.max.x)/2?P[38]:P[39];
+   var R=(L===P[38])?P[39]:P[38];
+   var bL=new THREE.Box3().setFromObject(L),bR=new THREE.Box3().setFromObject(R);
+   var jy=Math.max(bL.max.y,bR.max.y);
+   var jz=((Math.min(bL.min.z,bR.min.z))+(Math.max(bL.max.z,bR.max.z)))/2;
+   var cxL=(bL.min.x+bL.max.x)/2,cxR=(bR.min.x+bR.max.x)/2;
+   // 锚点对齐实物V槽区（世界→SP.grp局部）
+   function loc(v){return SP.grp.worldToLocal(v)}
+   SP.joint.position.copy(loc(new THREE.Vector3(0,jy+0.008,jz)));
+   SP.slotL.position.copy(loc(new THREE.Vector3(cxL,jy+0.012,jz)));
+   SP.slotR.position.copy(loc(new THREE.Vector3(cxR,jy+0.012,jz)));
+   // 电极/电弧对齐熔接点
+   e1.position.copy(loc(new THREE.Vector3(-0.033,jy+0.035,jz)));
+   e2.position.copy(loc(new THREE.Vector3(0.033,jy+0.035,jz)));
+   eh1.position.copy(loc(new THREE.Vector3(-0.075,jy+0.026,jz)));
+   eh2.position.copy(loc(new THREE.Vector3(0.075,jy+0.026,jz)));
+   SP.arcLight.position.copy(loc(new THREE.Vector3(0,jy+0.10,jz)));
+   // 压板：实物mesh挂pivot（打开=负角后掀，压紧=0）
+   if(SP.clampL)SP.grp.remove(SP.clampL);
+   if(SP.clampR)SP.grp.remove(SP.clampR);
+   SP.clampL=glbPivot(L);SP.clampR=glbPivot(R);
+   SP.clampOpenX=-0.55;
+   SP.clampL.rotation.x=SP.clampOpenX;SP.clampR.rotation.x=SP.clampOpenX;
+   reg(L,'clampL');reg(R,'clampR');
+   // 防风罩：实物mesh_17（开=-1.92后掀 合=0，语义同旧版）
+   if(SP.shield)SP.grp.remove(SP.shield);
+   SP.shield=glbPivot(P[17]);
+   SP.shield.rotation.x=-1.92;
+   reg(P[17],'shield');
   }
+  // 加热炉贴机身右缘
+  var ovenX=W/2+0.14;
+  ovb.position.x=ovenX;slot.position.x=ovenX;odp.position.x=ovenX;glow.position.x=ovenX;SP.ovLight.position.x=ovenX;
+  SP.ovenAnchor=new THREE.Object3D();SP.ovenAnchor.position.set(ovenX,0.33,0);SP.grp.add(SP.ovenAnchor);
+  // 屏幕立后上、电源键贴前板（世界→局部）
+  function loc2(v){return SP.grp.worldToLocal(v)}
+  ssp.position.copy(loc2(new THREE.Vector3(0,H*0.5,bb.min.z-0.05)));
+  pk.position.copy(loc2(new THREE.Vector3(0.16,0.24,bb.max.z+0.012)));
+  lamp.position.copy(loc2(new THREE.Vector3(0.16,0.35,bb.max.z+0.012)));
+  // 整机可拖动：注册提手（最大体积件）
+  var vol=0,main=null;
+  m.traverse(function(o){if(o.isMesh){var b2=new THREE.Box3().setFromObject(o);var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);if(v>vol){vol=v;main=o}}});
+  if(main)reg(main,'splicer');
   F.glbOn=F.glbOn||{};F.glbOn.splicer=true;
  });
 }
@@ -759,6 +811,53 @@ function buildCleaver(){
  var bl=box(0.9,0.012,0.025,0xb8c2cc,{m:0.95,r:0.12,env:1.7});bl.position.set(0,0.295,0.0);g.add(bl);
  // 切割光纤锚位（刀片上方）
  CT.fiberPose=new THREE.Object3D();CT.fiberPose.position.set(-0.12,0.36,-0.02);CT.fiberPose.rotation.y=0;g.add(CT.fiberPose);
+ // ===== AI实物模型上线：CT50部件版GLB（11部件），三可动件锚定实物 =====
+ loadGLB('assets/models/ct50-parts.glb?v=p1',function(m){
+  if(!m||!CT.grp){return}
+  var bb=new THREE.Box3().setFromObject(m);
+  var sx=bb.max.x-bb.min.x,sy=bb.max.y-bb.min.y,sz=bb.max.z-bb.min.z;
+  if(!(sx>0.05&&sy>0.05&&sz>0.05)){return}
+  var sc=1.00/sz;   // 深度→1.0，宽0.81/高0.65，与88S级配
+  m.scale.set(sc,sc,sc);  // 原生朝向即正确：+z朝操作者
+  bb.setFromObject(m);
+  m.position.x-=(bb.max.x+bb.min.x)/2;
+  m.position.z-=(bb.max.z+bb.min.z)/2;
+  m.position.y-=bb.min.y;
+  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+  CT.grp.add(m);CT.glb=m;CT.glbScale=sc;
+  var P={};
+  m.traverse(function(o){if(o.isMesh&&/^mesh_(\d+)$/.test(o.name))P[+RegExp.$1]=o});
+  base.visible=false;plate.visible=false;
+  // 世界系建后缘铰链pivot（CT50不整体拖动→pivot挂scene，转轴纯净）
+  function ctPivot(mesh){
+   var b=new THREE.Box3().setFromObject(mesh);
+   var p=new THREE.Group();
+   p.position.set((b.min.x+b.max.x)/2,(b.min.y+b.max.y)/2,b.min.z);
+   scene.add(p);p.attach(mesh);
+   return p}
+  if(P[2]&&P[3]&&P[4]){
+   // 顶盖 mesh_2：合=0 开=-0.95
+   CT.lid=ctPivot(P[2]);CT.lidOpenX=-0.95;CT.lid.rotation.x=CT.lidOpenX;
+   reg(P[2],'ctLid');
+   // 压杆 mesh_3：放平=0 下压=正角，压到0.40触发切割
+   CT.handle=ctPivot(P[3]);CT.handleRange=[-0.2,0.45];CT.handleFire=0.40;CT.handY0=0.95;
+   CT.handle.rotation.x=0;
+   reg(P[3],'ctHandle');
+   // 夹持臂 mesh_4：合=0 开=-0.8
+   CT.clamp=ctPivot(P[4]);CT.clampOpenX=-0.8;CT.clamp.rotation.x=CT.clampOpenX;
+   reg(P[4],'ctClamp');
+   // 光纤夹持位对准实物夹持臂
+   var b4=new THREE.Box3().setFromObject(P[4]);
+   CT.fiberPose.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2-0.03,(b4.min.z+b4.max.z)/2+0.06)));
+   // 程序化可动件隐藏
+   fc.visible=false;lid.visible=false;arm.visible=false;grip.visible=false;
+  }
+  // 废料盒贴右缘
+  bin.position.set(0.52,0.64,0.05);bin.material.opacity=0.75;
+  CT.bin.position.set(0.52,0.68,0.05);
+  bl.visible=false;
+  F.glbOn=F.glbOn||{};F.glbOn.cleaver=true;
+ });
 }
 
 /* ---------- 工具 ---------- */
@@ -771,6 +870,7 @@ function buildTools(){
  // 三个钳口（半圆开口，从小到大）
  var holeCols=[0x7fd4ff,0xffd166,0xff9d6b];
  var holeR=[0.016,0.03,0.05];
+ var holeFX=[];
  for(var hi=0;hi<3;hi++){
   var hb=box(0.13,0.05,0.055,0x2c333d,{m:0.7,r:0.35});hb.position.set(-0.2,0.055+(hi-1)*0.0,0);pg.add(hb);
   var hr=new THREE.Mesh(new THREE.TorusGeometry(holeR[hi],0.007,8,18,Math.PI),mat(0xeadfc8,{m:0.5,r:0.4}));
@@ -781,28 +881,44 @@ function buildTools(){
   cap.position.set(-0.13,0.085+(hi-1)*0.052,0);pg.add(cap);
   var hb2=box(0.14,0.05,0.09,0xffffff,{t:1,op:0.02,r:1,m:0});
   hb2.position.set(-0.2,0.085+(hi-1)*0.052,0);pg.add(hb2);
+  holeFX.push({hb:hb,hr:hr,cap:cap,hb2:hb2});
   reg(hb2,'plierHole'+(hi+1));
  }
  reg(head,'pliers');TL.pliers=pg;TL.holeY=[0.085-0.052,0.085,0.085+0.052];
- // AI实物GLB：米勒钳（加载成功→隐藏程序化钳身、锚点转移；失败→程序化兜底）
- loadGLB('assets/models/miller-pliers.glb?v=slim5',function(m){
+ // AI实物GLB：米勒钳部件版（加载成功→隐藏程序化钳身、三孔贴实物钳头；失败→程序化兜底）
+ loadGLB('assets/models/pliers-parts.glb?v=p1',function(m){
   if(!m||!TL.pliers)return;
   var bb=new THREE.Box3().setFromObject(m);
+  var dz=bb.max.z-bb.min.z; // 钳长轴=model Z
   var sy=bb.max.y-bb.min.y;
-  var sc=0.95/(sy||1);
+  if(!(dz>0.05&&sy>0.02))return;
+  var sc=0.95/dz;   // 全长0.95
   m.scale.set(sc,sc,sc);
-  m.rotation.z=Math.PI/2; // 立姿放平：钳头朝-X、三孔面朝+Y
+  m.rotation.y=Math.PI/2; // 长轴放平沿X；jaws(+z)→+x迎光纤侧，上柄在上
   bb.setFromObject(m);
   m.position.x-=(bb.max.x+bb.min.x)/2;
   m.position.z-=(bb.max.z+bb.min.z)/2;
   m.position.y-=bb.min.y;
-  m.position.x+=0.22; // 对齐程序化钳头孔位
   m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
   pg.add(m);
   var vol=0,main=null;
   m.traverse(function(o){if(o.isMesh){var b2=new THREE.Box3().setFromObject(o);var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);if(v>vol){vol=v;main=o}}});
   h1.visible=false;h2.visible=false;head.visible=false;
   if(main)reg(main,'pliers');
+  // 三孔件贴实物钳头：沿长轴排、孔面朝操作者(+z)
+  bb.setFromObject(m);
+  var hy=(bb.min.y+bb.max.y)/2+0.02;
+  for(var k=0;k<holeFX.length;k++){
+   var fx=holeFX[k];if(!fx)continue;
+   var hx=bb.min.x+(bb.max.x-bb.min.x)*(0.62+k*0.13);
+   fx.hb.visible=false;
+   fx.hr.rotation.set(0,0,0);
+   fx.hr.position.set(hx,hy,0.04);
+   fx.cap.position.set(hx,hy,0.045);
+   fx.hb2.position.set(hx,hy,0.03);
+   fx.hb2.scale.set(1.5,1.8,2.2);
+  }
+  F.glbOn=F.glbOn||{};F.glbOn.pliers=true;
  });
  // 酒精喷壶
  var bg=new THREE.Group();bg.position.set(-2.65,0,1.55);scene.add(bg);
@@ -993,8 +1109,8 @@ function fiberHome(i){var h=FIB3D[i].userData.home;moveTo(FIB3D[i],h.x,h.y,h.z,0
 function rotYTo(obj,val,dur,done){var f=obj.rotation.y;tw(dur,function(k){obj.rotation.y=lerp(f,val,k)},done)}
 function fiberToSlot(i){ // 0=左槽 1=右槽
  var g=FIB3D[i];
- var sp=SP.grp.position;
- moveTo(g,sp.x+(i===0?-0.032:0.032),0.705,sp.z+0.05,0.8);
+ var sl=(i===0?SP.slotL:SP.slotR).getWorldPosition(new THREE.Vector3());
+ moveTo(g,sl.x,sl.y,sl.z,0.8);
  rotYTo(g,i===0?Math.PI:0,0.8);
 }
 
@@ -1485,12 +1601,13 @@ function panelStep_5(){cutPanel(1)}
 function panelStep_9(){cutPanel(2)}
 function fiberToCleave(i){
  var fib=FIB3D[i-1];
- var gp=CT.grp.position,ry=CT.grp.rotation.y;
- moveTo(fib,gp.x-0.12,0.37,gp.z-0.02,0.7);
+ var ry=CT.grp.rotation.y;
+ var fp=CT.fiberPose.getWorldPosition(new THREE.Vector3());
+ moveTo(fib,fp.x,fp.y,fp.z,0.7);
  rotYTo(fib,ry,0.7);
  rotTo(CT.clamp,'x',0,0.3);
  rotTo(CT.lid,'x',0,0.4);
- handPinchFiberAt(gp.x+0.6,0.2,gp.z+0.15);
+ handPinchFiberAt(fp.x+0.6,0.2,fp.z+0.15);
  AU.play('clamp');
 }
 function fireCleave(i){
@@ -1506,17 +1623,17 @@ function fireCleave(i){
  fbSet('✅ 切割完成，废纤头弹入废料盒。端面角度由熔接机影像检测。','ok');
  toast('端面切割完成','ok');
  setTimeout(function(){
-  rotTo(CT.clamp,'x',0.8,0.3);
-  rotTo(CT.lid,'x',-1.3,0.35);
+  rotTo(CT.clamp,'x',(CT.clampOpenX!=null)?CT.clampOpenX:0.8,0.3);
+  rotTo(CT.lid,'x',(CT.lidOpenX!=null)?CT.lidOpenX:-1.3,0.35);
   fiberHome(i-1);
   setTimeout(function(){goStep(i===1?6:10)},800);
  },700);
 }
 function spawnStub(){
- var gp=CT.grp.position;
+ var bp=CT.bin.getWorldPosition(new THREE.Vector3());
  var stub=cyl(0.02,0.02,0.12,0xcfe8ff,{t:1,op:0.6,r:0.2});
  stub.rotation.z=Math.PI/2;
- stub.position.set(gp.x-0.1,0.42,gp.z-0.02);
+ stub.position.set(bp.x,bp.y+0.12,bp.z);
  scene.add(stub);
  var from=stub.position.clone(),to=CT.bin.getWorldPosition(new THREE.Vector3());
  tw(0.7,function(k){
@@ -1761,8 +1878,9 @@ function jointMarkOff(){if(SP.jointMark){FIB3D[0].remove(SP.jointMark);SP.jointM
 function arcFX(dur){
  SP.arcLight.intensity=2;
  var gs=new THREE.Mesh(new THREE.SphereGeometry(0.02,8,8),new THREE.MeshBasicMaterial({color:0xdff1ff,transparent:true,opacity:0.9}));
- gs.position.set(0,0.685,-0.06);SP.grp.add(gs);
- var p1=new THREE.Vector3(-0.02,0.685,-0.06),p2=new THREE.Vector3(0.02,0.685,-0.06);
+ var jp=SP.joint.position;
+ gs.position.copy(jp);SP.grp.add(gs);
+ var p1=new THREE.Vector3(jp.x-0.02,jp.y,jp.z),p2=new THREE.Vector3(jp.x+0.02,jp.y,jp.z);
  var geo=new THREE.BufferGeometry().setFromPoints([p1,p2]);
  var ln=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xbfe3ff,transparent:true,opacity:0.95}));
  SP.grp.add(ln);
@@ -1770,7 +1888,7 @@ function arcFX(dur){
   var a=0.55+0.45*Math.sin(k*45);
   SP.arcLight.intensity=2.2*a;
   gs.scale.setScalar(0.7+a*0.8);
-  var q1=new THREE.Vector3(-0.02,0.685+rand(-0.012,0.012),-0.06),q2=new THREE.Vector3(0.02,0.685+rand(-0.012,0.012),-0.06);
+  var q1=new THREE.Vector3(jp.x-0.02,jp.y+rand(-0.012,0.012),jp.z),q2=new THREE.Vector3(jp.x+0.02,jp.y+rand(-0.012,0.012),jp.z);
   ln.geometry.setFromPoints([q1,q2]);
   ln.material.opacity=0.95*a;
  },function(){
@@ -1828,7 +1946,7 @@ function startHeatSeq(){
  },1100);
 }
 function moveToOven(){
- var t={x:1.12,y:0.33,z:-0.88};
+ var t=SP.ovenAnchor?SP.ovenAnchor.getWorldPosition(new THREE.Vector3()):{x:1.12,y:0.33,z:-0.88};
  moveTo(FIB3D[0],t.x,t.y,t.z,0.9);
  moveTo(FIB3D[1],t.x,t.y,t.z,0.9);
  rotTo(SP.ovDoor,'x',0,0.5);
@@ -1988,8 +2106,9 @@ function resetScene3D(){
  }
  if(TL.pliers){TL.pliers.position.set(-3.4,0,0.9);TL.pliers.rotation.set(0,0.55,0)}
  paperHome();
- if(SP.clampL)SP.clampL.rotation.x=0.72;
- if(SP.clampR)SP.clampR.rotation.x=0.72;
+ if(SP.grp)SP.grp.position.set(0,0,-0.9);
+ if(SP.clampL)SP.clampL.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
+ if(SP.clampR)SP.clampR.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
  if(SP.shield)SP.shield.rotation.x=-1.92;
  if(SP.ovDoor)SP.ovDoor.rotation.x=-1.4;
  if(SP.glow)SP.glow.material.opacity=0;
@@ -2209,10 +2328,11 @@ function onMove(e){
    if(t)t.textContent=(lx<0.45?'✓ 已套住熔接点区域，松手确认':'继续向左拖，套到中间熔接点…');
   }
  }else if(DRAG.mode==='handle'){
-  var rot=clamp(DRAG.rot0+(e.clientY-DRAG.sy)*0.012,-0.5,0.14);
+  var hr=CT.handleRange||[-0.5,0.14];
+  var rot=clamp(DRAG.rot0+(e.clientY-DRAG.sy)*0.012,hr[0],hr[1]);
   CT.handle.rotation.x=rot;
-  if(HANDS.R)HANDS.R.position.y=0.78-Math.max(0,rot+0.5)*0.28;
-  if(rot>=0.13&&!DRAG.fired){DRAG.fired=true;fireCleave(F.step===5?1:2)}
+  if(HANDS.R)HANDS.R.position.y=(CT.handY0!=null?CT.handY0:0.78)-Math.max(0,rot-hr[0])*0.30;
+  if(rot>=(CT.handleFire!=null?CT.handleFire:0.13)&&!DRAG.fired){DRAG.fired=true;fireCleave(F.step===5?1:2)}
  }
 }
 function onUp(e){
