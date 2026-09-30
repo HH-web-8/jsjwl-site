@@ -790,7 +790,7 @@ function buildSplicer(){
 
 /* ---------- 藤仓CT50 切割刀 ---------- */
 function buildCleaver(){
- var g=new THREE.Group();g.position.set(-2.2,0,-0.3);g.rotation.y=1.5708;scene.add(g);CT.grp=g;
+ var g=new THREE.Group();g.position.set(-2.2,0,-0.3);g.rotation.y=4.71239;scene.add(g);CT.grp=g;
  var base=box(1.4,0.24,0.9,0x39404d,{r:0.45,m:0.3});base.position.y=0.12;g.add(base);
  var plate=box(1.34,0.05,0.85,0x9aa2ac,{r:0.2,m:0.95,env:1.5});plate.position.y=0.265;g.add(plate);
  // 夹持机构（前）
@@ -1578,7 +1578,7 @@ function commitStrip(i,pull){
   var over=f.bareMM>42?'（略长，注意防折断）':'';
   fbSet('✅ 剥线完成：玻璃裸纤 <b>'+f.bareMM+'mm</b>'+over+'。观察裸纤是否笔直、无裂痕。','ok');
   toast('剥线完成 '+f.bareMM+'mm','ok');
-  handRelease();
+  handDrop(TL.pliers,-3.35,0,0.95,0.62);
   setTimeout(function(){goStep(i===1?4:8)},1000);
  }
 }
@@ -1621,7 +1621,7 @@ function wipePanel(i){
       setTimeout(function(){
        TL.soaked=true;
        var pm=TL.paperMesh||TL.paper;if(pm&&pm.material&&pm.material.color)pm.material.color.setHex(0xd8ecff);
-       handRelease();
+       handDrop(TL.bottle,-2.65,0,1.55,0);
        fbSet('✅ 酒精已喷洒，无尘纸浸润。点击<b>无尘纸</b>换手持纸','ok');
        toast('无尘纸已浸润酒精','ok',1500);
       },430);
@@ -2201,7 +2201,7 @@ function resetScene3D(){
  if(TL.tubeRack)TL.tubeRack.position.set(1.05,0,2.55);
  if(TL.rackA)TL.rackA.position.set(-0.6,0.025,1.95);
  if(TL.rackB)TL.rackB.position.set(-0.6,0.025,2.3);
- if(CT.grp){CT.grp.position.set(-2.2,0,-0.3);CT.grp.rotation.y=1.5708}
+ if(CT.grp){CT.grp.position.set(-2.2,0,-0.3);CT.grp.rotation.y=4.71239}
  if(SP.grp)SP.grp.position.set(0,0,-0.9);
  if(SP.clampL)SP.clampL.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
  if(SP.clampR)SP.clampR.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
