@@ -748,6 +748,30 @@ function buildTools(){
  var cap=cyl(0.035,0.035,0.11,0x2a6fb0,{r:0.3,m:0.5});cap.position.y=0.39;bg.add(cap);
  var noz=cyl(0.014,0.014,0.09,0x2a6fb0,{r:0.3,m:0.5});noz.rotation.z=0.6;noz.position.set(0.045,0.46,0);bg.add(noz);
  reg(body,'bottle');TL.bottle=bg;
+ // AI实物GLB：酒精喷壶（加载成功→隐藏程序化壶，锚点转移到壶身主mesh；失败→保留程序化）
+ loadGLB('assets/models/alcohol-bottle.glb',function(m){
+  if(!m||!TL.bottle)return;
+  var bb=new THREE.Box3().setFromObject(m);
+  var sy=bb.max.y-bb.min.y;
+  if(sy<0.05)return;
+  var sc=0.52/sy;
+  m.scale.set(sc,sc,sc);
+  bb.setFromObject(m);
+  m.position.x-=(bb.max.x+bb.min.x)/2;
+  m.position.z-=(bb.max.z+bb.min.z)/2;
+  m.position.y-=bb.min.y;
+  var main=null,vol=0;
+  m.traverse(function(o){
+   if(o.isMesh){
+    o.castShadow=true;o.receiveShadow=true;
+    var b2=new THREE.Box3().setFromObject(o);
+    var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);
+    if(v>vol){vol=v;main=o}
+   }
+  });
+  bg.add(m);
+  if(main){body.visible=false;cap.visible=false;noz.visible=false;reg(main,'bottle');TL.bottleGlbed=true}
+ });
  // 无尘纸
  var paper=box(0.26,0.01,0.2,0xf2f5f8,{r:0.85,m:0});paper.position.set(-2.05,0.03,1.65);scene.add(paper);reg(paper,'paper');
  TL.paper=paper;TL.paperHome={x:-2.05,y:0.03,z:1.65};
