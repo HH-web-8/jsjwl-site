@@ -374,6 +374,7 @@ var AU={ctx:null,ovenNode:null,
  noise:function(dur,vol,f){var c=this.ctx;if(!c)return;try{var n=Math.max(1,Math.floor(c.sampleRate*dur)),buf=c.createBuffer(1,n,c.sampleRate),d=buf.getChannelData(0),i;for(i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);var s=c.createBufferSource();s.buffer=buf;var bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f||2500;var g=c.createGain();g.gain.value=vol||0.15;s.connect(bp);bp.connect(g);g.connect(c.destination);s.start()}catch(e){}},
  play:function(name){var self=this;if(!this.ensure())return;try{switch(name){
   case 'click':this.tone(700,500,0.05,'square',0.05);break;
+  case 'spray':this.noise(0.22,0.09,2800);this.noise(0.05,0.05,5200);break;
   case 'clamp':this.tone(300,180,0.08,'square',0.1);this.noise(0.04,0.08,1200);break;
   case 'zip':this.noise(0.22,0.13,3000);this.tone(1400,900,0.2,'sawtooth',0.03);break;
   case 'snap':this.noise(0.05,0.3,4200);this.tone(2500,1200,0.04,'square',0.12);break;
@@ -1528,6 +1529,24 @@ function startStrip(i){
  AU.play('clamp');
  fbSet('已咬合！按住鼠标<b>向左拖动</b>，一次拉出'+(DRAG.stage===1?'外皮':'涂覆层'),'info');
 }
+function sprayFX(x,z){
+ var grp=new THREE.Group();scene.add(grp);
+ var dg=new THREE.SphereGeometry(0.007,6,6);
+ for(var i=0;i<16;i++){
+  var dm=new THREE.Mesh(dg,new THREE.MeshBasicMaterial({color:0xcfe9ff,transparent:true,opacity:0.92}));
+  dm.position.set(x+(Math.random()-0.5)*0.07,0.34+Math.random()*0.05,z+0.1+(Math.random()-0.5)*0.07);
+  grp.add(dm);
+  dm.userData.v={x:(dm.position.x-x)*2.0+(Math.random()-0.5)*0.3,y:-0.5-Math.random()*0.4,z:(dm.position.z-(z+0.1))*2.0+(Math.random()-0.5)*0.3};
+ }
+ tw(0.5,function(k){
+  for(var j=0;j<grp.children.length;j++){
+   var d=grp.children[j],v=d.userData.v;
+   d.position.x+=v.x*0.016;d.position.z+=v.z*0.016;d.position.y+=v.y*0.016;v.y-=0.02;
+   d.material.opacity=0.92*(1-k);
+   if(d.position.y<0.05)d.position.y=0.05;
+  }
+ },function(){scene.remove(grp)});
+}
 function cableStripFX(stage){
  var c=TL.cable;if(!c)return;
  if(stage===1&&c.m0&&c.p0){c.m0.position.set(c.p0.x,c.p0.y,c.p0.z+0.5)}
@@ -1609,11 +1628,17 @@ function wipePanel(i){
     handGrab(TL.bottle,function(){
      var ph=TL.paperHome;
      handTo(HANDS.R,ph.x,0.32,ph.z+0.1,0.4,function(){
-      AU.play('pop');TL.soaked=true;
-      var pm=TL.paperMesh||TL.paper;if(pm&&pm.material&&pm.material.color)pm.material.color.setHex(0xd8ecff);
-      handRelease();
-      fbSet('✅ 酒精已喷洒，无尘纸浸润。点击<b>无尘纸</b>换手持纸','ok');
-      toast('无尘纸已浸润酒精','ok',1500);
+      AU.play('spray');
+      sprayFX(ph.x,ph.z);
+      var bt=TL.bottle;
+      if(bt){var r0=bt.rotation.x;tw(0.34,function(k){bt.rotation.x=r0+0.55*Math.sin(k*Math.PI)},function(){bt.rotation.x=r0})}
+      setTimeout(function(){
+       TL.soaked=true;
+       var pm=TL.paperMesh||TL.paper;if(pm&&pm.material&&pm.material.color)pm.material.color.setHex(0xd8ecff);
+       handRelease();
+       fbSet('✅ 酒精已喷洒，无尘纸浸润。点击<b>无尘纸</b>换手持纸','ok');
+       toast('无尘纸已浸润酒精','ok',1500);
+      },430);
      });
     });
    }else{toast('纸已浸润，点击无尘纸开始擦拭','info')}
