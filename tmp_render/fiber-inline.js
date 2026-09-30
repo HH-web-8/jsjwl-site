@@ -1,361 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光纤熔接3D虚拟实训 - 智网匠心 AI 布线实训平台</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--gold:#fbbf24;--txt:#e2e8f0;--txt2:#94a3b8;--txt3:#64748b;--radius:12px}
-body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--txt);overflow:hidden;height:100vh;width:100vw}
 
-/* === TOP BAR === */
-.topbar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(15,23,42,.95);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100;border-bottom:1px solid var(--bg3)}
-.topbar-left{display:flex;align-items:center;gap:12px}
-.back-btn{display:flex;align-items:center;gap:6px;color:var(--txt2);cursor:pointer;padding:6px 14px;border-radius:8px;transition:all .2s;font-size:.9rem;border:1px solid var(--bg3)}
-.back-btn:hover{color:var(--blue);border-color:var(--blue);background:rgba(59,130,246,.08)}
-.topbar-title{font-size:1.1rem;font-weight:700;color:var(--txt);letter-spacing:1px}
-.topbar-title span{color:var(--blue)}
-.mode-toggle{display:flex;gap:4px;background:var(--bg2);border-radius:8px;padding:3px}
-.mode-btn{padding:5px 14px;border-radius:6px;font-size:.82rem;cursor:pointer;transition:all .2s;color:var(--txt3);border:none;background:none}
-.mode-btn.active{background:var(--blue);color:#fff}
-
-/* === STEP BAR (13步) === */
-.step-bar{position:fixed;top:56px;left:0;right:0;height:52px;background:rgba(30,41,59,.9);backdrop-filter:blur(8px);display:flex;align-items:center;gap:2px;z-index:99;border-bottom:1px solid rgba(51,65,85,.5);overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;justify-content:flex-start;padding:0 8px}
-.step-bar::-webkit-scrollbar{height:3px}
-.step-bar::-webkit-scrollbar-thumb{background:var(--bg3)}
-.step-item{display:flex;align-items:center;gap:4px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:all .2s;flex-shrink:0}
-.step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;border:2px solid var(--bg3);color:var(--txt3);transition:all .3s}
-.step-item.active .step-num{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 12px rgba(59,130,246,.4)}
-.step-item.done .step-num{background:var(--green);border-color:var(--green);color:#fff}
-.step-num.f1{border-color:#3b82f6}
-.step-num.f2{border-color:#10b981}
-.step-item.active .step-num.f1{background:#3b82f6;border-color:#3b82f6}
-.step-item.active .step-num.f2{background:#10b981;border-color:#10b981}
-.step-lbl{font-size:.7rem;color:var(--txt3);max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.step-item.active .step-lbl{color:var(--blue)}
-.step-item.done .step-lbl{color:var(--green)}
-.step-connector{width:10px;height:2px;background:var(--bg3);border-radius:1px;flex-shrink:0}
-.step-connector.done{background:var(--green)}
-
-/* === MAIN LAYOUT === */
-.main{position:fixed;top:108px;left:0;right:0;bottom:0;display:flex}
-.video-panel{width:20%;min-width:180px;background:var(--bg2);border-right:1px solid var(--bg3);display:flex;flex-direction:column;overflow:hidden}
-.video-panel-head{padding:12px 16px;border-bottom:1px solid var(--bg3);font-size:.9rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px}
-.video-panel-head .icon{color:var(--cyan)}
-.video-panel-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;background:var(--bg);position:relative;overflow:hidden}
-.video-player{flex:1 1 auto;min-height:0;width:100%;background:#000;border-radius:var(--radius);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
-.video-player video{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
-.video-info{padding:10px 14px;font-size:.78rem;color:var(--txt3);border-top:1px solid var(--bg3);line-height:1.5}
-.video-info span{color:var(--cyan);font-weight:600}
-
-/* Middle: 3D Scene */
-.scene-wrap{flex:5;min-width:200px;position:relative;overflow:hidden;background:#0d1524}
-#three-canvas{width:100%;height:100%;display:block;touch-action:none}
-.scene-label{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(56,189,248,.18);border:1px solid rgba(56,189,248,.4);color:#7dd3fc;font-size:.75rem;font-weight:600;padding:4px 14px;border-radius:12px;pointer-events:none;z-index:6;letter-spacing:.5px}
-
-/* 3D标签层 */
-#labelLayer{position:absolute;inset:0;pointer-events:none;z-index:7;overflow:hidden}
-.obj-label{position:absolute;transform:translate(-50%,-130%);background:rgba(15,23,42,.88);border:1px solid #38bdf8;color:#bae6fd;font-size:.7rem;padding:3px 9px;border-radius:10px;white-space:nowrap;pointer-events:none;animation:lblPulse 1.6s infinite}
-@keyframes lblPulse{0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,.35)}50%{box-shadow:0 0 0 5px rgba(56,189,248,0)}}
-.obj-label.idle{opacity:.6;font-size:.62rem;padding:2px 7px;border-color:rgba(56,189,248,.45);animation:none}
-.lbl-no{display:inline-block;min-width:1.3em;height:1.3em;line-height:1.3em;text-align:center;background:#2563eb;color:#fff;font-weight:700;border-radius:50%;margin-right:5px;font-size:.66rem;padding:0 2px;vertical-align:-2px}
-
-/* 提示浮条 */
-#toastBox{position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%}
-.toast{background:rgba(15,23,42,.94);border:1px solid var(--bg3);border-left:4px solid var(--cyan);color:var(--txt);font-size:.82rem;padding:9px 16px;border-radius:8px;animation:toastIn .25s;max-width:100%;box-shadow:0 4px 18px rgba(0,0,0,.4);line-height:1.5}
-.toast.warn{border-left-color:var(--amber);color:#fde68a}
-.toast.err{border-left-color:var(--red);color:#fca5a5}
-.toast.ok{border-left-color:var(--green);color:#6ee7b7}
-@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-
-/* === 熔接机屏幕面板（DOM仿88S屏） === */
-.scr-panel{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:min(560px,96%);background:#081527;border:2px solid #1e3a5f;border-radius:12px;z-index:8;box-shadow:0 6px 28px rgba(0,0,0,.55);font-family:Consolas,"Courier New",monospace;overflow:hidden}
-.scr-top{display:flex;justify-content:space-between;padding:5px 12px;font-size:.68rem;color:#5eead4;border-bottom:1px solid #123055;letter-spacing:1px}
-.scr-top .scr-warn{color:#fbbf24}
-.scr-views{display:flex;gap:4px;padding:6px 8px 2px}
-.scr-vwrap{flex:1;position:relative;background:#050e1d;border:1px solid #123055;border-radius:6px;overflow:hidden}
-.scr-vwrap canvas{width:100%;display:block}
-.scr-vlbl{position:absolute;top:2px;left:6px;font-size:.65rem;color:#3b82f6;font-weight:700}
-.scr-msg{padding:4px 12px 6px;font-size:.78rem;color:#93c5fd;min-height:26px;display:flex;align-items:center;gap:8px;letter-spacing:.5px}
-.scr-msg.err{color:#fca5a5;font-weight:700}
-.scr-msg.warn{color:#fbbf24}
-.scr-msg.ok{color:#6ee7b7}
-.scr-keys{display:flex;gap:6px;padding:0 8px 8px}
-.scrkey{flex:1;background:#122a4d;border:1px solid #2a527f;color:#93c5fd;font-size:.75rem;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;font-family:inherit;letter-spacing:1px;transition:all .15s}
-.scrkey:hover{background:#1a3a66;color:#bfdbfe}
-.scrkey:active{transform:scale(.96)}
-.scrkey.danger{border-color:#7f1d1d;color:#fca5a5;background:#2a1015}
-.scrkey[disabled]{opacity:.35;cursor:not-allowed}
-
-/* === RIGHT PANEL === */
-.panel{width:30%;min-width:270px;background:var(--bg2);border-left:1px solid var(--bg3);display:flex;flex-direction:column;overflow:hidden}
-.panel-head{padding:12px 18px;border-bottom:1px solid var(--bg3)}
-.panel-head h2{font-size:1.02rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.panel-head h2 .badge{font-size:.68rem;padding:2px 8px;border-radius:10px;background:var(--blue);color:#fff}
-.panel-stats{display:flex;gap:14px;margin-top:6px;font-size:.72rem;color:var(--txt3)}
-.panel-stats b{color:var(--txt2)}
-.panel-body{flex:1;overflow-y:auto;padding:16px 18px;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
-.panel-body::-webkit-scrollbar{width:4px}
-.panel-body::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:2px}
-
-/* 步骤内容 */
-.step-section{animation:fadeSlide .3s ease}
-@keyframes fadeSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.instruction{color:var(--txt);line-height:1.8;font-size:.9rem;margin-bottom:12px}
-.instruction b{color:var(--cyan)}
-.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
-.chip{background:var(--bg);border:1px solid var(--bg3);border-radius:8px;padding:5px 10px;font-size:.74rem;color:var(--txt2)}
-.chip b{color:var(--txt)}
-.chip.good{border-color:rgba(16,185,129,.5);color:#6ee7b7}
-.chip.bad{border-color:rgba(239,68,68,.5);color:#fca5a5}
-.chip.warn{border-color:rgba(245,158,11,.5);color:#fcd34d}
-.tip-box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:12px 14px;margin:12px 0;font-size:.82rem;color:#93c5fd;line-height:1.7}
-.tip-box.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:#fcd34d}
-.tip-box.danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);color:#fca5a5}
-.tip-box.success{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2);color:#6ee7b7}
-.fault-card{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);border-radius:var(--radius);padding:14px;margin:12px 0;animation:fadeSlide .3s}
-.fault-card h4{color:#fca5a5;font-size:.9rem;margin-bottom:8px;display:flex;gap:6px;align-items:center}
-.fault-card ol{margin:0 0 0 18px}
-.fault-card li{color:#fecaca;font-size:.82rem;line-height:1.8}
-.todo-card{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius);padding:12px 14px;margin:12px 0}
-.todo-card h4{color:#fcd34d;font-size:.85rem;margin-bottom:6px}
-.todo-card li{color:#fde68a;font-size:.8rem;line-height:1.7;margin-left:16px}
-.act-btn{padding:9px 20px;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;border:2px solid;display:inline-flex;align-items:center;gap:6px}
-.act-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.act-btn.primary:hover{background:#2563eb}
-.act-btn.secondary{background:none;color:var(--txt2);border-color:var(--bg3)}
-.act-btn.success{background:var(--green);color:#fff;border-color:var(--green)}
-.act-btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
-.act-btn:disabled{opacity:.4;cursor:not-allowed}
-.action-row{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap}
-.check-item{display:flex;align-items:flex-start;gap:10px;background:var(--bg);border:2px solid var(--bg3);border-radius:10px;padding:10px 12px;margin:8px 0;cursor:pointer;transition:all .2s}
-.check-item:hover{border-color:var(--txt3)}
-.check-item.ok{border-color:var(--green);background:rgba(16,185,129,.07)}
-.check-item.bad{border-color:var(--red);background:rgba(239,68,68,.07)}
-.check-item .ck-icon{font-size:1.1rem}
-.check-item .ck-txt{font-size:.82rem;line-height:1.5}
-.check-item .ck-txt b{display:block;margin-bottom:2px}
-.feedback{border-radius:var(--radius);padding:12px 14px;margin:12px 0;font-size:.84rem;line-height:1.6}
-.feedback.ok{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#6ee7b7}
-.feedback.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
-.feedback.info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#93c5fd}
-.knowledge-card{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(6,182,212,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:14px;margin:12px 0}
-.knowledge-card h4{color:var(--cyan);font-size:.88rem;margin-bottom:8px}
-.knowledge-card ul{list-style:none;padding:0}
-.knowledge-card li{color:var(--txt2);font-size:.8rem;line-height:1.7;padding-left:16px;position:relative}
-.knowledge-card li::before{content:'•';position:absolute;left:0;color:var(--cyan)}
-.hint-acc{margin:10px 0;border:1px solid var(--bg3);border-radius:10px;overflow:hidden}
-.hint-acc summary{padding:9px 12px;font-size:.8rem;color:var(--txt2);cursor:pointer;user-select:none;background:var(--bg)}
-.hint-acc summary:hover{color:var(--txt)}
-.hint-acc .hint-body{padding:10px 14px;font-size:.8rem;color:var(--txt2);line-height:1.8;border-top:1px solid var(--bg3)}
-
-/* 成绩页 */
-.score-page{padding:14px;text-align:center}
-.score-ring{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:130px;height:130px;border-radius:50%;border:4px solid;margin:14px 0}
-.score-ring.excellent{border-color:var(--green);background:rgba(16,185,129,.08)}
-.score-ring.good{border-color:var(--blue);background:rgba(59,130,246,.08)}
-.score-ring.poor{border-color:var(--red);background:rgba(239,68,68,.08)}
-.score-val{font-size:2.4rem;font-weight:900;line-height:1}
-.score-lbl{font-size:.75rem;color:var(--txt3)}
-.score-details{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;text-align:left}
-.score-item{background:var(--bg);border-radius:8px;padding:9px 12px;display:flex;justify-content:space-between;font-size:.8rem;gap:6px}
-.score-item .label{color:var(--txt3)}
-.score-item .value{font-weight:700}
-.score-item .value.pass{color:var(--green)}
-.score-item .value.fail{color:var(--red)}
-
-/* 模态确认 */
-#modalMask{position:fixed;inset:0;background:rgba(5,10,20,.72);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
-#modalCard{background:var(--bg2);border:1px solid var(--bg3);border-radius:14px;padding:22px;max-width:400px;width:100%;box-shadow:0 12px 44px rgba(0,0,0,.6);animation:fadeSlide .25s}
-#modalCard h3{color:#fca5a5;font-size:1rem;margin-bottom:10px}
-#modalCard .modal-body{color:var(--txt2);font-size:.85rem;line-height:1.8;margin-bottom:16px}
-#modalCard .modal-body b{color:#fcd34d}
-
-/* WebGL错误卡 */
-.fatal-card{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(13,21,36,.96)}
-.fatal-inner{max-width:420px;width:90%;background:var(--bg2);border:1px solid rgba(239,68,68,.4);border-radius:14px;padding:26px;text-align:center}
-.fatal-inner h3{color:#fca5a5;margin-bottom:12px;font-size:1.05rem}
-.fatal-inner p{color:var(--txt2);font-size:.82rem;line-height:1.8;margin-bottom:6px;text-align:left}
-.fatal-inner .err-detail{font-family:monospace;font-size:.7rem;color:var(--red);background:rgba(239,68,68,.08);border-radius:6px;padding:8px;margin-top:10px;word-break:break-all}
-
-/* === RESPONSIVE === */
-@media(max-width:1100px){
-  .video-panel{width:22%;min-width:160px}
-  .panel{width:32%;min-width:250px}
-  .scene-wrap{flex:4}
-}
-@media(max-width:900px){
-  .panel{min-width:230px}
-}
-@media(max-width:700px){
-  .main{flex-direction:column}
-  .video-panel{width:100%;height:auto;max-height:132px;border-right:none;border-bottom:1px solid var(--bg3)}
-  .video-panel-body{padding:4px}
-  .video-panel-head{padding:6px 12px;font-size:.78rem}
-  .video-info{display:none}
-  .panel{width:100%;height:46%;border-left:none;border-top:1px solid var(--bg3);min-width:0}
-  .scene-wrap{height:38%}
-  .step-lbl{display:none}
-  .scr-panel{bottom:6px}
-  .scr-views{padding:4px 6px 0}
-  .scr-msg{font-size:.68rem;min-height:22px}
-  .scrkey{font-size:.68rem;padding:6px 2px}
-  .topbar{padding:0 10px}
-  .topbar-title{font-size:.9rem}
-}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
-</style>
-<style>
-/* 13步双光纤流程 · 补充样式 */
-.goal{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);border-left:4px solid var(--blue);border-radius:8px;padding:10px 12px;font-size:.85rem;color:var(--txt);line-height:1.7;margin-bottom:10px}
-.goal b{color:#93c5fd}
-.act-list{margin:6px 0}
-.act-item{font-size:.82rem;color:var(--txt2);line-height:1.9;padding-left:4px}
-.act-item b{color:var(--txt)}
-.live-strip{background:var(--bg);border:1px dashed var(--bg3);border-radius:8px;padding:8px 12px;font-size:.85rem;color:var(--txt2);margin:8px 0}
-.live-strip b{color:#93c5fd;font-family:monospace;font-size:1rem}
-.fb{display:none;border-radius:8px;padding:10px 12px;font-size:.82rem;line-height:1.7;margin:10px 0}
-.fb.show{display:block}
-.fb.info{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:#bae6fd}
-.fb.ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);color:#6ee7b7}
-.fb.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fca5a5}
-.fb .back-row .btn{margin-top:8px}
-.btn{background:var(--bg2);color:var(--txt);border:1px solid var(--bg3);border-radius:8px;padding:9px 14px;font-size:.82rem;cursor:pointer;transition:all .2s;margin:4px 4px 0 0}
-.btn:hover{border-color:var(--cyan);color:var(--cyan)}
-.btn.k{background:#12233f;border-color:#1e4a7a;color:#7dd3fc;font-family:monospace;letter-spacing:1px}
-.btn.k.danger{border-color:#7f1d1d;color:#fca5a5;background:#2a1015}
-.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.btn.primary:hover{background:#2563eb;color:#fff}
-.btn.ghost{background:transparent;color:var(--txt3)}
-.btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
-.keys-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.back-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.heat-bar{height:16px;background:var(--bg);border:1px solid var(--bg3);border-radius:8px;overflow:hidden;margin:10px 0}
-.heat-fill{height:100%;width:0;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:8px}
-.chk-list{margin:8px 0}
-.check-item.ok{border-color:var(--green);background:rgba(16,185,129,.07)}
-.check-item.ok::after{content:'✓';color:var(--green);margin-left:auto;font-weight:700}
-.score-big{font-size:3.6rem;font-weight:800;line-height:1;font-family:monospace}
-.score-big.g{color:var(--green)}
-.score-big.y{color:var(--amber)}
-.score-big.r{color:var(--red)}
-.grade{font-size:1.2rem;color:var(--txt2);margin:4px 0 10px;letter-spacing:4px}
-.score-stats{font-size:.8rem;color:var(--txt2);line-height:1.8;margin-bottom:6px}
-.score-stats b{color:#93c5fd}
-.panel-head h2 .badge.b1{background:#3b82f6}
-.panel-head h2 .badge.b2{background:#10b981}
-.scr-keys button{flex:1;background:#12233f;border:1px solid #1e4a7a;color:#7dd3fc;border-radius:6px;padding:6px 4px;font-size:.72rem;cursor:pointer;font-family:monospace;letter-spacing:1px}
-.scr-keys button:hover{background:#1a3358}
-.scr-keys button.set{border-color:#7f1d1d;color:#fca5a5;background:#2a1015}
-#preCheck b.g{color:var(--green)}
-#preCheck b.y{color:var(--amber)}
-.fault-card.ok{border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.07);color:#6ee7b7}
-.fault-card ul{margin:6px 0 0 18px}
-.fault-card li{color:#fecaca;font-size:.8rem;line-height:1.8}
-.fault-card.ok li{color:#6ee7b7}
-</style>
-  <script src="feishu-sync.js"></script>
-<script src="site-auth.js"></script>
-</head>
-<body>
-
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="back-btn" onclick="location.href='index.html'">← 返回</div>
-    <div class="topbar-title">⚡ <span>光纤熔接</span> 3D虚拟实训</div>
-  </div>
-  <nav class="mnav" style="display:flex;gap:4px;margin:0 12px">
-    <a class="mnav-a" href="teacher-ai.html" style="color:#e2e8f0;font-size:12px;padding:3px 8px;border:1px solid rgba(255,255,255,.2);border-radius:5px;text-decoration:none">D1</a>
-    <a class="mnav-a" href="student-ai.html" style="color:#e2e8f0;font-size:12px;padding:3px 8px;border:1px solid rgba(255,255,255,.2);border-radius:5px;text-decoration:none">D2</a>
-    <a class="mnav-a" href="data-collector.html" style="color:#e2e8f0;font-size:12px;padding:3px 8px;border:1px solid rgba(255,255,255,.2);border-radius:5px;text-decoration:none">D3</a>
-    <a class="mnav-a active" href="sim-platform.html" style="color:#fff;font-size:12px;padding:3px 8px;border:1px solid #38bdf8;border-radius:5px;text-decoration:none;font-weight:600;background:rgba(56,189,248,.2)">D4</a>
-    <a class="mnav-a" href="game-h5.html" style="color:#e2e8f0;font-size:12px;padding:3px 8px;border:1px solid rgba(255,255,255,.2);border-radius:5px;text-decoration:none">D5</a>
-  </nav>
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="mode-newbie" onclick="setMode('newbie')">新手引导</button>
-    <button class="mode-btn" id="mode-exam" onclick="setMode('exam')">考核模式</button>
-  </div>
-</div>
-
-<!-- STEP BAR -->
-<div class="step-bar" id="stepBar"></div>
-
-<!-- MAIN -->
-<div class="main">
-  <!-- LEFT: VIDEO PANEL -->
-  <div class="video-panel" id="videoPanel">
-    <div class="video-panel-head">
-      <span class="icon">▶</span> 光纤熔接视频播放
-    </div>
-    <div class="video-panel-body">
-      <div class="video-player" id="videoPlayer">
-        <video id="videoEl" autoplay muted loop playsinline>
-          <source src="fiber-video2.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center;align-items:center;flex-wrap:wrap">
-        <button id="btnVideo1" onclick="switchVideo(1)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">设备介绍</button>
-        <button id="btnVideo2" onclick="switchVideo(2)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.72rem;cursor:pointer;font-weight:600">光纤熔接</button>
-        <button id="btnVideo3" onclick="switchVideo(3)" style="padding:4px 10px;border-radius:4px;border:1px solid var(--bg3);background:var(--bg2);color:var(--txt);font-size:.72rem;cursor:pointer">盘纤工艺</button>
-        <button id="btnMute" onclick="toggleVideoSound()" title="点击开启/关闭声音" style="margin-left:6px;padding:4px 10px;border-radius:4px;border:1px solid #f59e0b;background:#92400e;color:#fde68a;font-size:.75rem;cursor:pointer;animation:pulse 1.5s infinite">🔇 点击开声音</button>
-      </div>
-    </div>
-    <div class="video-info">
-      当前播放：<span id="videoStepName">光纤熔接完整流程</span>
-    </div>
-  </div>
-
-  <!-- MIDDLE: 3D SCENE -->
-  <div class="scene-wrap" id="sceneWrap">
-    <canvas id="three-canvas"></canvas>
-    <div class="scene-label" id="sceneLabel">3D光纤熔接实训台</div>
-    <div id="labelLayer"></div>
-    <div id="toastBox"></div>
-    <!-- 熔接机屏幕（开机后显示） -->
-    <div class="scr-panel" id="scrPanel" style="display:none">
-      <div class="scr-top"><span id="scrMode">MODE: MM</span><span id="scrArc">ARC: 1996</span><span id="scrClock">00:00</span></div>
-      <div class="scr-views">
-        <div class="scr-vwrap"><canvas id="scrX" width="300" height="190"></canvas><div class="scr-vlbl">X-VIEW</div></div>
-        <div class="scr-vwrap"><canvas id="scrY" width="300" height="190"></canvas><div class="scr-vlbl">Y-VIEW</div></div>
-      </div>
-      <div class="scr-msg" id="scrMsg">STAND BY</div>
-      <div class="scr-keys" id="scrKeys"></div>
-    </div>
-  </div>
-
-  <!-- RIGHT PANEL -->
-  <div class="panel" id="rightPanel">
-    <div class="panel-head">
-      <h2 id="panelTitle">步骤 1：开机准备 <span class="badge">13步·双光纤</span></h2>
-      <div class="panel-stats">
-        <span id="statTime">⏱ <b>00:00</b></span>
-        <span id="statRework">🔧 返工 <b>0</b></span>
-        <span id="statFault">⚠ 故障 <b>0</b></span>
-      </div>
-    </div>
-    <div class="panel-body" id="panelBody">
-      <div class="tip-box">3D实训台加载中……</div>
-    </div>
-  </div>
-</div>
-
-<!-- 模态确认 -->
-<div id="modalMask" style="display:none">
-  <div id="modalCard">
-    <h3 id="modalTitle"></h3>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="action-row" style="justify-content:flex-end;margin:0">
-      <button class="act-btn secondary" id="modalCancel" onclick="hideModal()">取消</button>
-      <button class="act-btn danger" id="modalOk">确定</button>
-    </div>
-  </div>
-</div>
-
-<script src="assets/three-r128.min.js" onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';document.head.appendChild(s);"></script>
-<script src="assets/GLTFLoader.js"></script>
-<script>
 // ============================================================
 // 光纤熔接 3D 虚拟实训 · 13步双光纤流程 + 双手沉浸操作 + 真机故障系统
 // ============================================================
@@ -784,26 +427,6 @@ function buildTools(){
   reg(hb2,'plierHole'+(hi+1));
  }
  reg(head,'pliers');TL.pliers=pg;TL.holeY=[0.085-0.052,0.085,0.085+0.052];
- // AI实物GLB：米勒钳（加载成功→隐藏程序化钳身、锚点转移；失败→程序化兜底）
- loadGLB('assets/models/miller-pliers.glb?v=slim4',function(m){
-  if(!m||!TL.pliers)return;
-  var bb=new THREE.Box3().setFromObject(m);
-  var sy=bb.max.y-bb.min.y;
-  var sc=0.95/(sy||1);
-  m.scale.set(sc,sc,sc);
-  m.rotation.z=Math.PI/2; // 立姿放平：钳头朝-X、三孔面朝+Y
-  bb.setFromObject(m);
-  m.position.x-=(bb.max.x+bb.min.x)/2;
-  m.position.z-=(bb.max.z+bb.min.z)/2;
-  m.position.y-=bb.min.y;
-  m.position.x+=0.22; // 对齐程序化钳头孔位
-  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
-  pg.add(m);
-  var vol=0,main=null;
-  m.traverse(function(o){if(o.isMesh){var b2=new THREE.Box3().setFromObject(o);var v=(b2.max.x-b2.min.x)*(b2.max.y-b2.min.y)*(b2.max.z-b2.min.z);if(v>vol){vol=v;main=o}}});
-  h1.visible=false;h2.visible=false;head.visible=false;
-  if(main)reg(main,'pliers');
- });
  // 酒精喷壶
  var bg=new THREE.Group();bg.position.set(-2.65,0,1.55);scene.add(bg);
  var body=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.115,0.34,14),mat(0xe8f2f6,{t:1,op:0.5,r:0.15}));body.position.y=0.17;body.castShadow=true;bg.add(body);
@@ -849,34 +472,31 @@ function buildTools(){
 
 /* ---------- 虚拟双手（第一人称） ---------- */
 var HANDS={L:null,R:null,holdR:null,holdL:null,follow:false,_pt:null};
-function makeHand(side){ // side: 1=右手(画面右) -1=左手 · 真3D手型（无手臂）
+function makeHand(side){ // side: 1=右手(画面右) -1=左手
  var g=new THREE.Group();
- var inner=new THREE.Group();g.add(inner); // 翻转层：指尖朝桌内(-Z)、掌背朝镜头
- var skinM=new THREE.MeshStandardMaterial({color:0xE8B48B,roughness:0.55,metalness:0.02});
- // 掌（扁椭球）
- var palm=new THREE.Mesh(new THREE.SphereGeometry(0.058,20,14),skinM);
- palm.scale.set(1.02,0.5,1.3);palm.position.y=0.02;inner.add(palm);
- // 四指（圆柱+双球端，指尖朝-Z）
+ var inner=new THREE.Group();g.add(inner); // 翻转层：手臂朝镜头、指尖朝桌内
+ var skin=0xf4f6f9,glove={r:0.62,m:0.02};
+ // 掌
+ var palm=box(0.115,0.032,0.125,skin,glove);palm.position.y=0.016;inner.add(palm);
+ // 四指
  for(var i=0;i<4;i++){
-  var fr=new THREE.Group();
-  var fs=new THREE.Mesh(new THREE.CylinderGeometry(0.0092,0.0105,0.072,10),skinM);
-  fs.rotation.x=Math.PI/2;fr.add(fs);
-  var fT=new THREE.Mesh(new THREE.SphereGeometry(0.0092,10,8),skinM);fT.position.z=-0.036;fr.add(fT);
-  var fB=new THREE.Mesh(new THREE.SphereGeometry(0.0105,10,8),skinM);fB.position.z=0.036;fr.add(fB);
-  fr.position.set(-0.033+i*0.022,0.024,0.066);
-  fr.rotation.x=-0.16-i*0.03;
-  inner.add(fr);
+  var f=box(0.02,0.024,0.088,skin,glove);
+  f.position.set(-0.042+i*0.028,0.02,0.098);
+  f.rotation.x=-0.18-i*0.03;
+  inner.add(f);
  }
- // 拇指（侧伸）
- var tg=new THREE.Group();
- var t1=new THREE.Mesh(new THREE.CylinderGeometry(0.0105,0.0125,0.06,10),skinM);
- t1.rotation.x=Math.PI/2;tg.add(t1);
- var t2=new THREE.Mesh(new THREE.SphereGeometry(0.0105,10,8),skinM);t2.position.z=-0.03;tg.add(t2);
- tg.position.set(side*0.056,0.02,0.028);
- tg.rotation.y=-side*0.55;tg.rotation.x=-0.4;
- inner.add(tg);
+ // 拇指
+ var th=box(0.026,0.026,0.07,skin,glove);
+ th.position.set(side*0.062,0.026,0.05);th.rotation.y=-side*0.55;th.rotation.x=-0.25;
+ inner.add(th);
+ // 袖口（实训服）
+ var cuff=cyl(0.062,0.072,0.16,0x2b3a4d,{r:0.85,m:0.05});
+ cuff.rotation.x=Math.PI/2;cuff.position.set(0,0.005,-0.24);
+ inner.add(cuff);
+ // 腕部
+ var wrist=box(0.07,0.024,0.14,skin,glove);wrist.position.set(0,0.014,-0.14);inner.add(wrist);
  inner.rotation.y=Math.PI;
- g.rotation.x=-0.35; // 指尖轻压向桌面（坐桌前第一人称）
+ g.rotation.x=-0.42; // 指尖轻压桌面、手臂朝镜头（坐桌前第一人称）
  scene.add(g);
  return g;
 }
@@ -965,9 +585,9 @@ function makeFibers(){
   var g=new THREE.Group();
   var glass=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,1,10),new THREE.MeshPhysicalMaterial({color:0xdff2ff,transparent:true,opacity:0.7,roughness:0.04,metalness:0,transmission:0.82,clearcoat:1,clearcoatRoughness:0.06,envMapIntensity:1.9}));
   glass.rotation.z=Math.PI/2;glass.castShadow=false;
-  var coat=new THREE.Mesh(new THREE.CylinderGeometry(0.036,0.036,1,10),mat(0xd8cbb8,{t:1,op:0.95,r:0.5,m:0}));
+  var coat=new THREE.Mesh(new THREE.CylinderGeometry(0.036,0.036,1,10),mat(0xf2f5f8,{t:1,op:0.95,r:0.5,m:0}));
   coat.rotation.z=Math.PI/2;coat.castShadow=false;
-  var jacket=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,1,12),mat(0xf5c518,{t:1,op:0.9,r:0.55,m:0}));
+  var jacket=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,1,12),mat(0xdec27a,{t:1,op:0.9,r:0.55,m:0}));
   jacket.rotation.z=Math.PI/2;
   var tagc=(i===0)?0x3b82f6:0x10b981;
   var tag=new THREE.Mesh(new THREE.TorusGeometry(0.08,0.02,8,20),mat(tagc,{e:tagc,ei:0.45}));
@@ -1063,14 +683,9 @@ function endTour(){
  camTo('wide');
  goStep(2);
 }
-var RINGS=[];
-function mkRing(){var r=new THREE.Mesh(new THREE.RingGeometry(0.13,0.19,40),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.8,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.renderOrder=2;scene.add(r);return r}
-function rootOf(o){var p=o;while(p.parent&&p.parent!==scene)p=p.parent;return p}
-var FREE_DRAG={bottle:1,paper:1,pliers:1};
 function setElig(items){
  for(var a in ANCH){if(ANCH[a].userData)ANCH[a].userData._pulse=false}
  var layer=$('labelLayer');layer.innerHTML='';labelDefs=[];
- for(var rr=RINGS.length-1;rr>=0;rr--){scene.remove(RINGS[rr].mesh)}RINGS=[];
  ELIG={};
  mountIdleTags(items);
  if(!items||!items.length)return;
@@ -1081,7 +696,6 @@ function setElig(items){
   if(it.label){
    var el=document.createElement('div');el.className='obj-label';el.innerHTML=(it.no?'<span class="lbl-no">'+it.no+'</span>':'')+it.label;layer.appendChild(el);
    labelDefs.push({act:it.act,obj:it.obj||m,el:el});
-   var rn=mkRing();RINGS.push({obj:it.obj||m,mesh:rn});
   }
  }
 }
@@ -1138,7 +752,6 @@ function animate(){
   else if(m.userData._ee!==undefined){m.material.emissive.setHex(m.userData._ee);m.material.emissiveIntensity=m.userData._ei}
  }
  updLabels();
- for(var r0=0;r0<RINGS.length;r0++){var R0=RINGS[r0];R0.obj.getWorldPosition(_v3);R0.mesh.position.set(_v3.x,0.017,_v3.z);var s0=1+Math.sin(t*3.6)*0.09;R0.mesh.scale.set(s0,s0,1);R0.mesh.material.opacity=0.5+Math.sin(t*3.6)*0.25}
  if(SP.scrTex&&typeof SCR!=='undefined'&&SCR.dirty){drawScr3D()}
  renderer.render(scene,camera);
 }
@@ -1354,7 +967,7 @@ function commitStrip(i,pull){
  if(DRAG.stage===1){
   f.coatMM=Math.min(60,(f.coatMM||0)+mm);
   setFiber(fib,Math.max(0.001,f.bareMM/50),f.coatMM/50);
-  spawnScrap(fib.position.x+0.3,0.1,fib.position.z,0xf5c518,mm/50);
+  spawnScrap(fib.position.x+0.3,0.1,fib.position.z,0xdec27a,mm/50);
   f.jacketOff=true;
   fbSet('✅ 外皮已剥 <b>'+f.coatMM+'mm</b>，白涂覆层露出。再用 <b>1口</b> 剥涂覆层','ok');
   toast('外皮剥除完成','ok');
@@ -2137,11 +1750,6 @@ function onDown(e){
  }
  var act=pickAt(e.clientX,e.clientY);
  if(!act)return;
- if(FREE_DRAG[act]&&rootOf(ANCH[act]).parent===scene&&DRAG.mode!=='strip'&&DRAG.mode!=='wipe'&&DRAG.mode!=='tube'){
-  DRAG.mode='free';DRAG.holding=true;DRAG.sx=e.clientX;DRAG.sy=e.clientY;DRAG.dragAct=act;DRAG.dragObj=rootOf(ANCH[act]);DRAG.moved=false;DRAG.off0=null;
-  try{e.target.setPointerCapture(e.pointerId)}catch(err){}
-  e.preventDefault();return;
- }
  if(act==='ctHandle'&&(F.step===5||F.step===9)){
   DRAG.mode='handle';DRAG.holding=true;DRAG.rot0=CT.handle.rotation.x;DRAG.sy=e.clientY;DRAG.fired=false;
   try{canvasEl.setPointerCapture(e.pointerId)}catch(err){}
@@ -2153,18 +1761,6 @@ function onDown(e){
 function onMove(e){
  if(HANDS.follow&&!DRAG.holding)handsFollowPointer(e);
  if(!DRAG.holding)return;
- if(DRAG.mode==='free'){
-  if(!DRAG.moved&&Math.hypot(e.clientX-DRAG.sx,e.clientY-DRAG.sy)>8)DRAG.moved=true;
-  if(DRAG.moved&&DRAG.dragObj){
-   var pf=planePos(e,0.14);
-   if(pf){
-    if(!DRAG.off0)DRAG.off0={x:DRAG.dragObj.position.x-pf.x,z:DRAG.dragObj.position.z-pf.z};
-    DRAG.dragObj.position.x=clamp(pf.x+DRAG.off0.x,-4.4,4.4);
-    DRAG.dragObj.position.z=clamp(pf.z+DRAG.off0.z,-1.5,3.2);
-   }
-  }
-  return;
- }
  if(DRAG.mode==='strip'){
   var pp=planePos(e,0.16);
   if(pp){
@@ -2218,11 +1814,6 @@ function onMove(e){
 function onUp(e){
  if(!DRAG.holding)return;
  DRAG.holding=false;
- if(DRAG.mode==='free'){
-  if(!DRAG.moved&&PICK){PICK(DRAG.dragAct)}
-  DRAG.mode=null;DRAG.dragObj=null;
-  return;
- }
  if(DRAG.mode==='strip'){
   commitStrip(DRAG.fib,DRAG.pull||0);
  }else if(DRAG.mode==='wipe'){
@@ -2288,6 +1879,3 @@ function boot(){
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot)}
 else{boot()}
-</script>
-</body>
-</html>
