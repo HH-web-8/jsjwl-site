@@ -520,7 +520,7 @@ var CAM={
  fiber1: {yaw:0.18,pitch:0.82,dist:3.0, tx:-1.5,ty:0.25,tz:1.75},
  tube:   {yaw:0.18,pitch:0.8, dist:3.7, tx:-0.45,ty:0.25,tz:1.95},
  fiber2: {yaw:0.18,pitch:0.82,dist:3.0, tx:-1.5,ty:0.25,tz:2.1},
- cleave: {yaw:-0.55,pitch:0.95,dist:2.6,tx:-2.2,ty:0.3, tz:-0.3},
+ cleave: {yaw:-0.25,pitch:0.95,dist:2.6,tx:-2.2,ty:0.3, tz:-0.3},
  splicer:{yaw:0.4, pitch:0.8, dist:3.5, tx:0,   ty:0.4, tz:-0.9},
  splice: {yaw:0.12,pitch:1.02,dist:2.5, tx:0,   ty:0.5, tz:-0.85},
  oven:   {yaw:0.95,pitch:0.85,dist:2.9, tx:1.0, ty:0.4, tz:-0.9},
@@ -789,7 +789,7 @@ function buildSplicer(){
 
 /* ---------- 藤仓CT50 切割刀 ---------- */
 function buildCleaver(){
- var g=new THREE.Group();g.position.set(-2.2,0,-0.3);g.rotation.y=-0.3;scene.add(g);CT.grp=g;
+ var g=new THREE.Group();g.position.set(-2.2,0,-0.3);scene.add(g);CT.grp=g;
  var base=box(1.4,0.24,0.9,0x39404d,{r:0.45,m:0.3});base.position.y=0.12;g.add(base);
  var plate=box(1.34,0.05,0.85,0x9aa2ac,{r:0.2,m:0.95,env:1.5});plate.position.y=0.265;g.add(plate);
  // 夹持机构（前）
@@ -833,7 +833,7 @@ function buildCleaver(){
    var b=new THREE.Box3().setFromObject(mesh);
    var p=new THREE.Group();
    p.position.set((b.min.x+b.max.x)/2,(b.min.y+b.max.y)/2,b.min.z);
-   scene.add(p);p.attach(mesh);
+   g.add(p);p.attach(mesh);
    return p}
   if(P[2]&&P[3]&&P[4]){
    // 顶盖 mesh_2：合=0 开=-0.95
@@ -856,6 +856,10 @@ function buildCleaver(){
   bin.position.set(0.52,0.64,0.05);bin.material.opacity=0.75;
   CT.bin.position.set(0.52,0.68,0.05);
   bl.visible=false;
+  // 整机可拖动：注册机身（最大体积件）
+  var cvol=0,cmain=null;
+  m.traverse(function(o){if(o.isMesh){var b3=new THREE.Box3().setFromObject(o);var v3=(b3.max.x-b3.min.x)*(b3.max.y-b3.min.y)*(b3.max.z-b3.min.z);if(v3>cvol){cvol=v3;cmain=o}}});
+  if(cmain)reg(cmain,'ctcleaver');
   F.glbOn=F.glbOn||{};F.glbOn.cleaver=true;
  });
 }
@@ -988,14 +992,46 @@ function buildTools(){
    F.glbOn=F.glbOn||{};F.glbOn.paper=true;
   }
  });
+ /* 12芯光缆 · 三分离剥线演示 */
+ var cbg=new THREE.Group();cbg.position.set(0.2,0,2.75);scene.add(cbg);
+ loadGLB('assets/models/cable-parts.glb?v=p1',function(m){
+  if(!m)return;
+  var bb=new THREE.Box3().setFromObject(m);
+  var mx=Math.max(bb.max.x-bb.min.x,bb.max.y-bb.min.y,bb.max.z-bb.min.z);
+  if(!(mx>0.02))return;
+  var sc=0.62/mx;
+  m.scale.set(sc,sc,sc);
+  bb.setFromObject(m);
+  m.position.x-=(bb.max.x+bb.min.x)/2;
+  m.position.z-=(bb.max.z+bb.min.z)/2;
+  m.position.y-=bb.min.y;
+  var CM={};
+  m.traverse(function(o){
+   if(o.isMesh){
+    o.castShadow=true;o.receiveShadow=true;
+    var nm=(o.name||'').match(/mesh[_-]?(\d+)/i);
+    if(nm)CM[+nm[1]]=o;
+   }
+  });
+  cbg.add(m);
+  if(CM[0]){
+   reg(CM[0],'cable');
+   TL.cable={grp:cbg,m0:CM[0],m1:CM[1]||null,m2:CM[2]||null,
+    p0:CM[0].position.clone(),p1:(CM[1]?CM[1].position.clone():null),
+    home:{x:0.2,y:0,z:2.75}};
+   F.glbOn=F.glbOn||{};F.glbOn.cable=true;
+  }
+ });
  // 热缩管架
  var rg=new THREE.Group();rg.position.set(0.35,0,1.95);scene.add(rg);
  var tray=box(0.75,0.04,0.26,0x2a3038);tray.position.y=0.02;rg.add(tray);
  for(var i=0;i<3;i++){var tb=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.55,10,1,true),mat(0xf0c88f,{t:1,op:0.42,r:0.4}));tb.rotation.z=Math.PI/2;tb.position.set(0,0.1,-0.06+i*0.06);rg.add(tb)}
  reg(rg.children[2],'tubePick');TL.tube=rg.children[2];
+ reg(tray,'tuberack');TL.tubeRack=rg;
  // 光纤搁架
- var r1=box(0.55,0.05,0.15,0x232936);r1.position.set(-0.6,0.025,1.95);scene.add(r1);
- var r2=box(0.55,0.05,0.15,0x232936);r2.position.set(-0.6,0.025,2.3);scene.add(r2);
+ var r1=box(0.55,0.05,0.15,0x232936);r1.position.set(-0.6,0.025,1.95);scene.add(r1);reg(r1,'rack1');
+ var r2=box(0.55,0.05,0.15,0x232936);r2.position.set(-0.6,0.025,2.3);scene.add(r2);reg(r2,'rack2');
+ TL.rackA=r1;TL.rackB=r2;
 }
 
 /* ---------- 虚拟双手（第一人称） ---------- */
@@ -1217,7 +1253,7 @@ function endTour(){
 var RINGS=[];
 function mkRing(){var r=new THREE.Mesh(new THREE.RingGeometry(0.13,0.19,40),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.8,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.renderOrder=2;scene.add(r);return r}
 function rootOf(o){var p=o;while(p.parent&&p.parent!==scene)p=p.parent;return p}
-var FREE_DRAG={bottle:1,paper:1,pliers:1,splicer:1};
+var FREE_DRAG={bottle:1,paper:1,pliers:1,splicer:1,ctcleaver:1,tuberack:1,rack1:1,rack2:1,cable:1};
 function setElig(items){
  for(var a in ANCH){if(ANCH[a].userData)ANCH[a].userData._pulse=false}
  var layer=$('labelLayer');layer.innerHTML='';labelDefs=[];
@@ -1498,6 +1534,16 @@ function startStrip(i){
  AU.play('clamp');
  fbSet('已咬合！按住鼠标<b>向左拖动</b>，一次拉出'+(DRAG.stage===1?'外皮':'涂覆层'),'info');
 }
+function cableStripFX(stage){
+ var c=TL.cable;if(!c)return;
+ if(stage===1&&c.m0&&c.p0){c.m0.position.set(c.p0.x,c.p0.y,c.p0.z+0.5)}
+ if(stage===2&&c.m1&&c.p1){c.m1.position.set(c.p1.x,c.p1.y,c.p1.z-0.55)}
+}
+function cableReset(){
+ var c=TL.cable;if(!c)return;
+ if(c.m0&&c.p0)c.m0.position.copy(c.p0);
+ if(c.m1&&c.p1)c.m1.position.copy(c.p1);
+}
 function commitStrip(i,pull){
  DRAG.mode=null;
  var f=fi(i),fib=FIB3D[i-1];
@@ -1508,6 +1554,7 @@ function commitStrip(i,pull){
   setFiber(fib,Math.max(0.001,f.bareMM/50),f.coatMM/50);
   spawnScrap(fib.position.x+0.3,0.1,fib.position.z,0xf5c518,mm/50);
   f.jacketOff=true;
+  cableStripFX(1);
   fbSet('✅ 外皮已剥 <b>'+f.coatMM+'mm</b>，白涂覆层露出。再用 <b>1口</b> 剥涂覆层','ok');
   toast('外皮剥除完成','ok');
   setElig([{act:'fiber'+i,label:FNAME[i]}]);
@@ -1519,6 +1566,7 @@ function commitStrip(i,pull){
   f.bareMM=Math.min(55,(f.bareMM||0)+mm);
   setFiber(fib,f.bareMM/50,Math.max(f.bareMM/50,f.coatMM/50));
   spawnScrap(fib.position.x+0.3,0.1,fib.position.z,0xf0f4f8,mm/50);
+  cableStripFX(2);
   if(f.bareMM<25){
    f.shortStrip=true;
    addFault('strip-short'+i,FNAME[i]+'剥线仅'+f.bareMM+'mm');
@@ -2129,6 +2177,7 @@ function resetScene3D(){
   setFiber(g,0.001,0.001);
   g.position.set(-1.25,0.08,i===0?1.95:2.3);
   g.rotation.set(0,0,0);
+  g.userData.home={x:-1.25,y:0.08,z:i===0?1.95:2.3,ry:0};
  }
  if(TL.tube&&TL.tube.parent!==scene){
   scene.attach(TL.tube);
@@ -2142,6 +2191,12 @@ function resetScene3D(){
  }
  if(TL.pliers){TL.pliers.position.set(-3.4,0,0.9);TL.pliers.rotation.set(0,0.55,0)}
  paperHome();
+ cableReset();
+ if(TL.cable&&TL.cable.grp)TL.cable.grp.position.set(0.2,0,2.75);
+ if(TL.tubeRack)TL.tubeRack.position.set(0.35,0,1.95);
+ if(TL.rackA)TL.rackA.position.set(-0.6,0.025,1.95);
+ if(TL.rackB)TL.rackB.position.set(-0.6,0.025,2.3);
+ if(CT.grp)CT.grp.position.set(-2.2,0,-0.3);
  if(SP.grp)SP.grp.position.set(0,0,-0.9);
  if(SP.clampL)SP.clampL.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
  if(SP.clampR)SP.clampR.rotation.x=(SP.clampOpenX!=null)?SP.clampOpenX:0.72;
@@ -2376,6 +2431,8 @@ function onUp(e){
  DRAG.holding=false;
  if(DRAG.mode==='free'){
   if(!DRAG.moved&&PICK){PICK(DRAG.dragAct)}
+  if(DRAG.dragObj&&TL.rackA&&FIB3D[0]&&DRAG.dragObj===rootOf(TL.rackA))FIB3D[0].userData.home={x:TL.rackA.position.x-0.65,y:0.08,z:TL.rackA.position.z,ry:0};
+  if(DRAG.dragObj&&TL.rackB&&FIB3D[1]&&DRAG.dragObj===rootOf(TL.rackB))FIB3D[1].userData.home={x:TL.rackB.position.x-0.65,y:0.08,z:TL.rackB.position.z,ry:0};
   DRAG.mode=null;DRAG.dragObj=null;
   return;
  }
@@ -2407,6 +2464,16 @@ function onUp(e){
  }
 }
 document.addEventListener('touchstart',function(){AU.ensure()},{once:true,passive:true});
+// 键盘方向键：左右旋转视角、上下俯仰
+document.addEventListener('keydown',function(e){
+ var k=e.key||e.keyCode;
+ if(k==='ArrowLeft'||k===37){rig.gyaw-=0.16}
+ else if(k==='ArrowRight'||k===39){rig.gyaw+=0.16}
+ else if(k==='ArrowUp'||k===38){rig.gpitch=Math.min(1.45,rig.gpitch+0.09)}
+ else if(k==='ArrowDown'||k===40){rig.gpitch=Math.max(0.25,rig.gpitch-0.09)}
+ else return;
+ e.preventDefault();
+});
 
 /* ---------- 场景标签随步骤 ---------- */
 var _enterStepBase=enterStep;

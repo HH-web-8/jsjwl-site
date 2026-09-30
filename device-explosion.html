@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>3D设备与工具 · 动态拆解</title>
+<title>3D工具拆解 · 认识工具，了解工具是学习技能的开始</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{background:#0b1220;color:#e6eefc;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
-.bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0f1a2e;border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:20}
-.bar b{font-size:15px;letter-spacing:.5px;color:#7fd4ff}
-.bar a{color:#38bdf8;text-decoration:none;font-size:14px;padding:6px 10px;border:1px solid #1e3a5f;border-radius:8px;background:#0b1626}
-.bar a:active{background:#123252}
+html,body{background:#f0f9ff;color:#1e293b;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;box-shadow:0 1px 8px rgba(0,0,0,.04);position:sticky;top:0;z-index:20}
+.bar b{font-size:15px;letter-spacing:.5px;color:#0e7490}
+.bar a{color:#0e7490;text-decoration:none;font-size:14px;padding:6px 10px;border:1px solid #bae6fd;border-radius:8px;background:#f0f9ff}
+.bar a:active{background:#e0f2fe}
 main{max-width:1100px;margin:0 auto;padding:12px 12px 24px}
 section{margin-bottom:14px}
-.sec-t{font-size:13px;color:#9db4d8;margin:6px 2px 8px;letter-spacing:.5px}
-.sec-t b{color:#7fd4ff}
+.sec-t{font-size:13px;color:#64748b;margin:6px 2px 8px;letter-spacing:.5px}
+.sec-t b{color:#0e7490}
 .wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid #1e3a5f;background:radial-gradient(1200px 500px at 50% -10%,#12233f,#0b1220)}
 canvas{display:block;width:100%}
 .taglayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
@@ -29,25 +29,44 @@ canvas{display:block;width:100%}
 .card ol li{margin:2px 0}
 .card .cls{float:right;color:#5a7899;cursor:pointer;font-size:14px;padding:0 4px}
 .ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 6px}
-.ctrl span{font-size:12px;color:#8aa8cc}
-.ctrl input[type=range]{flex:1;min-width:140px;height:34px;accent-color:#38bdf8}
-.ctrl button{font-size:13px;padding:8px 14px;border-radius:9px;border:1px solid #1e3a5f;background:#0f1f36;color:#cfe8ff;cursor:pointer}
-.ctrl button:active{background:#153a63}
-.ctrl button.on{border-color:#38bdf8;color:#7fd4ff}
+.ctrl span{font-size:12px;color:#64748b}
+.ctrl input[type=range]{flex:1;min-width:140px;height:34px;accent-color:#0e7490}
+.ctrl button{font-size:13px;padding:8px 14px;border-radius:9px;border:1px solid #bae6fd;background:#fff;color:#0e7490;cursor:pointer}
+.ctrl button:active{background:#e0f2fe}
+.ctrl button.on{border-color:#0891b2;background:#e0f2fe;color:#0c4a6e}
 .steps{display:flex;gap:6px;flex-wrap:wrap;padding:0 4px}
-.steps button{font-size:12px;padding:7px 10px;border-radius:9px;border:1px solid #1e3a5f;background:#0f1f36;color:#bcd6f5;cursor:pointer}
-.steps button.on{border-color:#38bdf8;color:#fff;background:#123252}
+.steps button{font-size:12px;padding:7px 10px;border-radius:9px;border:1px solid #bae6fd;background:#fff;color:#475569;cursor:pointer}
+.steps button.on{border-color:#0891b2;color:#0c4a6e;background:#e0f2fe}
 .dcard{background:rgba(13,25,45,.9);border:1px solid #1e3a5f;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.8;color:#bcd6f5;display:none}
 .dcard.show{display:block}
 .dcard h4{font-size:15px;color:#7fd4ff;margin-bottom:6px}
 .dcard ol{padding-left:20px}
 .dcard ol li{margin:3px 0}
 .dcard .cls{float:right;color:#5a7899;cursor:pointer;padding:0 4px}
+.vids{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 2px 4px}
+@media(max-width:640px){.vids{grid-template-columns:1fr}}
+.vid{border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.vid video{display:block;width:100%;height:auto}
+.vid .vt{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;font-size:12px;color:#64748b;background:#f0f9ff;border-top:1px solid #e0f2fe}
+.vid .vt b{color:#0e7490;font-weight:600}
+.vid .vt button{font-size:11px;padding:3px 10px;border-radius:8px;border:1px solid #bae6fd;background:#fff;color:#0e7490;cursor:pointer}
+.vid .vt button:active{background:#e0f2fe}
 .go{text-align:center;padding:16px 0 4px}
-.go a{display:inline-block;font-size:15px;padding:12px 34px;border-radius:12px;background:linear-gradient(135deg,#1d7ed0,#38bdf8);color:#fff;text-decoration:none;font-weight:600}
+.go a{display:inline-block;font-size:15px;padding:12px 34px;border-radius:12px;background:linear-gradient(135deg,#0e7490,#0891b2);color:#fff;text-decoration:none;font-weight:600;box-shadow:0 4px 16px rgba(14,116,144,.35)}
 .go a:active{filter:brightness(1.15)}
-.go .hint{font-size:11px;color:#5a7899;margin-top:10px}
+.go .hint{font-size:11px;color:#64748b;margin-top:10px}
+.hero{position:relative;height:40vh;min-height:250px;max-height:440px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;background-repeat:no-repeat;opacity:0;filter:contrast(1.08) saturate(1.1) brightness(1.05);animation:hb 24s ease-in-out infinite}
+.hb1{background-image:url('assets/img/bg-tool-1.jpg')}
+.hb2{background-image:url('assets/img/bg-tool-2.jpg');animation-delay:8s}
+.hb3{background-image:url('assets/img/bg-tool-3.jpg');animation-delay:16s}
+@keyframes hb{0%{opacity:0}5%{opacity:1}29%{opacity:1}33%{opacity:0}100%{opacity:0}}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,20,40,.35) 0%,rgba(15,40,70,.45) 45%,rgba(240,249,255,.15) 100%)}
+.hero-txt{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:0 16px}
+.hero-txt h1{font-size:2.5rem;font-weight:900;letter-spacing:12px;text-shadow:0 2px 16px rgba(0,0,0,.55),0 0 40px rgba(14,165,233,.5);white-space:nowrap}
+.hero-txt p{margin-top:12px;font-size:1rem;letter-spacing:5px;opacity:.94;text-shadow:0 1px 8px rgba(0,0,0,.5)}
 @media(max-width:640px){.card{font-size:11px;width:210px}.bar b{font-size:13px}}
+@media(max-width:640px){.hero-txt h1{font-size:1.55rem;letter-spacing:6px}.hero-txt p{font-size:.78rem;letter-spacing:2px}}
 </style>
 <script src="assets/three-r128.min.js"></script>
 <script src="assets/GLTFLoader.js"></script>
@@ -55,10 +74,38 @@ canvas{display:block;width:100%}
 <body>
 <header class="bar">
  <a href="index.html">‹ 门户</a>
- <b>3D设备与工具 · 动态拆解</b>
+ <b>3D工具拆解</b>
  <a href="fiber-splicing.html">熔接实训 ›</a>
 </header>
+<div class="hero">
+ <div class="hero-bg hb1"></div>
+ <div class="hero-bg hb2"></div>
+ <div class="hero-bg hb3"></div>
+ <div class="hero-ov"></div>
+ <div class="hero-txt">
+  <h1>3D工具拆解</h1>
+  <p>认识工具 · 了解工具，是学习技能的开始</p>
+ </div>
+</div>
 <main>
+
+<section>
+ <div class="sec-t"><b>认识工具 · 了解工具，是学习技能的开始</b> —— 三大核心器材 3D 拆解视频</div>
+ <div class="vids">
+  <div class="vid"><video id="vd88s" src="assets/videos/v-88s-explosion.mp4" playsinline preload="metadata"></video><div class="vt"><b>① 藤仓88S 熔接机 · 3D拆解</b><button data-v="vd88s">播放</button></div></div>
+  <div class="vid"><video id="vdCT50" src="assets/videos/v-ct50-intro.mp4" playsinline preload="metadata"></video><div class="vt"><b>② CT50 光纤切割刀 · 3D拆解</b><button data-v="vdCT50">播放</button></div></div>
+  <div class="vid"><video id="vdPL" src="assets/videos/v-pliers-intro.mp4" playsinline preload="metadata"></video><div class="vt"><b>③ 米勒钳（三口）· 3D拆解</b><button data-v="vdPL">播放</button></div></div>
+ </div>
+</section>
+
+<section>
+ <div class="sec-t">② <b>核心器材 3D 展台</b> —— 点标签或模型查看部件图解（88S 熔接机 / CT50 切割刀 / 米勒钳）</div>
+ <div class="wrap">
+  <canvas id="cvB"></canvas>
+  <div id="tagsB" class="taglayer"></div>
+ </div>
+ <div class="dcard" id="cardB"><span class="cls">✕</span><h4></h4><ol></ol></div>
+</section>
 
 <section>
  <div class="sec-t">① <b>12芯光缆分层拆解</b> —— 拖动滑杆或点"播放拆解"，逐层剖开：外护套 → 芳纶纱 → 钢铠装 → 松套管 → 12色纤芯；点击 3D 里的层标签查看讲解</div>
@@ -78,14 +125,7 @@ canvas{display:block;width:100%}
  <div class="steps" id="layerBtns"></div>
 </section>
 
-<section>
- <div class="sec-t">② <b>核心器材 3D 展台</b> —— 点标签或模型查看部件图解（88S 熔接机 / CT50 切割刀 / 米勒钳）</div>
- <div class="wrap">
-  <canvas id="cvB"></canvas>
-  <div id="tagsB" class="taglayer"></div>
- </div>
- <div class="dcard" id="cardB"><span class="cls">✕</span><h4></h4><ol></ol></div>
-</section>
+
 
 <div class="go">
  <a href="fiber-splicing.html">进入光纤熔接实训 ›</a>
@@ -93,6 +133,18 @@ canvas{display:block;width:100%}
 </div>
 
 </main>
+<script>
+(function(){
+ var btns=document.querySelectorAll('.vid .vt button');
+ btns.forEach(function(b){
+  b.addEventListener('click',function(){
+   var v=document.getElementById(b.getAttribute('data-v'));
+   if(!v)return;
+   if(v.paused){v.play();b.textContent='暂停'}else{v.pause();b.textContent='播放'}
+  });
+ });
+})();
+</script>
 <script>
 'use strict';
 function $(id){return document.getElementById(id)}
