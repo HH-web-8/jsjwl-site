@@ -58,6 +58,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 #labelLayer{position:absolute;inset:0;pointer-events:none;z-index:7;overflow:hidden}
 .obj-label{position:absolute;transform:translate(-50%,-130%);background:rgba(15,23,42,.88);border:1px solid #38bdf8;color:#bae6fd;font-size:.7rem;padding:3px 9px;border-radius:10px;white-space:nowrap;pointer-events:none;animation:lblPulse 1.6s infinite}
 @keyframes lblPulse{0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,.35)}50%{box-shadow:0 0 0 5px rgba(56,189,248,0)}}
+.obj-label.idle{opacity:.6;font-size:.62rem;padding:2px 7px;border-color:rgba(56,189,248,.45);animation:none}
 
 /* 提示浮条 */
 #toastBox{position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%}
@@ -352,6 +353,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
 </div>
 
 <script src="assets/three-r128.min.js" onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';document.head.appendChild(s);"></script>
+<script src="assets/GLTFLoader.js"></script>
 <script>
 // ============================================================
 // 光纤熔接 3D 虚拟实训 · 13步双光纤流程 + 双手沉浸操作 + 真机故障系统
@@ -515,6 +517,7 @@ var rig={yaw:0.5,pitch:0.95,dist:8.4,tx:0,ty:0.45,tz:0,gyaw:0.5,gpitch:0.95,gdis
 var CAM={
  wide:   {yaw:0.5, pitch:0.95,dist:8.4,tx:0,   ty:0.45,tz:0},
  fiber1: {yaw:0.18,pitch:0.82,dist:3.0, tx:-1.5,ty:0.25,tz:1.75},
+ tube:   {yaw:0.18,pitch:0.8, dist:3.7, tx:-0.45,ty:0.25,tz:1.95},
  fiber2: {yaw:0.18,pitch:0.82,dist:3.0, tx:-1.5,ty:0.25,tz:2.1},
  cleave: {yaw:-0.55,pitch:0.95,dist:2.6,tx:-2.2,ty:0.3, tz:-0.3},
  splicer:{yaw:0.4, pitch:0.8, dist:3.5, tx:0,   ty:0.4, tz:-0.9},
@@ -596,6 +599,13 @@ function makeBgTex(){
 }
 
 /* ---------- 藤仓88S 熔接机 ---------- */
+/* ---------- AI实物GLB加载（失败自动回退程序化模型） ---------- */
+function loadGLB(path,cb){
+ try{
+  if(!THREE.GLTFLoader){cb(null);return}
+  new THREE.GLTFLoader().load(path,function(g){cb(g.scene||null)},undefined,function(){cb(null)});
+ }catch(e){cb(null)}
+}
 function buildSplicer(){
  var g=new THREE.Group();g.position.set(0,0,-0.9);scene.add(g);SP.grp=g;
  var base=box(1.75,0.52,1.55,0x23272e,{r:0.5,m:0.35});base.position.y=0.26;g.add(base);
@@ -655,6 +665,32 @@ function buildSplicer(){
  SP.joint=new THREE.Object3D();SP.joint.position.set(0,0.705,0.05);g.add(SP.joint);
  SP.slotL=new THREE.Object3D();SP.slotL.position.set(-0.18,0.71,0.05);g.add(SP.slotL);
  SP.slotR=new THREE.Object3D();SP.slotR.position.set(0.18,0.71,0.05);g.add(SP.slotR);
+ // ===== AI实物模型上线：88S GLB替换程序化机身，可动件全部保留叠加 =====
+ loadGLB('assets/models/fujikura-88s.glb',function(m){
+  if(!m||!SP.grp){return}
+  var bb=new THREE.Box3().setFromObject(m);
+  var sx=bb.max.x-bb.min.x,sy=bb.max.y-bb.min.y,sz=bb.max.z-bb.min.z;
+  if(!(sx>0.01&&sy>0.01&&sz>0.01)){return}
+  var sc=1.75/sx;
+  m.scale.set(sc,sc,sc);
+  bb.setFromObject(m);
+  var H=bb.max.y-bb.min.y;
+  var dy=Math.max(0,H*0.5-0.585);
+  m.position.x-=(bb.max.x+bb.min.x)/2;
+  m.position.z-=(bb.max.z+bb.min.z)/2;
+  m.position.y-=bb.min.y;
+  m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+  SP.grp.add(m);SP.glb=m;SP.glbScale=sc;
+  base.visible=false;plate.visible=false;silk.visible=false;wa.visible=false;gl1.visible=false;gl2.visible=false;
+  if(dy>0.015){
+   var keep=[base,plate,wa,gl1,gl2,ssp,silk,ovb,slot,odp,glow,SP.ovLight,m];
+   SP.grp.children.slice().forEach(function(c){
+    if(keep.indexOf(c)<0&&c.position)c.position.y+=dy;
+   });
+   SP.dy=dy;
+  }
+  F.glbOn=F.glbOn||{};F.glbOn.splicer=true;
+ });
 }
 
 /* ---------- 藤仓CT50 切割刀 ---------- */
@@ -716,7 +752,7 @@ function buildTools(){
  var paper=box(0.26,0.01,0.2,0xf2f5f8,{r:0.85,m:0});paper.position.set(-2.05,0.03,1.65);scene.add(paper);reg(paper,'paper');
  TL.paper=paper;TL.paperHome={x:-2.05,y:0.03,z:1.65};
  // 热缩管架
- var rg=new THREE.Group();rg.position.set(1.85,0,1.35);scene.add(rg);
+ var rg=new THREE.Group();rg.position.set(0.35,0,1.95);scene.add(rg);
  var tray=box(0.75,0.04,0.26,0x2a3038);tray.position.y=0.02;rg.add(tray);
  for(var i=0;i<3;i++){var tb=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.55,10,1,true),mat(0xf0c88f,{t:1,op:0.42,r:0.4}));tb.rotation.z=Math.PI/2;tb.position.set(0,0.1,-0.06+i*0.06);rg.add(tb)}
  reg(rg.children[2],'tubePick');TL.tube=rg.children[2];
@@ -758,8 +794,8 @@ function initHands(){
  handsIdle();
 }
 function handsIdle(){
- handTo(HANDS.R, 2.6,-0.5,1.9,0.5);
- handTo(HANDS.L,-2.6,-0.5,1.9,0.5);
+ handTo(HANDS.R, 1.9,0.16,2.55,0.5);
+ handTo(HANDS.L,-1.9,0.16,2.55,0.5);
  HANDS.holdR=null;HANDS.holdL=null;HANDS.follow=false;
 }
 function handTo(h,x,y,z,dur,done){if(h)moveTo(h,x,y,z,dur||0.4,done)}
@@ -783,7 +819,7 @@ function handDrop(tool,x,y,z,ry){
  HANDS.holdR=null;HANDS.follow=false;
  if(x!==undefined)moveTo(tool,x,y,z,0.4);
  if(ry!==undefined)rotYTo(tool,ry,0.4);
- handTo(HANDS.R,2.6,-0.5,1.9,0.4);
+ handTo(HANDS.R,1.9,0.16,2.55,0.4);
 }
 // 左手捏住光纤中段（光纤不动，手移过去）
 function handPinchFiber(i){
@@ -800,7 +836,7 @@ function handPinchFiberAt(x,y,z){
 // 只放开右手持物（工具留在原地/新父级），手退场
 function handRelease(){
  HANDS.holdR=null;HANDS.follow=false;
- handTo(HANDS.R,2.6,-0.5,1.9,0.4);
+ handTo(HANDS.R,1.9,0.16,2.55,0.4);
 }
 // 鼠标驱动：持物时手跟随指针在工作平面上的投影
 function handsFollowPointer(e){
@@ -873,10 +909,75 @@ function fiberToSlot(i){ // 0=左槽 1=右槽
 }
 
 /* ---------- 高亮标签 ---------- */
+/* ---------- 台面常驻名牌（新手模式） ---------- */
+var IDLE_TAGS=[
+ {act:'pliers',label:'米勒钳'},
+ {act:'bottle',label:'酒精壶'},
+ {act:'paper',label:'无尘纸'},
+ {act:'tubePick',label:'热缩管'},
+ {act:'fiber1',label:'光纤①'},
+ {act:'fiber2',label:'光纤②'}
+];
+function mountIdleTags(items){
+ if(MODE!=='newbie'||F.touring)return;
+ var skip={};
+ if(items)for(var i=0;i<items.length;i++)skip[items[i].act]=1;
+ for(var j=0;j<IDLE_TAGS.length;j++){
+  var tg=IDLE_TAGS[j];
+  if(skip[tg.act])continue;
+  var m=ANCH[tg.act];if(!m)continue;
+  var el=document.createElement('div');el.className='obj-label idle';el.innerHTML=tg.label;
+  $('labelLayer').appendChild(el);
+  labelDefs.push({act:tg.act,obj:m,el:el});
+ }
+}
+/* ---------- 开机巡台导览 ---------- */
+function tourBench(){
+ if(F.toured){goStep(2);return}
+ F.toured=true;F.touring=true;PICK=null;
+ var seq=[
+  ['powerKey','88S 熔接机'],
+  ['pliers','三口米勒钳'],
+  ['ctHandle','CT50 切割刀'],
+  ['bottle','酒精喷壶'],
+  ['paper','无尘纸'],
+  ['tubePick','热缩套管'],
+  ['fiber1','光纤①'],
+  ['fiber2','光纤②']
+ ];
+ $('panelBody').innerHTML=
+  goal('台面器材巡览——先认全 8 件器材，再动手操作。')+
+  '<div class="act-list"><div class="act-item" id="tourNow">📍 准备开始…</div></div>'+
+  '<div style="margin-top:10px">'+btn('endTour()','跳过导览')+'</div>'+
+  fbEl();
+ function st(n){
+  if(n>=seq.length){endTour();return}
+  var sp=seq[n];
+  var now=$('tourNow');if(now)now.innerHTML='📍 '+sp[1];
+  setElig([{act:sp[0],label:sp[1]}]);
+  fbSet('这是 <b>'+sp[1]+'</b>——13步操作要用到它','info');
+  var m=ANCH[sp[0]];
+  if(m){
+   var wp=m.getWorldPosition(new THREE.Vector3());
+   rig.gtx=wp.x;rig.gty=Math.max(0.25,wp.y);rig.gtz=wp.z;
+  }
+  rig.gdist=2.4;rig.gpitch=0.82;
+  setTimeout(function(){st(n+1)},1150);
+ }
+ st(0);
+}
+function endTour(){
+ F.touring=false;
+ if(F.power){scrMsg('STAND BY','#9fe8b8');scrKeys()}
+ setElig([]);
+ camTo('wide');
+ goStep(2);
+}
 function setElig(items){
  for(var a in ANCH){if(ANCH[a].userData)ANCH[a].userData._pulse=false}
  var layer=$('labelLayer');layer.innerHTML='';labelDefs=[];
  ELIG={};
+ mountIdleTags(items);
  if(!items||!items.length)return;
  for(var i=0;i<items.length;i++){
   var it=items[i];ELIG[it.act]=it;
@@ -919,6 +1020,14 @@ function animate(){
   var w=tweens[i];w.t+=dt;var k=clamp(w.t/w.dur,0,1);
   try{w.fn(w.ease(k))}catch(e){}
   if(k>=1){tweens.splice(i,1);if(w.done)try{w.done()}catch(e){}}
+ }
+ // 双手待命呼吸（仅在待命位附近且空手时）
+ if(HANDS.R&&HANDS.L&&!HANDS.follow&&!HANDS.holdR&&!HANDS.holdL){
+  var hb=Math.sin(t*1.6)*0.012;
+  if(Math.abs(HANDS.R.position.x-1.9)<0.35&&Math.abs(HANDS.R.position.z-2.55)<0.35&&HANDS.R.position.y<0.6){
+   HANDS.R.position.y=lerp(HANDS.R.position.y,0.16+hb,0.08);
+   HANDS.L.position.y=lerp(HANDS.L.position.y,0.16+hb,0.08);
+  }
  }
  rig.yaw=lerp(rig.yaw,rig.gyaw,0.09);rig.pitch=lerp(rig.pitch,rig.gpitch,0.09);
  rig.dist=lerp(rig.dist,rig.gdist,0.09);
@@ -1021,8 +1130,8 @@ function panelStep_1(){
    scrShow();scrMsg('SELF TEST...','#8fd3ff');
    setTimeout(function(){if(F.power)scrMsg('STAND BY','#9fe8b8');scrKeys()},1500);
    fbSet('✅ 熔接机开机，屏幕自检完成','ok');
-   toast('开机完成，即将给光纤①穿热缩管','ok');
-   setTimeout(function(){goStep(2)},2100);
+   toast('开机完成，开始台面器材巡览','ok');
+   setTimeout(function(){tourBench()},2100);
   }
  };
  $('panelBody').innerHTML=
@@ -1035,7 +1144,7 @@ function panelStep_1(){
 }
 /* ---------- S2 穿热缩管（先穿管后剥纤） ---------- */
 function panelStep_2(){
- setPT(2);camTo('fiber1');
+ setPT(2);camTo('tube');
  var f1=fi(1);
  if(f1.hasTube){
   setTimeout(function(){goStep(3)},300);
@@ -1393,17 +1502,6 @@ function cleanV(i){
 function backToStrip(i){
  goStep(i===1?3:7);
 }
-/* ---------- S9 入槽② ---------- */
-function panelStep_9(){
- setPT(9);camTo('splicer');
- $('panelBody').innerHTML=
-  goal('将光纤②放入熔接机<b>右侧</b>V型槽并压下右压板。')+
-  '<div class="act-list">'+
-  '<div class="act-item">① 点击 <b>光纤②</b> 放入右V型槽</div></div>'+
-  fbEl();
- setElig([{act:'fiber2',label:'光纤②'}]);
- PICK=function(act){if(act==='fiber2')placeFiber(2)};
-}
 /* ---------- S11 熔接（三检测拒熔） ---------- */
 function panelStep_11(){
  if(!F.power){toast('设备还没开机，先回步骤 1 开机','warn');setTimeout(function(){goStep(1)},600);return}
@@ -1585,7 +1683,7 @@ function arcFX(dur){
 }
 /* ---------- S12 移管+加热 ---------- */
 function panelStep_12(){
- setPT(13);camTo('macro');
+ setPT(12);camTo('macro');
  var f1=fi(1);
  if(!f1.hasTube){
   addFault('notube','忘记穿热缩管');
@@ -1786,7 +1884,7 @@ function resetScene3D(){
  }
  if(HANDS.R)handsIdle();
  if(TL.tube){
-  TL.tube.position.set(1.85,0.1,1.47);
+  TL.tube.position.set(0.35,0.1,2.07);
   TL.tube.scale.set(1,1,1);
   TL.tube.material.opacity=0.42;
   TL.tube.material.color.setHex(0xf0c88f);
