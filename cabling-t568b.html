@@ -1674,8 +1674,8 @@ document.getElementById('stepsBar').addEventListener('click', function(e){
 // ==================== B站视频切换 ====================
 // 视频BV号配置（您提供视频链接后填这里）
 var BILIBILI_BVS = {
-  0: '',  // 视频1：T568B网线制作演示
-  1: ''   // 视频2：常见错误与解决方法
+  0: 'BV1D94y1s74m',     // 视频1：网络综合布线01 | 水晶头制作教程
+  1: 'AV337337488'        // 视频2：水晶头接网线指南
 };
 var BILIBILI_PAGES = {0: 1, 1: 1}; // 第几P（一般1）
 
@@ -1701,12 +1701,23 @@ function switchVideo(idx) {
   
   // 已配置：嵌入B站iframe
   var page = BILIBILI_PAGES[idx] || 1;
-  var src = 'https://player.bilibili.com/player.html?bvid=' + bv + '&page=' + page + '&autoplay=0&muted=0';
+  var src;
+  if(bv.toUpperCase().indexOf('AV')===0){
+    var aid=bv.replace(/AV/i,'');
+    src='https://player.bilibili.com/player.html?aid='+aid+'&page='+page+'&autoplay=0&muted=0';
+  }else{
+    src='https://player.bilibili.com/player.html?bvid='+bv+'&page='+page+'&autoplay=0&muted=0';
+  }
   iframe.src = src;
   iframe.style.display = 'block';
   placeholder.style.display = 'none';
-  $('videoInfo').textContent = '📺 正在播放：视频' + (idx+1) + ' (BV' + bv + ')';
+  $('videoInfo').textContent = '📺 正在播放：视频' + (idx+1) + ' (' + bv + ')';
 }
+
+// 页面加载自动播放视频1
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){ switchVideo(0); }, 300);
+});
 
 // ==================== 模式切换 ====================
 function setMode(mode) {
