@@ -1368,6 +1368,13 @@ function init3D(){
  var bgs=new THREE.Mesh(new THREE.SphereGeometry(26,24,16),new THREE.MeshBasicMaterial({map:makeBgTex(),side:THREE.BackSide,fog:false}));
  scene.add(bgs);
  buildSplicer();buildCleaver();buildTools();makeFibers();initHands();
+ (function(){
+  function toolGlow(x,z,r){
+   var g=new THREE.Mesh(new THREE.SphereGeometry(r||0.7,20,12),new THREE.MeshStandardMaterial({color:0x0088dd,emissive:0x0088dd,emissiveIntensity:0.6,transparent:true,opacity:0.12,roughness:1,metalness:0,depthWrite:false}));
+   g.position.set(x,0.12,z);g.scale.set(1.4,0.25,1.1);scene.add(g);
+  }
+  toolGlow(-3.4,0.9);toolGlow(-2.2,-0.3);toolGlow(0,-0.9);toolGlow(0.2,2.75);toolGlow(1.05,2.55);
+ })();
  _clock=new THREE.Clock();
  window.addEventListener('resize',onResize);
  animate();
