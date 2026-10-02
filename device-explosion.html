@@ -15,21 +15,21 @@ main{max-width:1100px;margin:0 auto;padding:12px 12px 24px}
 section{margin-bottom:14px}
 .sec-t{font-size:13px;color:#64748b;margin:6px 2px 8px;letter-spacing:.5px}
 .sec-t b{color:#0e7490}
-.wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid #1e3a5f;background:radial-gradient(1200px 500px at 50% -10%,#12233f,#0b1220)}
+.wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;background:linear-gradient(180deg,#f0f9ff,#e0f2fe)}
 canvas{display:block;width:100%}
 .taglayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
-.tag{position:absolute;transform:translate(-50%,-120%);background:rgba(13,25,45,.88);border:1px solid #2c5f8f;border-radius:10px;padding:4px 9px;font-size:12px;color:#cfe8ff;pointer-events:auto;cursor:pointer;white-space:nowrap;transition:border-color .2s}
-.tag i{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#1d7ed0;color:#fff;font-style:normal;font-size:11px;margin-right:4px}
-.tag.on{border-color:#7fd4ff;color:#fff;box-shadow:0 0 10px rgba(56,189,248,.35)}
-.tag:active{background:#123a5e}
+.tag{position:absolute;transform:translate(-50%,-120%);background:rgba(255,255,255,.92);border:1px solid #bae6fd;border-radius:10px;padding:4px 9px;font-size:12px;color:#1e293b;pointer-events:auto;cursor:pointer;white-space:nowrap;transition:border-color .2s;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.tag i{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#0891b2;color:#fff;font-style:normal;font-size:11px;margin-right:4px}
+.tag.on{border-color:#0891b2;color:#0c4a6e;box-shadow:0 0 10px rgba(8,145,178,.25)}
+.tag:active{background:#e0f2fe}
 #tagsB{position:absolute;left:0;right:0;top:auto;bottom:10px;height:auto;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;pointer-events:auto;padding:0 8px}
 #tagsB .tag{position:static;transform:none}
-.card{position:absolute;right:8px;top:8px;width:240px;max-width:46%;background:rgba(13,25,45,.9);border:1px solid #1e3a5f;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7;color:#bcd6f5;display:none}
+.card{position:absolute;right:8px;top:8px;width:240px;max-width:46%;background:rgba(255,255,255,.95);border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7;color:#334155;display:none;box-shadow:0 4px 16px rgba(0,0,0,.08)}
 .card.show{display:block}
-.card h4{font-size:14px;color:#7fd4ff;margin-bottom:4px}
+.card h4{font-size:14px;color:#0e7490;margin-bottom:4px}
 .card ol{padding-left:18px}
 .card ol li{margin:2px 0}
-.card .cls{float:right;color:#5a7899;cursor:pointer;font-size:14px;padding:0 4px}
+.card .cls{float:right;color:#94a3b8;cursor:pointer;font-size:14px;padding:0 4px}
 .ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 6px}
 .ctrl span{font-size:12px;color:#64748b}
 .ctrl input[type=range]{flex:1;min-width:140px;height:34px;accent-color:#0e7490}
@@ -68,7 +68,7 @@ canvas{display:block;width:100%}
 .hb2{background-image:url('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/bg-tool-2.jpg');animation-delay:8s}
 .hb3{background-image:url('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/img/bg-tool-3.jpg');animation-delay:16s}
 @keyframes hb{0%{opacity:0}5%{opacity:1}29%{opacity:1}33%{opacity:0}100%{opacity:0}}
-.hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,20,40,.35) 0%,rgba(15,40,70,.45) 45%,rgba(240,249,255,.15) 100%)}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,40,70,.25) 0%,rgba(30,64,96,.2) 45%,rgba(240,249,255,.05) 100%)}
 .hero-txt{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:0 16px}
 .hero-txt h1{font-size:2.5rem;font-weight:900;letter-spacing:12px;text-shadow:0 2px 16px rgba(0,0,0,.55),0 0 40px rgba(14,165,233,.5);white-space:nowrap}
 .hero-txt p{margin-top:12px;font-size:1rem;letter-spacing:5px;opacity:.94;text-shadow:0 1px 8px rgba(0,0,0,.5)}
@@ -156,7 +156,7 @@ canvas{display:block;width:100%}
 'use strict';
 function $(id){return document.getElementById(id)}
 function clamp(v,a,b){return v<a?a:(v>b?b:v)}
-var COL={bg:0x0b1220};
+var COL={bg:0xeef7fc};
 
 /* ================= 场景A：12芯光缆分层爆炸 ================= */
 var AS={};
@@ -169,14 +169,14 @@ function initA(){
  var sc=new THREE.Scene();sc.background=new THREE.Color(COL.bg);
  sc.fog=new THREE.Fog(COL.bg,7,16);
  var cam=new THREE.PerspectiveCamera(46,W/H,0.1,60);cam.position.set(0,1.6,5.2);cam.lookAt(0,0.1,0);
- var amb=new THREE.AmbientLight(0x9db8d8,0.55);sc.add(amb);
+ var amb=new THREE.AmbientLight(0xc8d8e8,0.65);sc.add(amb);
  var key=new THREE.DirectionalLight(0xffffff,0.9);key.position.set(3,6,4);key.castShadow=true;
  key.shadow.mapSize.set(1024,1024);sc.add(key);
  var rim=new THREE.DirectionalLight(0x38bdf8,0.35);rim.position.set(-4,2,-3);sc.add(rim);
  // 地面
- var gnd=new THREE.Mesh(new THREE.CircleGeometry(8,48),new THREE.MeshStandardMaterial({color:0x101d33,roughness:0.95}));
+ var gnd=new THREE.Mesh(new THREE.CircleGeometry(8,48),new THREE.MeshStandardMaterial({color:0xdfe9f3,roughness:0.95}));
  gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;sc.add(gnd);
- var grid=new THREE.GridHelper(14,28,0x1c3252,0x14243d);grid.position.y=0.001;sc.add(grid);
+ var grid=new THREE.GridHelper(14,28,0x94b8d8,0xc5d9e8);grid.position.y=0.001;sc.add(grid);
  AS.R=R;AS.sc=sc;AS.cam=cam;AS.cv=cv;AS.W=W;AS.H=H;
 
  buildCable();
@@ -203,7 +203,7 @@ function halfTube(r,mat){ // 沿X轴的半剖圆管
 function buildCable(){
  var root=new THREE.Group();root.position.set(-0.15,0.55,0);AS.sc.add(root);AS.root=root;
  // 地台柱
- var ped=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,0.55,14),new THREE.MeshStandardMaterial({color:0x24344f,roughness:.6,metalness:.3}));
+ var ped=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,0.55,14),new THREE.MeshStandardMaterial({color:0x64748b,roughness:.6,metalness:.3}));
  ped.position.y=0.27;ped.castShadow=true;AS.sc.add(ped);
 
  // L1 外护套（黄色半剖两片，印字）
@@ -375,13 +375,13 @@ function initB(){
  var sc=new THREE.Scene();sc.background=new THREE.Color(COL.bg);
  sc.fog=new THREE.Fog(COL.bg,8,18);
  var cam=new THREE.PerspectiveCamera(44,W/H,0.1,60);cam.position.set(0,1.35,4.6);cam.lookAt(0,0.25,0);
- var amb=new THREE.AmbientLight(0x9db8d8,0.55);sc.add(amb);
+ var amb=new THREE.AmbientLight(0xc8d8e8,0.65);sc.add(amb);
  var key=new THREE.DirectionalLight(0xffffff,0.85);key.position.set(4,6,4);key.castShadow=true;
  key.shadow.mapSize.set(1024,1024);sc.add(key);
  var rim=new THREE.DirectionalLight(0x38bdf8,0.3);rim.position.set(-5,2,-4);sc.add(rim);
- var gnd=new THREE.Mesh(new THREE.CircleGeometry(9,48),new THREE.MeshStandardMaterial({color:0x101d33,roughness:0.95}));
+ var gnd=new THREE.Mesh(new THREE.CircleGeometry(9,48),new THREE.MeshStandardMaterial({color:0xdfe9f3,roughness:0.95}));
  gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;sc.add(gnd);
- var grid=new THREE.GridHelper(16,32,0x1c3252,0x14243d);grid.position.y=0.001;sc.add(grid);
+ var grid=new THREE.GridHelper(16,32,0x94b8d8,0xc5d9e8);grid.position.y=0.001;sc.add(grid);
  BS.R=R;BS.sc=sc;BS.cam=cam;BS.cv=cv;BS.W=W;BS.H=H;BS.devs=[];BS.focusX=0;
 
  var loader=new THREE.GLTFLoader();
@@ -408,7 +408,7 @@ function initB(){
    var dev=BS.devs.filter(function(x){return x.info.key===dv.key})[0];
    if(dev){dev.loaded=true}
   },undefined,function(){/* GLB失败：程序化占位盒 */
-   var pm=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.45,0.5),new THREE.MeshStandardMaterial({color:0x24344f,roughness:.6}));
+   var pm=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.45,0.5),new THREE.MeshStandardMaterial({color:0x94a3b8,roughness:.6}));
    pm.position.y=0.24;grp.add(pm);
   });
  });
