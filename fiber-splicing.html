@@ -943,14 +943,16 @@ function buildTools(){
   }
   F.glbOn=F.glbOn||{};F.glbOn.pliers=true;
  });
- // 酒精喷壶
+ // 酒精喷壶（程序化兜底：透明壶身+蓝色标签+喷头）
  var bg=new THREE.Group();bg.position.set(-2.65,0,1.55);scene.add(bg);
- var body=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.115,0.34,14),mat(0xe8f2f6,{t:1,op:0.5,r:0.15}));body.position.y=0.17;body.castShadow=true;bg.add(body);
+ var body=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.115,0.34,14),new THREE.MeshStandardMaterial({color:0xe8f2f6,transparent:true,opacity:0.35,roughness:0.08,metalness:0,envMapIntensity:1.5}));body.position.y=0.17;body.castShadow=true;bg.add(body);
+ var liq=new THREE.Mesh(new THREE.CylinderGeometry(0.095,0.11,0.22,14),new THREE.MeshStandardMaterial({color:0xc8e6f0,transparent:true,opacity:0.5,roughness:0.1}));liq.position.y=0.12;bg.add(liq);
+ var label=new THREE.Mesh(new THREE.CylinderGeometry(0.101,0.101,0.1,14),new THREE.MeshStandardMaterial({color:0x2a6fb0,roughness:0.4}));label.position.y=0.16;bg.add(label);
  var cap=cyl(0.035,0.035,0.11,0x2a6fb0,{r:0.3,m:0.5});cap.position.y=0.39;bg.add(cap);
  var noz=cyl(0.014,0.014,0.09,0x2a6fb0,{r:0.3,m:0.5});noz.rotation.z=0.6;noz.position.set(0.045,0.46,0);bg.add(noz);
  reg(body,'bottle');TL.bottle=bg;
  // AI实物GLB：酒精喷壶（加载成功→隐藏程序化壶，锚点转移到壶身主mesh；失败→保留程序化）
- loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/alcoholp-parts.glb?v=p1',function(m){
+ loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/alcohol-bottle.glb?v=p2',function(m){
   if(!m||!TL.bottle)return;
   var bb=new THREE.Box3().setFromObject(m);
   var sy=bb.max.y-bb.min.y;
@@ -963,7 +965,7 @@ function buildTools(){
   m.position.y-=bb.min.y;
   m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true;reg(o,'bottle')}});glbEnhance(m);
   bg.add(m);
-  body.visible=false;cap.visible=false;noz.visible=false;TL.bottleGlbed=true
+  body.visible=false;cap.visible=false;noz.visible=false;liq.visible=false;label.visible=false;TL.bottleGlbed=true
  });
  // 无尘纸（程序化兜底 + AI实物部件版）
  var paper=box(0.26,0.01,0.2,0xf2f5f8,{r:0.85,m:0});paper.position.set(-2.05,0.03,1.65);scene.add(paper);reg(paper,'paper');
