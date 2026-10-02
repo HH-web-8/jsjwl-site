@@ -6,15 +6,15 @@
 <title>D4 AI虚拟实训平台 - 智网匠心 AI 布线实训平台</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh}
-.top{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:#0f172a}
-.back{background:#1e293b;border:1px solid #475569;color:#fff;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.95rem;text-decoration:none}
-.back:hover{background:#334155}
-.title{font-size:1.15rem;font-weight:700;color:#a78bfa}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f0f9ff;color:#1e293b;min-height:100vh}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.back{background:#fff;border:1px solid #e2e8f0;color:#1e293b;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.95rem;text-decoration:none}
+.back:hover{background:#f0f9ff}
+.title{font-size:1.15rem;font-weight:700;color:#2563eb}
 .spacer{width:90px}
-.hd{text-align:center;padding:48px 24px 32px;background:linear-gradient(135deg,#0f172a,#312e81);color:#fff}
+.hd{text-align:center;padding:48px 24px 32px;background:linear-gradient(135deg,#f0f9ff,#dbeafe);color:#1e293b}
 .hd h1{font-size:2.2rem;margin-bottom:10px}
-.hd p{color:rgba(255,255,255,.75);font-size:1.05rem}
+.hd p{color:#64748b;font-size:1.05rem}
 .ct{max-width:1200px;margin:0 auto;padding:40px 32px 64px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
 .card{background:#fff;border-radius:16px;padding:28px 24px;text-align:center;border:1px solid #e2e8f0;position:relative;transition:all .3s;text-decoration:none;color:inherit;display:block}
@@ -31,58 +31,58 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;c
 .card.soon .arrow{color:#94a3b8}
 
 /* 数据外露看板 */
-.dashboard{grid-column:1/-1;margin-top:48px;background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:20px;padding:32px;color:#fff;position:relative;overflow:hidden}
-.dashboard::before{content:"";position:absolute;top:0;right:0;width:320px;height:320px;background:radial-gradient(circle,rgba(167,139,250,.2),transparent 70%);pointer-events:none}
-.dashboard::after{content:"";position:absolute;bottom:-60px;left:-40px;width:260px;height:260px;background:radial-gradient(circle,rgba(14,165,233,.18),transparent 70%);pointer-events:none}
+.dashboard{grid-column:1/-1;margin-top:48px;background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:32px;color:#1e293b;position:relative;overflow:hidden}
+.dashboard::before{content:"";position:absolute;top:0;right:0;width:320px;height:320px;background:radial-gradient(circle,rgba(37,99,235,.08),transparent 70%);pointer-events:none}
+.dashboard::after{content:"";position:absolute;bottom:-60px;left:-40px;width:260px;height:260px;background:radial-gradient(circle,rgba(5,150,105,.08),transparent 70%);pointer-events:none}
 .db-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;position:relative;z-index:1}
-.db-hd h2{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:10px}
-.db-hd h2::before{content:"";width:4px;height:20px;background:linear-gradient(180deg,#a78bfa,#3b82f6);border-radius:2px}
-.db-live{display:flex;align-items:center;gap:8px;font-size:.85rem;color:#86efac}
+.db-hd h2{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:10px;color:#1e293b}
+.db-hd h2::before{content:"";width:4px;height:20px;background:linear-gradient(180deg,#2563eb,#3b82f6);border-radius:2px}
+.db-live{display:flex;align-items:center;gap:8px;font-size:.85rem;color:#059669}
 .db-live .dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 1.6s infinite;box-shadow:0 0 0 0 rgba(34,197,94,.7)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
 .db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;position:relative;z-index:1}
-.db-stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;backdrop-filter:blur(8px);transition:all .3s}
-.db-stat:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
-.db-stat .lbl{font-size:.8rem;color:#94a3b8;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.db-stat .val{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.db-stat .sub{font-size:.75rem;color:#64748b;margin-top:6px}
-.db-stat.s2 .val{background:linear-gradient(135deg,#34d399,#60a5fa);-webkit-background-clip:text;background-clip:text}
-.db-stat.s3 .val{background:linear-gradient(135deg,#fbbf24,#f97316);-webkit-background-clip:text;background-clip:text}
-.db-stat.s4 .val{background:linear-gradient(135deg,#f472b6,#a78bfa);-webkit-background-clip:text;background-clip:text}
+.db-stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:20px;transition:all .3s}
+.db-stat:hover{background:#f0f9ff;transform:translateY(-2px)}
+.db-stat .lbl{font-size:.8rem;color:#64748b;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.db-stat .val{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,#2563eb,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.db-stat .sub{font-size:.75rem;color:#94a3b8;margin-top:6px}
+.db-stat.s2 .val{background:linear-gradient(135deg,#059669,#10b981);-webkit-background-clip:text;background-clip:text}
+.db-stat.s3 .val{background:linear-gradient(135deg,#d97706,#f59e0b);-webkit-background-clip:text;background-clip:text}
+.db-stat.s4 .val{background:linear-gradient(135deg,#db2777,#ec4899);-webkit-background-clip:text;background-clip:text}
 
 .db-body{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;position:relative;z-index:1}
-.db-panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px}
-.db-panel h3{font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:#e2e8f0}
-.db-panel h3 .tag{font-size:.65rem;padding:2px 8px;border-radius:10px;background:rgba(34,197,94,.18);color:#86efac;font-weight:500}
+.db-panel{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:20px}
+.db-panel h3{font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:#1e293b}
+.db-panel h3 .tag{font-size:.65rem;padding:2px 8px;border-radius:10px;background:rgba(5,150,105,.12);color:#059669;font-weight:500}
 .records{max-height:320px;overflow-y:auto}
 .records::-webkit-scrollbar{width:4px}
-.records::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.rec{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.records::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px}
+.rec{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed #e2e8f0}
 .rec:last-child{border-bottom:0}
 .rec .ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
-.rec.fiber .ico{background:rgba(59,130,246,.18);color:#60a5fa}
-.rec.cable .ico{background:rgba(34,197,94,.18);color:#34d399}
-.rec.quiz .ico{background:rgba(251,191,36,.18);color:#fbbf24}
-.rec.game .ico{background:rgba(249,115,22,.18);color:#fb923c}
-.rec .info .t{font-size:.88rem;color:#e2e8f0;font-weight:500}
+.rec.fiber .ico{background:rgba(59,130,246,.12);color:#3b82f6}
+.rec.cable .ico{background:rgba(5,150,105,.12);color:#10b981}
+.rec.quiz .ico{background:rgba(217,119,6,.12);color:#f59e0b}
+.rec.game .ico{background:rgba(249,115,22,.12);color:#f97316}
+.rec .info .t{font-size:.88rem;color:#1e293b;font-weight:500}
 .rec .info .m{font-size:.72rem;color:#94a3b8;margin-top:2px}
 .rec .sc{font-size:1.05rem;font-weight:700;text-align:right}
-.rec .sc.good{color:#34d399}
-.rec .sc.mid{color:#fbbf24}
-.rec .sc.bad{color:#f87171}
+.rec .sc.good{color:#059669}
+.rec .sc.mid{color:#d97706}
+.rec .sc.bad{color:#dc2626}
 .empty{text-align:center;color:#64748b;font-size:.85rem;padding:30px 0}
 
 /* 数据流 */
 .flow-list{display:flex;flex-direction:column;gap:10px}
-.flow{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:10px;font-size:.82rem}
+.flow{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:.82rem}
 .flow .pt{width:6px;height:6px;border-radius:50%}
-.flow.ok .pt{background:#22c55e;box-shadow:0 0 8px #22c55e}
+.flow.ok .pt{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.5)}
 .flow.wait .pt{background:#fbbf24;animation:pulse 1.5s infinite}
-.flow.err .pt{background:#f87171}
-.flow .ft{color:#cbd5e1;flex:1}
-.flow .ft small{display:block;color:#64748b;font-size:.7rem;margin-top:2px}
-.flow .tm{color:#64748b;font-size:.72rem;font-variant-numeric:tabular-nums}
-.flow.ok .tm::before{content:"✓ ";color:#22c55e}
+.flow.err .pt{background:#ef4444}
+.flow .ft{color:#475569;flex:1}
+.flow .ft small{display:block;color:#94a3b8;font-size:.7rem;margin-top:2px}
+.flow .tm{color:#94a3b8;font-size:.72rem;font-variant-numeric:tabular-nums}
+.flow.ok .tm::before{content:"✓ ";color:#059669}
 
 @media(max-width:900px){
   .db-stats{grid-template-columns:repeat(2,1fr)}
@@ -205,27 +205,27 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;c
 <p>规范示范+环境应变+特殊现场，呈现实训室无法实操的规范做法。</p>
 <div class="video-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px;">
 <div class="vcell" style="text-align:center;">
-<video controls preload="auto" style="width:100%;border-radius:8px;background:#0a1525;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-1.mp4"></video>
+<video controls preload="auto" style="width:100%;border-radius:8px;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-1.mp4#t=0.1"></video>
 <p style="font-size:13px;margin:4px 0;">管道井内光缆接续</p>
 </div>
 <div class="vcell" style="text-align:center;">
-<video controls preload="auto" style="width:100%;border-radius:8px;background:#0a1525;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-2.mp4"></video>
+<video controls preload="auto" style="width:100%;border-radius:8px;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-2.mp4#t=0.1"></video>
 <p style="font-size:13px;margin:4px 0;">高空架空光缆施工</p>
 </div>
 <div class="vcell" style="text-align:center;">
-<video controls preload="auto" style="width:100%;border-radius:8px;background:#0a1525;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-3.mp4#t=0.1"></video>
+<video controls preload="auto" style="width:100%;border-radius:8px;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-3.mp4#t=0.1"></video>
 <p style="font-size:13px;margin:4px 0;">直埋光缆修复</p>
 </div>
 <div class="vcell" style="text-align:center;">
-<video controls preload="auto" style="width:100%;border-radius:8px;background:#0a1525;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-4.mp4"></video>
+<video controls preload="auto" style="width:100%;border-radius:8px;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-4.mp4#t=0.1"></video>
 <p style="font-size:13px;margin:4px 0;">室内综合布线穿管</p>
 </div>
 <div class="vcell" style="text-align:center;">
-<video controls preload="auto" style="width:100%;border-radius:8px;background:#0a1525;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-5.mp4"></video>
+<video controls preload="auto" style="width:100%;border-radius:8px;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-5.mp4#t=0.1"></video>
 <p style="font-size:13px;margin:4px 0;">机房跳纤操作</p>
 </div>
 <div class="vcell" style="text-align:center;">
-<video controls preload="auto" style="width:100%;border-radius:8px;background:#0a1525;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-6.mp4"></video>
+<video controls preload="auto" style="width:100%;border-radius:8px;" src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/videos/scene-6.mp4#t=0.1"></video>
 <p style="font-size:13px;margin:4px 0;">应急抢修光缆</p>
 </div>
 </div>
