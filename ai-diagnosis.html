@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI辅助故障诊断 | 光纤熔接实训</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f9ff;color:#1e293b;min-height:100vh}
+a{text-decoration:none;color:inherit}
+
+/* 顶部导航 */
+.nav{display:flex;align-items:center;gap:10px;padding:16px 20px;max-width:1200px;margin:0 auto}
+.back{color:#2563eb;font-size:14px;cursor:pointer}
+.back:hover{text-decoration:underline}
+.nav .sp{flex:1}
+.nav .src-link{font-size:12px;color:#64748b;padding:4px 12px;border:1px solid #e2e8f0;border-radius:6px}
+
+/* 标题区 */
+.hd{text-align:center;padding:32px 20px 20px;max-width:1200px;margin:0 auto}
+.hd h1{font-size:24px;color:#1e293b;margin-bottom:6px}
+.hd p{color:#64748b;font-size:14px}
+
+/* 诊断区 */
+.diag-box{max-width:760px;margin:24px auto;padding:28px 24px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+.diag-input{display:flex;gap:10px;align-items:flex-start}
+.diag-input textarea{flex:1;min-height:60px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;color:#1e293b;font-size:14px;line-height:1.6;outline:none;font-family:inherit;resize:vertical}
+.diag-input textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.diag-btn{background:#2563eb;color:#fff;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;align-self:stretch;display:flex;align-items:center;gap:6px}
+.diag-btn:hover{background:#1d4ed8}
+
+/* 快捷标签 */
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.quick span{font-size:12px;color:#64748b;margin-right:4px;line-height:28px}
+.qtag{background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;padding:4px 12px;border-radius:16px;font-size:12px;cursor:pointer;transition:all .2s}
+.qtag:hover{background:#dbeafe;border-color:#2563eb;color:#2563eb}
+
+/* 诊断状态 */
+.status{text-align:center;padding:20px;color:#64748b;font-size:14px}
+.status .think{display:inline-flex;align-items:center;gap:8px}
+.status .think .dots{display:inline-flex;gap:4px}
+.status .think .dots span{width:6px;height:6px;border-radius:50%;background:#2563eb;animation:blink 1.4s infinite}
+.status .think .dots span:nth-child(2){animation-delay:.2s}
+.status .think .dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+
+/* 结果区 */
+.results{max-width:760px;margin:0 auto;padding:0 0 40px}
+.results .count{font-size:13px;color:#64748b;margin-bottom:14px;padding:0 4px}
+.rcard{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden;transition:all .3s}
+.rcard:hover{border-color:#2563eb;box-shadow:0 6px 20px rgba(37,99,235,.06)}
+.rcard::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.rcard.match-high::before{background:#dc2626}
+.rcard.match-mid::before{background:#d97706}
+.rcard.match-low::before{background:#6366f1}
+.rc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.rc-head h3{font-size:15px;color:#1e293b}
+.rc-head .match{font-size:11px;padding:2px 10px;border-radius:10px;font-weight:600}
+.match-high .match-head{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.match-mid .match-mid-bg{background:#fffbeb;color:#d97706;border:1px solid #fde68a}
+.match-low .match-low-bg{background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe}
+.rc-row{margin-bottom:8px}
+.rc-row:last-child{margin-bottom:0}
+.rc-lb{font-size:11px;font-weight:600;color:#2563eb;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.rc-ct{font-size:13px;color:#475569;line-height:1.7;padding-left:8px;border-left:2px solid #dbeafe}
+.rc-tags{display:flex;gap:6px;margin-top:8px}
+.rc-tags .tag{font-size:10px;padding:2px 8px;border-radius:4px;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}
+.rc-tags .tag.freq-h{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.rc-tags .tag.freq-m{background:#fffbeb;color:#d97706;border-color:#fde68a}
+.rc-tags .tag.freq-l{background:#ecfdf5;color:#059669;border-color:#a7f3d0}
+
+/* 无结果 */
+.no-result{text-align:center;padding:40px 20px;color:#64748b}
+.no-result .icon{font-size:2.5rem;margin-bottom:10px;opacity:.4}
+.no-result p{font-size:14px}
+.no-result .hint{font-size:12px;color:#94a3b8;margin-top:6px}
+
+/* 底部 */
+.ft{text-align:center;margin-top:20px;padding:20px;border-top:1px solid #e2e8f0;max-width:760px;margin-left:auto;margin-right:auto}
+.ft p{color:#64748b;font-size:13px;line-height:1.8}
+.ft .sync{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#059669}
+.ft .sync .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+@media(max-width:600px){
+  .diag-input{flex-direction:column}
+  .diag-btn{align-self:center}
+  .hd h1{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="sim-platform.html" class="back">&#8592; 返回平台</a>
+  <span class="sp"></span>
+  <a href="fault-records.html" class="src-link">&#128203; 故障知识库</a>
+</div>
+
+<div class="hd">
+  <h1>&#129302; AI辅助故障诊断</h1>
+  <p>输入故障现象关键词，自动匹配故障知识库，给出可能原因与处理方案</p>
+</div>
+
+<div class="diag-box">
+  <div class="diag-input">
+    <textarea id="queryInput" placeholder="描述你遇到的故障现象，例如：熔接机屏幕黑屏、光纤切割端面角度超标、热缩管加热不充分..."></textarea>
+    <button class="diag-btn" onclick="diagnose()">&#128269; 诊断</button>
+  </div>
+  <div class="quick">
+    <span>快捷症状：</span>
+    <span class="qtag" onclick="quickDiag('熔接损耗偏高')">熔接损耗偏高</span>
+    <span class="qtag" onclick="quickDiag('切割角度过大')">切割角度过大</span>
+    <span class="qtag" onclick="quickDiag('端面有异物')">端面有异物</span>
+    <span class="qtag" onclick="quickDiag('热缩管没收缩')">热缩管没收缩</span>
+    <span class="qtag" onclick="quickDiag('光纤对不上')">光纤对不上</span>
+    <span class="qtag" onclick="quickDiag('剥线断纤')">剥线断纤</span>
+    <span class="qtag" onclick="quickDiag('放电异常')">放电异常</span>
+    <span class="qtag" onclick="quickDiag('抗拉测试失败')">抗拉测试失败</span>
+  </div>
+</div>
+
+<div id="statusBox" class="status" style="display:none">
+  <div class="think">
+    <span>AI正在匹配故障知识库</span>
+    <span class="dots"><span></span><span></span><span></span></span>
+  </div>
+</div>
+
+<div class="results" id="resultsBox">
+  <div class="no-result">
+    <div class="icon">&#129302;</div>
+    <p>输入故障现象描述，点击诊断按钮开始匹配</p>
+    <div class="hint">系统将从16条内置故障知识库中查找匹配项</div>
+  </div>
+</div>
+
+<div class="ft">
+  <p>&#9881; 诊断结果基于内置故障知识库匹配，仅供参考。复杂故障请结合真机检测综合判断。</p>
+  <div class="sync"><span class="dot"></span> 故障知识库同步飞书数据中心 · 持续积累中</div>
+</div>
+
+<script>
+// ==================== 故障知识库 ====================
+var BUILTIN_FAULTS = [
+  {id:'b1',title:'光纤切割端面角度超标',cat:'cleaver',freq:'h',symptom:'熔接机报"切割角度过大"警告，熔接损耗偏高，屏幕显示端面斜切。',cause:'切割刀刀片磨损或缺口；光纤夹持位置偏移；切割力度不均匀；刀片高度未校准。',fix:'更换或翻转刀片至新刃口；调整刀片高度至标准位置；重新清洁光纤并切割，确保一刀成型。',keywords:'切割角度,端面斜切,角度过大,角度超标,切割刀,刀片磨损,一刀成型'},
+  {id:'b2',title:'光纤端面污染',cat:'env',freq:'h',symptom:'熔接机屏幕显示端面有异物点，熔接后出现气泡、裂纹或黑色烧结物。',cause:'切割后未及时放入熔接机；操作环境粉尘大；手指误触端面；无尘纸/酒精不足。',fix:'重新剥线切割；用无尘纸蘸取无水酒精沿一个方向擦拭端面；切割后立即放入熔接机，避免暴露超30秒。',keywords:'端面污染,异物,气泡,裂纹,烧结物,粉尘,酒精,清洁,暴露'},
+  {id:'b3',title:'电极老化放电异常',cat:'splicer',freq:'m',symptom:'放电电流不稳定，熔接损耗波动大，多次熔接失败，端面烧结不均。',cause:'电极使用次数超限（通常大于500次）；电极表面积碳或氧化；电极间距因振动变化。',fix:'用专用电极清洁刷清理电极表面；执行熔接机放电校准程序；电极超过使用极限时更换新电极对。',keywords:'电极,放电,放电异常,放电校准,积碳,氧化,烧结不均,损耗波动,500次'},
+  {id:'b4',title:'光纤对准偏差',cat:'splicer',freq:'h',symptom:'熔接机无法自动对准光纤，屏幕显示光纤明显偏移，X/Y轴偏差超限。',cause:'V型槽内有灰尘或碎纤；光纤夹具松动或磨损；两根光纤直径不一致。',fix:'用无尘纸蘸酒精清洁V型槽；检查光纤夹具压板是否到位；确保两根光纤型号一致。',keywords:'对准,偏移,V型槽,夹具,X轴,Y轴,偏差,对不上,无法对准'},
+  {id:'b5',title:'热缩管加热不充分',cat:'splicer',freq:'m',symptom:'热缩管未完全收缩，内部残留气泡，保护强度不足，冷却后管壁松软。',cause:'加热时间不足（少于90秒）；加热器温度偏低；热缩管尺寸与光纤不匹配。',fix:'延长加热时间至90-120秒；检查加热器温度是否达标；选用与光纤直径匹配的热缩管（60mm标准型）。',keywords:'热缩管,加热,收缩,气泡,松软,加热时间,温度偏低,没收缩,未收缩'},
+  {id:'b6',title:'裸纤过短夹持失败',cat:'plier',freq:'m',symptom:'光纤夹持不稳，熔接时发生位移，裸纤长度不足无法正常放电熔接。',cause:'剥线长度不够（少于50mm）；切割余量不足；夹具行程不到位。',fix:'确保剥线长度达到50mm以上（外皮+涂覆层分两次剥除）；切割保留12-16mm裸纤；检查夹具弹片张力。',keywords:'裸纤,夹持,位移,长度不足,剥线,夹持失败,过短'},
+  {id:'b7',title:'涂覆层剥除损伤',cat:'plier',freq:'h',symptom:'剥线后玻璃纤表面有划痕或裂痕，熔接后损耗偏高或直接断纤。',cause:'米勒钳力度过大；来回拉锯式剥线；钳口有毛刺或残留碎屑。',fix:'分两次剥除（先外皮后涂覆层）；一次拉出禁止来回拉锯；定期检查清理钳口；力度均匀向左一次拉完。',keywords:'剥线,涂覆层,划痕,裂痕,断纤,米勒钳,拉锯,损伤,剥除'},
+  {id:'b8',title:'放电参数不匹配',cat:'splicer',freq:'m',symptom:'熔接点过粗或过细，抗拉强度低，损耗值异常偏高（大于0.05dB）。',cause:'放电时间/电流未按光纤类型校准；光纤类型切换未更新程序；环境温湿度变化影响。',fix:'执行熔接机放电校准程序；根据光纤类型（SM/MM/DSF）选择对应熔接程序；温差大时增加校准频次。',keywords:'放电参数,熔接点,过粗,过细,抗拉,损耗偏高,校准,光纤类型,程序'},
+  {id:'b9',title:'切割刀刀片崩刃',cat:'cleaver',freq:'l',symptom:'切割面出现锯齿状边缘或斜切面不均匀，镜检发现端面有明显刻痕。',cause:'刀片使用过久刃口钝化；切割时光纤未放置到位；刀片受到撞击或跌落。',fix:'翻转刀片使用另一侧刃口（CT50可翻转多次）；更换全新刀片；确保光纤放置在橡胶垫正确位置。',keywords:'刀片,崩刃,锯齿,刻痕,钝化,翻转,CT50,更换'},
+  {id:'b10',title:'光纤折断于V型槽',cat:'splicer',freq:'m',symptom:'光纤在V型槽处断裂，残段卡在槽内，后续光纤无法放置。',cause:'夹具关闭力度过大；光纤弯曲角度过大；V型槽内有残留碎纤。',fix:'用镊子小心取出碎纤；用压缩空气吹净V型槽；关闭夹具时力度适中，避免冲击。',keywords:'折断,V型槽,断裂,碎纤,卡住,无法放置,夹具力度'},
+  {id:'b11',title:'熔接机电池续航不足',cat:'splicer',freq:'l',symptom:'野外作业时电量不足，熔接中断或无法启动，屏幕显示低电量警告。',cause:'电池未充满即外出作业；电池老化容量衰减；低温环境加速耗电。',fix:'出发前确认电池满电；携带备用电池；低温环境使用保温套；电池超2年建议更换。',keywords:'电池,电量,续航,低电量,野外,中断,无法启动,低温'},
+  {id:'b12',title:'光缆开剥伤及束管',cat:'other',freq:'m',symptom:'开剥光缆外护套时，内部束管被划伤或切断，导致光纤裸露受损。',cause:'开剥刀深度调节不当；用力过猛；未按光缆结构逐层开剥。',fix:'调节开剥刀至合适深度（仅切外护套）；逐层开剥，每层检查；使用专用光缆开剥工具。',keywords:'开剥,束管,划伤,切断,裸露,外护套,深度,逐层'},
+  {id:'b13',title:'酒精挥发浓度不足',cat:'env',freq:'l',symptom:'清洁光纤后端面仍有污渍，擦拭效果不明显，熔接损耗波动。',cause:'瓶装酒精长期开封挥发；使用工业酒精纯度不够；无尘纸反复使用已污染。',fix:'使用无水乙醇（纯度99%以上）；小瓶分装随用随取；每根光纤使用新无尘纸。',keywords:'酒精,挥发,浓度,污渍,擦拭,无水乙醇,纯度,无尘纸'},
+  {id:'b14',title:'光纤识别错误混接',cat:'other',freq:'m',symptom:'熔接完成后OTDR测试发现某芯接错位置，光缆两端光纤序号不对应。',cause:'多芯光缆开剥后未编号；熔接时未核对两端序号；标识脱落或模糊。',fix:'开剥后立即用标签纸编号；熔接时逐芯核对序号；使用色环或数字标识双重确认。',keywords:'混接,识别错误,序号,编号,OTDR,接错,标识,色环'},
+  {id:'b15',title:'热缩管内有灰尘',cat:'env',freq:'l',symptom:'加热后热缩管内可见黑点或白点，保护管透明度下降。',cause:'热缩管使用前未清洁；操作环境灰尘大；手套或手指污染管壁。',fix:'使用前用酒精棉擦拭热缩管内壁；穿防静电手套操作；环境灰尘大时使用防尘罩。',keywords:'热缩管,灰尘,黑点,白点,透明度,清洁,防静电,防尘'},
+  {id:'b16',title:'熔接点抗拉测试失败',cat:'splicer',freq:'h',symptom:'熔接完成后轻拉即断，抗拉强度远低于标准值（应大于5N）。',cause:'放电时间过短；光纤端面质量差；对准偏差导致熔接面小。',fix:'检查并重设放电参数；确保切割端面达标（角度<0.5°）；清洁V型槽后重新熔接。',keywords:'抗拉,抗拉测试,拉断,强度低,5N,放电时间,端面质量,重新熔接'}
+];
+
+var CAT_NAMES={splicer:'熔接机',cleaver:'切割刀',plier:'米勒钳',env:'环境因素',other:'其他'};
+var FREQ_NAMES={h:'高频',m:'中频',l:'低频'};
+
+function diagnose(){
+  var q=document.getElementById('queryInput').value.trim();
+  if(!q){
+    alert('请输入故障现象描述');
+    return;
+  }
+  var statusBox=document.getElementById('statusBox');
+  var resultsBox=document.getElementById('resultsBox');
+  statusBox.style.display='block';
+  resultsBox.innerHTML='';
+
+  setTimeout(function(){
+    statusBox.style.display='none';
+    var results=matchFaults(q);
+    renderResults(results,q);
+  },800);
+}
+
+function quickDiag(text){
+  document.getElementById('queryInput').value=text;
+  diagnose();
+}
+
+function matchFaults(query){
+  var q=query.toLowerCase();
+  var scored=[];
+  
+  BUILTIN_FAULTS.forEach(function(f){
+    var score=0;
+    var matchTerms=[];
+    
+    // 检查关键词匹配
+    var kws=(f.keywords||'').split(',');
+    kws.forEach(function(kw){
+      kw=kw.trim().toLowerCase();
+      if(kw && q.indexOf(kw)>=0){
+        score+=3;
+        matchTerms.push(kw);
+      }
+    });
+    
+    // 检查标题匹配
+    if(f.title.toLowerCase().indexOf(q)>=0 || q.indexOf(f.title.toLowerCase())>=0){
+      score+=5;
+    }
+    
+    // 检查症状匹配
+    var sym=f.symptom.toLowerCase();
+    // 拆分查询词，逐词匹配症状
+    var qWords=q.split(/[\s,，、;；]+/);
+    qWords.forEach(function(w){
+      w=w.trim();
+      if(w.length>=2 && sym.indexOf(w)>=0){
+        score+=2;
+        if(matchTerms.indexOf(w)<0)matchTerms.push(w);
+      }
+    });
+    
+    // 检查原因匹配
+    var cause=f.cause.toLowerCase();
+    qWords.forEach(function(w){
+      w=w.trim();
+      if(w.length>=2 && cause.indexOf(w)>=0){
+        score+=1;
+      }
+    });
+    
+    // 模糊匹配：症状中的关键名词
+    if(!score){
+      // 检查是否包含故障名称的关键部分
+      var titleParts=f.title.split(/[，、（）()\s]+/);
+      titleParts.forEach(function(tp){
+        tp=tp.trim().toLowerCase();
+        if(tp.length>=2 && q.indexOf(tp)>=0){
+          score+=2;
+          if(matchTerms.indexOf(tp)<0)matchTerms.push(tp);
+        }
+      });
+    }
+    
+    if(score>0){
+      var level=score>=5?'high':(score>=3?'mid':'low');
+      scored.push({fault:f,score:score,level:level,terms:matchTerms});
+    }
+  });
+  
+  scored.sort(function(a,b){return b.score-a.score});
+  return scored;
+}
+
+function renderResults(results,query){
+  var box=document.getElementById('resultsBox');
+  if(!results.length){
+    box.innerHTML='<div class="no-result">'+
+      '<div class="icon">&#128533;</div>'+
+      '<p>未找到匹配的故障记录</p>'+
+      '<div class="hint">尝试更换关键词，或前往<a href="fault-records.html" style="color:#2563eb">故障知识库</a>手动查阅</div>'+
+    '</div>';
+    return;
+  }
+  
+  var html='<div class="count">找到 <b style="color:#2563eb">'+results.length+'</b> 条匹配结果 · 关键词：「'+query+'」</div>';
+  
+  results.forEach(function(r){
+    var f=r.fault;
+    var freqCls=f.freq==='h'?'freq-h':(f.freq==='m'?'freq-m':'freq-l');
+    var matchBadge=r.level==='high'?'<span class="match match-head">高度匹配</span>':(r.level==='mid'?'<span class="match match-mid-bg">中度匹配</span>':'<span class="match match-low-bg">参考匹配</span>');
+    
+    html+='<div class="rcard match-'+r.level+'">'+
+      '<div class="rc-head"><h3>'+f.title+'</h3>'+matchBadge+'</div>'+
+      '<div class="rc-row"><div class="rc-lb">故障现象</div><div class="rc-ct">'+f.symptom+'</div></div>'+
+      '<div class="rc-row"><div class="rc-lb">可能原因</div><div class="rc-ct">'+f.cause+'</div></div>'+
+      '<div class="rc-row"><div class="rc-lb">处理方法</div><div class="rc-ct">'+f.fix+'</div></div>'+
+      '<div class="rc-tags">'+
+        '<span class="tag '+freqCls+'">'+FREQ_NAMES[f.freq]+'</span>'+
+        '<span class="tag">'+CAT_NAMES[f.cat]+'</span>'+
+        (r.terms.length?'<span class="tag">匹配词：'+r.terms.slice(0,4).join('、')+'</span>':'')+
+      '</div>'+
+    '</div>';
+  });
+  
+  box.innerHTML=html;
+}
+
+// 回车触发
+document.getElementById('queryInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter' && !e.shiftKey){
+    e.preventDefault();
+    diagnose();
+  }
+});
+</script>
+</body>
+</html>
