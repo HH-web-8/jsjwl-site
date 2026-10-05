@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D1 AI教学助手 功能框架图</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#1a1a2e;
+  --gold:#c8922d;
+  --blue:#2b5e8e;
+  --green:#3a7d44;
+  --purple:#6b3a7d;
+  --teal:#1a6b7d;
+  --rust:#9c4a2e;
+  --card-bg:rgba(255,255,255,0.78);
+  --card-border:rgba(0,0,0,0.12);
+  --line:rgba(60,60,80,0.3);
+}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  color:#000;
+  line-height:1.5;
+  background:url('https://www.coze.cn/s/RrRr6keVQ9c/') no-repeat center center fixed;
+  background-size:cover;
+  min-height:100vh;
+  padding:20px 16px 40px;
+}
+.container{max-width:1200px;margin:0 auto}
+
+/* Root */
+.root-card{
+  background:var(--card-bg);
+  border:2px solid var(--ink);
+  border-radius:10px;
+  padding:18px 24px;
+  text-align:center;
+  max-width:480px;
+  margin:0 auto 0;
+  position:relative;
+  z-index:2;
+  box-shadow:0 2px 12px rgba(0,0,0,0.08);
+}
+.root-card h1{font-size:22px;font-weight:700;letter-spacing:1px}
+.root-card .sub{font-size:13px;color:#444;margin-top:4px}
+.root-card .url{font-size:11px;color:#666;margin-top:2px;font-family:monospace}
+
+/* Trunk line */
+.trunk{
+  width:2px;height:28px;
+  background:var(--line);
+  margin:0 auto;
+}
+
+/* Module row */
+.module-row{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  position:relative;
+  margin-bottom:8px;
+}
+/* Horizontal connector above modules */
+.module-row::before{
+  content:'';
+  position:absolute;
+  top:-14px;
+  left:10%;
+  right:10%;
+  height:2px;
+  background:var(--line);
+}
+/* Vertical stubs from connector to each card */
+.module-card{
+  position:relative;
+  background:var(--card-bg);
+  border:1.5px solid var(--card-border);
+  border-top:3px solid var(--accent);
+  border-radius:8px;
+  padding:12px 10px 10px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.06);
+}
+.module-card::before{
+  content:'';
+  position:absolute;
+  top:-14px;
+  left:50%;
+  width:2px;
+  height:14px;
+  background:var(--line);
+}
+.module-card h3{
+  font-size:14px;
+  font-weight:700;
+  text-align:center;
+  margin-bottom:6px;
+  color:#000;
+}
+.module-card .icon{font-size:20px;text-align:center;margin-bottom:4px}
+.module-card .desc{font-size:11px;color:#555;text-align:center;margin-bottom:8px;line-height:1.4}
+
+/* Sub-module list */
+.sub-list{list-style:none;padding:0;margin:0}
+.sub-list li{
+  font-size:11.5px;
+  padding:3px 0 3px 12px;
+  position:relative;
+  color:#222;
+  line-height:1.45;
+}
+.sub-list li::before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:9px;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  opacity:0.7;
+}
+.sub-list li .tag{
+  display:inline-block;
+  font-size:9px;
+  background:rgba(0,0,0,0.06);
+  padding:0 4px;
+  border-radius:3px;
+  margin-left:4px;
+  color:#555;
+  white-space:nowrap;
+}
+
+/* Accent colors per module */
+.m1{--accent:var(--blue)}
+.m2{--accent:var(--green)}
+.m3{--accent:var(--teal)}
+.m4{--accent:var(--purple)}
+.m5{--accent:var(--gold)}
+
+/* Star badge for评价与反思 */
+.star-badge{
+  display:inline-block;
+  font-size:10px;
+  background:var(--gold);
+  color:#fff;
+  padding:1px 6px;
+  border-radius:8px;
+  margin-left:4px;
+  vertical-align:middle;
+}
+
+/* Expanded detail section */
+.detail-section{
+  margin-top:24px;
+  position:relative;
+}
+.detail-section::before{
+  content:'';
+  display:block;
+  width:2px;
+  height:20px;
+  background:var(--line);
+  margin:0 auto 8px;
+}
+.detail-title{
+  text-align:center;
+  font-size:14px;
+  font-weight:700;
+  color:var(--gold);
+  margin-bottom:12px;
+  background:var(--card-bg);
+  display:inline-block;
+  padding:4px 16px;
+  border-radius:6px;
+  border:1px solid rgba(200,146,45,0.3);
+}
+.detail-title-wrap{text-align:center;margin-bottom:12px}
+
+.detail-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.detail-card{
+  background:var(--card-bg);
+  border:1.5px solid rgba(200,146,45,0.25);
+  border-top:3px solid var(--gold);
+  border-radius:8px;
+  padding:12px 12px 10px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.06);
+}
+.detail-card h4{
+  font-size:13px;
+  font-weight:700;
+  text-align:center;
+  margin-bottom:4px;
+  color:#000;
+}
+.detail-card .flow{
+  font-size:10px;
+  color:#888;
+  text-align:center;
+  margin-bottom:8px;
+  font-style:italic;
+}
+.detail-list{list-style:none;padding:0;margin:0}
+.detail-list li{
+  font-size:11px;
+  padding:3px 0 3px 14px;
+  position:relative;
+  color:#222;
+  line-height:1.5;
+}
+.detail-list li::before{
+  content:'▸';
+  position:absolute;
+  left:0;
+  top:2px;
+  font-size:10px;
+  color:var(--gold);
+}
+.detail-list li .arrow{
+  color:var(--gold);
+  font-weight:bold;
+}
+
+/* Data layer */
+.data-layer{
+  margin-top:28px;
+  position:relative;
+}
+.data-layer::before{
+  content:'';
+  display:block;
+  width:2px;
+  height:20px;
+  background:var(--line);
+  margin:0 auto 8px;
+}
+.data-card{
+  background:var(--card-bg);
+  border:1.5px solid var(--rust);
+  border-radius:8px;
+  padding:14px 20px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.06);
+}
+.data-card h4{
+  font-size:14px;
+  font-weight:700;
+  text-align:center;
+  margin-bottom:10px;
+  color:var(--rust);
+}
+.data-tables{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  justify-content:center;
+}
+.data-chip{
+  font-size:11px;
+  background:rgba(156,74,46,0.08);
+  border:1px solid rgba(156,74,46,0.2);
+  padding:3px 8px;
+  border-radius:4px;
+  color:#333;
+  white-space:nowrap;
+}
+.data-chip strong{color:var(--rust)}
+
+/* Connector from modules to data layer */
+.data-connector{
+  text-align:center;
+  font-size:10px;
+  color:#999;
+  margin:4px 0;
+}
+
+/* Responsive */
+@media(max-width:900px){
+  .module-row{grid-template-columns:repeat(2,1fr)}
+  .detail-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .module-row{grid-template-columns:1fr}
+  body{padding:12px 8px 24px}
+  .root-card h1{font-size:18px}
+  .module-card h3{font-size:13px}
+  .sub-list li{font-size:11px}
+}
+
+/* Print */
+@media print{
+  body{background:#fff;padding:0}
+  .root-card,.module-card,.detail-card,.data-card{
+    background:#fff;
+    border-color:#999;
+    box-shadow:none;
+  }
+  .module-row{gap:6px}
+  .detail-grid{gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Root -->
+  <div class="root-card">
+    <h1>D1 AI教学助手</h1>
+    <div class="sub">教师登录认证 · 五大功能模块 · 飞书数据中枢</div>
+    <div class="url">f98pxjd87c.coze.site</div>
+  </div>
+  <div class="trunk"></div>
+
+  <!-- 5 Modules -->
+  <div class="module-row">
+
+    <!-- M1: 智能备课 -->
+    <div class="module-card m1">
+      <div class="icon">📝</div>
+      <h3>智能备课</h3>
+      <div class="desc">AI生成教案<br>视频讲义截取</div>
+      <ul class="sub-list">
+        <li>AI智能备课生成</li>
+        <li>视频讲义截取</li>
+        <li>教案课件一键导出</li>
+      </ul>
+    </div>
+
+    <!-- M2: 智能组卷 -->
+    <div class="module-card m2">
+      <div class="icon">📋</div>
+      <h3>智能组卷</h3>
+      <div class="desc">题库抽题组卷<br>分层作业推送</div>
+      <ul class="sub-list">
+        <li>题库管理<span class="tag">飞书·457题</span></li>
+        <li>智能抽题组卷</li>
+        <li>分层作业推送</li>
+      </ul>
+    </div>
+
+    <!-- M3: AI阅卷 -->
+    <div class="module-card m3">
+      <div class="icon">✅</div>
+      <h3>AI阅卷</h3>
+      <div class="desc">在线+纸质双通道<br>成绩自动回流</div>
+      <ul class="sub-list">
+        <li>在线客观题自动批阅</li>
+        <li>纸质试卷AI批阅</li>
+        <li>成绩自动回流<span class="tag">飞书·学情成绩表</span></li>
+      </ul>
+    </div>
+
+    <!-- M4: 学情分析 -->
+    <div class="module-card m4">
+      <div class="icon">📊</div>
+      <h3>学情分析</h3>
+      <div class="desc">多源数据融合<br>可视化画像</div>
+      <ul class="sub-list">
+        <li>成绩统计分析</li>
+        <li>可视化图表<span class="tag">ECharts</span></li>
+        <li>学情画像生成</li>
+        <li>学情报告下载</li>
+      </ul>
+    </div>
+
+    <!-- M5: 评价与反思 -->
+    <div class="module-card m5">
+      <div class="icon">⭐</div>
+      <h3>评价与反思<span class="star-badge">重点</span></h3>
+      <div class="desc">内部镜子+外部标尺<br>组织资产沉淀</div>
+      <ul class="sub-list">
+        <li>教学反思（录播）</li>
+        <li>企业专家评价</li>
+        <li>教研沉淀</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Expanded: 评价与反思 -->
+  <div class="detail-section">
+    <div class="trunk"></div>
+    <div class="detail-title-wrap">
+      <span class="detail-title">评价与反思 · 层级展开</span>
+    </div>
+    <div class="detail-grid">
+
+      <!-- 教学反思 -->
+      <div class="detail-card">
+        <h4>教学反思</h4>
+        <div class="flow">录播 → 转写 → AI反思 → 回流</div>
+        <ul class="detail-list">
+          <li>课堂实录采集<span style="color:#888;font-size:10px">（音视频/资料/文字稿 三选一）</span></li>
+          <li>AI转写与分析<span style="color:#888;font-size:10px">（话语占比·章节时间轴·课堂总结）</span></li>
+          <li>AI反思初稿生成</li>
+          <li>教师终稿编辑<span style="color:#888;font-size:10px"> → 飞书·教学反思沉淀记录</span></li>
+        </ul>
+      </div>
+
+      <!-- 企业专家评价 -->
+      <div class="detail-card">
+        <h4>企业专家评价</h4>
+        <div class="flow">材料 → 专家打分 → 教师对比 → 回流</div>
+        <ul class="detail-list">
+          <li>评价材料上传<span style="color:#888;font-size:10px">（施工录屏/作业照片/实物成果）</span></li>
+          <li>专家在线打分<span style="color:#888;font-size:10px">（工艺·流程·安全·质量·素养 5维度）</span></li>
+          <li>教师 vs 企业评价对比</li>
+          <li>数据回流<span style="color:#888;font-size:10px"> → 飞书·企业专家评价记录</span></li>
+        </ul>
+      </div>
+
+      <!-- 教研沉淀 -->
+      <div class="detail-card">
+        <h4>教研沉淀</h4>
+        <div class="flow">选来源 → AI归因 → 教师编辑 → 入库</div>
+        <ul class="detail-list">
+          <li>沉淀来源选择<span style="color:#888;font-size:10px">（反思/学情/企业评价/自主录入）</span></li>
+          <li>AI归因分析<span style="color:#888;font-size:10px">（共性问题·教学动作验证·历届对比）</span></li>
+          <li>教师案例编辑确认</li>
+          <li>案例库建设<span style="color:#888;font-size:10px"> → 飞书·教学反思沉淀记录</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Data Layer -->
+  <div class="data-layer">
+    <div class="data-connector">↓ 全模块数据互通 ↓</div>
+    <div class="data-card">
+      <h4>飞书 Base · AI赋能教学数据中枢（共35张表）</h4>
+      <div class="data-tables">
+        <span class="data-chip"><strong>题库总表</strong> 457条</span>
+        <span class="data-chip"><strong>学情成绩表</strong> 289条</span>
+        <span class="data-chip"><strong>教学反思沉淀</strong> 8条</span>
+        <span class="data-chip"><strong>企业专家评价</strong> 4条</span>
+        <span class="data-chip"><strong>学生花名册</strong> 96条</span>
+        <span class="data-chip"><strong>AI成效对比</strong> 19条</span>
+        <span class="data-chip"><strong>实操素材索引</strong> 12条</span>
+        <span class="data-chip"><strong>对话质量分析</strong> 1条</span>
+        <span class="data-chip"><strong>思维证据</strong> 1条</span>
+        <span class="data-chip"><strong>教学汇总</strong> 1条</span>
+        <span class="data-chip"><strong>游戏闯关记录</strong> 28条</span>
+        <span class="data-chip"><strong>故障场景知识库</strong> 8条</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
