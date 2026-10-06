@@ -944,6 +944,8 @@ function buildCleaver(){
    plate.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2-0.015,(b4.min.z+b4.max.z)/2)));
    bl.visible=true;bl.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2+0.003,(b4.min.z+b4.max.z)/2)));
   }else{console.log('CT50 overlay SKIPPED: P[2]='+(!!P[2])+' P[3]='+(!!P[3])+' P[4]='+(!!P[4]));}
+  // 光纤放置位：基于主体顶面水平放置（确保光纤横放，不依赖mesh索引猜测）
+  if(P[0]){var b0=new THREE.Box3().setFromObject(P[0]);CT.fiberPose.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b0.min.x+b0.max.x)/2,b0.max.y-0.02,(b0.min.z+b0.max.z)/2)));}
   // 废料盒贴右缘
   // bin mesh deleted, skip position set
   CT.bin.position.set(0.52,0.68,0.05);
