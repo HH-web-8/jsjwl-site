@@ -822,6 +822,17 @@ function buildSplicer(){
    eh1.position.copy(loc(new THREE.Vector3(-0.075,jy+0.026,jz)));
    eh2.position.copy(loc(new THREE.Vector3(0.075,jy+0.026,jz)));
    SP.arcLight.position.copy(loc(new THREE.Vector3(0,jy+0.10,jz)));
+   // === 内部精密腔体增强（参照88S实物：枪灰金属底板+银色V槽块+光纤导槽）===
+   plate.visible=true;plate.geometry.dispose();
+   plate.geometry=new THREE.BoxGeometry(Math.min(W*0.76,1.35),0.025,Math.min(D*0.68,1.0));
+   plate.material.color.setHex(0x3a4248);plate.material.roughness=0.52;plate.material.metalness=0.82;plate.material.envMapIntensity=1.8;
+   plate.position.copy(loc(new THREE.Vector3(0,jy-0.02,jz)));
+   wa.visible=true;wa.geometry.dispose();
+   wa.geometry=new THREE.BoxGeometry(Math.abs(cxR-cxL)+0.12,0.02,0.13);
+   wa.material.color.setHex(0x8e969e);wa.material.roughness=0.28;wa.material.metalness=0.93;wa.material.envMapIntensity=2.2;
+   wa.position.copy(loc(new THREE.Vector3(0,jy+0.001,jz)));
+   gl1.visible=true;gl1.position.copy(loc(new THREE.Vector3(cxL,jy+0.005,jz)));
+   gl2.visible=true;gl2.position.copy(loc(new THREE.Vector3(cxR,jy+0.005,jz)));
    // 压板：实物mesh挂pivot（打开=负角后掀，压紧=0）
    if(SP.clampL)SP.grp.remove(SP.clampL);
    if(SP.clampR)SP.grp.remove(SP.clampR);
