@@ -793,6 +793,8 @@ function buildSplicer(){
   var P={};
   var _pi=0;
   m.traverse(function(o){if(o.isMesh){P[_pi]=o;_pi++}});
+  console.log('CT50 GLB loaded, '+_pi+' meshes:');
+  for(var ki=0;ki<_pi;ki++){var bk=new THREE.Box3().setFromObject(P[ki]);console.log('  P['+ki+'] center: '+((bk.min.x+bk.max.x)/2).toFixed(3)+','+((bk.min.y+bk.max.y)/2).toFixed(3)+','+((bk.min.z+bk.max.z)/2).toFixed(3)+'  size: '+(bk.max.x-bk.min.x).toFixed(3)+','+(bk.max.y-bk.min.y).toFixed(3)+','+(bk.max.z-bk.min.z).toFixed(3))}
   base.visible=false;plate.visible=false;wa.visible=false;gl1.visible=false;gl2.visible=false;silk.visible=false;
   bb.setFromObject(m);
   var W=bb.max.x-bb.min.x,H=bb.max.y-bb.min.y,D=bb.max.z-bb.min.z;
@@ -2665,7 +2667,7 @@ function boot(){
  enterStep(1);
  updStats();
  switchVideo(2);
- console.log('%c D4光纤熔接 v5 (GLB mesh索引匹配修复) ','background:#ef4444;color:#fff;padding:2px 8px;border-radius:3px');
+ console.log('%c D4光纤熔接 v8 (CT50根因修复+热缩管方向+内部腔体) ','background:#ef4444;color:#fff;padding:2px 8px;border-radius:3px');
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot)}
 else{boot()}
