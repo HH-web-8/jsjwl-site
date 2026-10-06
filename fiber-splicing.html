@@ -791,7 +791,8 @@ function buildSplicer(){
   SP.grp.add(m);SP.glb=m;SP.glbScale=sc;
   // 收集部件（mesh_N 名保留）
   var P={};
-  m.traverse(function(o){if(o.isMesh&&/^mesh_(\d+)$/.test(o.name))P[+RegExp.$1]=o});
+  var _pi=0;
+  m.traverse(function(o){if(o.isMesh){P[_pi]=o;_pi++}});
   base.visible=false;plate.visible=false;wa.visible=false;gl1.visible=false;gl2.visible=false;silk.visible=false;
   bb.setFromObject(m);
   var W=bb.max.x-bb.min.x,H=bb.max.y-bb.min.y,D=bb.max.z-bb.min.z;
@@ -2642,7 +2643,7 @@ function boot(){
  enterStep(1);
  updStats();
  switchVideo(2);
- console.log('%c D4光纤熔接 v4 (视频多源+杂物清理+压柄修正) ','background:#10b981;color:#fff;padding:2px 8px;border-radius:3px');
+ console.log('%c D4光纤熔接 v5 (GLB mesh索引匹配修复) ','background:#ef4444;color:#fff;padding:2px 8px;border-radius:3px');
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot)}
 else{boot()}
