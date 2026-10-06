@@ -899,8 +899,11 @@ function buildCleaver(){
   m.position.y-=bb.min.y;
   m.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});glbEnhance(m);
   CT.grp.add(m);CT.glb=m;CT.glbScale=sc;
+  bb.setFromObject(m);
+  var W=bb.max.x-bb.min.x,H=bb.max.y-bb.min.y,D=bb.max.z-bb.min.z;
   var P={};
-  m.traverse(function(o){if(o.isMesh&&/^mesh_(\d+)$/.test(o.name))P[+RegExp.$1]=o});
+  var _pi=0;
+  m.traverse(function(o){if(o.isMesh){P[_pi]=o;_pi++}});
   base.visible=false;plate.visible=false;
   // 世界系建后缘铰链pivot（CT50不整体拖动→pivot挂scene，转轴纯净）
   function ctPivot(mesh){
@@ -929,6 +932,12 @@ function buildCleaver(){
    CT.fiberPose.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2-0.06,(b4.min.z+b4.max.z)/2+0.04)));
    // 程序化可动件隐藏
    fc.visible=false;lid.visible=false;arm.visible=false;grip.visible=false;
+   // === 切割刀内部底板增强（参照实物：枪灰金属平面+刀片槽）===
+   plate.visible=true;plate.geometry.dispose();
+   plate.geometry=new THREE.BoxGeometry(Math.min(W*0.82,1.25),0.022,Math.min(D*0.72,0.72));
+   plate.material.color.setHex(0x3a4248);plate.material.roughness=0.55;plate.material.metalness=0.78;plate.material.envMapIntensity=1.6;
+   plate.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2-0.015,(b4.min.z+b4.max.z)/2)));
+   bl.visible=true;bl.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2+0.003,(b4.min.z+b4.max.z)/2)));
   }
   // 废料盒贴右缘
   // bin mesh deleted, skip position set
