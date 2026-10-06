@@ -205,6 +205,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
   .topbar-title{font-size:.9rem}
 }
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 <style>
 /* 13步双光纤流程 · 补充样式 */
@@ -291,7 +292,11 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
     </div>
     <div class="video-panel-body">
       <div class="video-player" id="videoPlayer">
-        <video id="videoEl" autoplay muted loop playsinline>
+        <div id="videoLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;background:#000;border-radius:var(--radius);z-index:2">
+          <div style="width:28px;height:28px;border:3px solid rgba(255,255,255,0.2);border-top-color:#10b981;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+          <div style="color:#6b7280;font-size:.7rem">视频加载中…</div>
+        </div>
+        <video id="videoEl" autoplay muted loop playsinline preload="auto" style="position:relative;z-index:1">
           <source src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v2-small.mp4" type="video/mp4">
         </video>
       </div>
@@ -463,10 +468,26 @@ function toggleVideoSound(){
  else{btn.innerHTML='🔇 静音';btn.style.background='#92400e';btn.style.borderColor='#f59e0b';btn.style.color='#fde68a';}
 }
 function switchVideo(n){
- var v=$('videoEl'),name=$('videoStepName');
+ var v=$('videoEl'),name=$('videoStepName'),ld=$('videoLoading');
  var map={1:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v1-h264.mp4',title:'熔接机与切割刀功能介绍'},2:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v2-small.mp4',title:'光纤熔接完整流程'},3:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v3-small.mp4',title:'光纤盘纤工艺'}};
- v.src=map[n].src;v.muted=_videoMuted;v.load();v.play();name.textContent=map[n].title;
+ if(ld)ld.style.display='flex';
+ v.src=map[n].src;v.muted=_videoMuted;v.load();v.play().catch(function(){});name.textContent=map[n].title;
  for(var i=1;i<=3;i++){var b=$('btnVideo'+i),a=(i===n);b.style.background=a?'var(--cyan)':'var(--bg2)';b.style.color=a?'#000':'var(--txt)';b.style.borderColor=a?'var(--cyan)':'var(--bg3)';b.style.fontWeight=a?'600':'400';}
+}
+/* 视频加载/错误处理 */
+(function(){
+ var v=$('videoEl'),ld=$('videoLoading');
+ if(!v)return;
+ v.addEventListener('canplay',function(){if(ld)ld.style.display='none';});
+ v.addEventListener('playing',function(){if(ld)ld.style.display='none';});
+ v.addEventListener('error',function(){
+  if(ld){ld.innerHTML='<div style="color:#6b7280;font-size:.72rem;text-align:center;padding:8px">视频加载失败<br><span style="color:#3b82f6;cursor:pointer;text-decoration:underline" onclick="retryVideo()">点击重试</span></div>';}
+ });
+})();
+function retryVideo(){
+ var v=$('videoEl'),ld=$('videoLoading');
+ if(ld){ld.innerHTML='<div style="width:28px;height:28px;border:3px solid rgba(255,255,255,0.2);border-top-color:#10b981;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="color:#6b7280;font-size:.7rem">重新加载…</div>';ld.style.display='flex';}
+ v.load();v.play().catch(function(){});
 }
 
 /* ---------- 浮条提示 ---------- */
@@ -854,16 +875,20 @@ function buildCleaver(){
    // 顶盖 mesh_2：合=0 开=-0.95
    CT.lid=ctPivot(P[2]);CT.lidOpenX=-0.95;CT.lid.rotation.x=CT.lidOpenX;
    reg(P[2],'ctLid');
-   // 压杆 mesh_3：放平=0 下压=正角，压到0.40触发切割
-   CT.handle=ctPivot(P[3]);CT.handleRange=[-0.2,0.45];CT.handleFire=0.40;CT.handY0=0.95;
-   CT.handle.rotation.x=0;
+   // 压杆 mesh_3：转轴在顶部后缘（真实铰链位），放平=0 下压=正角，压到0.40触发切割
+   var b3=new THREE.Box3().setFromObject(P[3]);
+   var hp3=new THREE.Group();
+   hp3.position.set((b3.min.x+b3.max.x)/2,b3.max.y,b3.min.z);
+   g.add(hp3);hp3.attach(P[3]);
+   CT.handle=hp3;CT.handleRange=[-0.2,0.45];CT.handleFire=0.40;CT.handY0=0.95;
+   CT.handle.rotation.x=-0.15;
    reg(P[3],'ctHandle');
    // 夹持臂 mesh_4：合=0 开=-0.8
    CT.clamp=ctPivot(P[4]);CT.clampOpenX=-0.8;CT.clamp.rotation.x=CT.clampOpenX;
    reg(P[4],'ctClamp');
-   // 光纤夹持位对准实物夹持臂
+   // 光纤夹持位对准实物夹持臂（降低Y让光纤落入槽内）
    var b4=new THREE.Box3().setFromObject(P[4]);
-   CT.fiberPose.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2-0.03,(b4.min.z+b4.max.z)/2+0.06)));
+   CT.fiberPose.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2-0.06,(b4.min.z+b4.max.z)/2+0.04)));
    // 程序化可动件隐藏
    fc.visible=false;lid.visible=false;arm.visible=false;grip.visible=false;
   }
@@ -1597,11 +1622,7 @@ function commitStrip(i,pull){
   var over=f.bareMM>42?'（略长，注意防折断）':'';
   fbSet('✅ 剥线完成：玻璃裸纤 <b>'+f.bareMM+'mm</b>'+over+'。观察裸纤是否笔直、无裂痕。','ok');
   toast('剥线完成 '+f.bareMM+'mm','ok');
-  if(i===1&&F.step===3){
-   fbSet('✅ 剥线完成：玻璃裸纤 <b>'+f.bareMM+'mm</b>。<b>钳子保留在手中</b>，继续剥光纤②','ok');
-  }else{
-   handDrop(TL.pliers,-3.35,0,0.95,0.62);
-  }
+  handDrop(TL.pliers,-3.35,0,0.95,0.62);
   setTimeout(function(){goStep(i===1?4:8)},1000);
  }
 }
@@ -1681,11 +1702,7 @@ function wipeStroke(){
   fbSet('✅ 擦拭 3 次完成，端面洁净度合格（最终以熔接机影像检测为准）','ok');
   toast('清洁完成','ok');
   DRAG.mode=null;
-  if(DRAG.fib===1&&F.step===4){
-   fbSet('✅ 擦拭 3 次完成。<b>无尘纸保留在手中</b>，继续清洁光纤②','ok');
-  }else{
-   handDrop(TL.paper,TL.paperHome.x,TL.paperHome.y,TL.paperHome.z,0);
-  }
+  handDrop(TL.paper,TL.paperHome.x,TL.paperHome.y,TL.paperHome.z,0);
   setTimeout(function(){goStep(DRAG.fib===1?5:9)},1000);
  }
 }
@@ -1731,6 +1748,7 @@ function fiberToCleave(i){
  rotYTo(fib,ry,0.7);
  rotTo(CT.clamp,'x',0,0.3);
  rotTo(CT.lid,'x',0,0.4);
+ rotTo(CT.handle,'x',0,0.3);
  handPinchFiberAt(fp.x+0.6,0.2,fp.z+0.15);
  AU.play('clamp');
  showCleaveSlotLabel();
