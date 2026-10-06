@@ -1742,10 +1742,11 @@ function panelStep_5(){cutPanel(1)}
 function panelStep_9(){cutPanel(2)}
 function fiberToCleave(i){
  var fib=FIB3D[i-1];
- var ry=CT.grp.rotation.y;
  var fp=CT.fiberPose.getWorldPosition(new THREE.Vector3());
+ var fq=CT.fiberPose.getWorldQuaternion(new THREE.Quaternion());
+ var sq=fib.quaternion.clone();
  moveTo(fib,fp.x,fp.y,fp.z,0.7);
- rotYTo(fib,ry,0.7);
+ tw(0.7,function(k){fib.quaternion.slerpQuaternions(sq,fq,k)});
  rotTo(CT.clamp,'x',0,0.3);
  rotTo(CT.lid,'x',0,0.4);
  rotTo(CT.handle,'x',0,0.3);
@@ -2607,6 +2608,7 @@ function boot(){
  enterStep(1);
  updStats();
  switchVideo(2);
+ console.log('%c D4光纤熔接 v3 (压柄转轴+光纤四元数对齐) ','background:#10b981;color:#fff;padding:2px 8px;border-radius:3px');
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot)}
 else{boot()}
