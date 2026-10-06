@@ -2155,7 +2155,7 @@ function startHeatSeq(){
  var f1=fi(1),f2=fi(2);
  var bare1=(f1&&f1.bareMM)?f1.bareMM/50:0.6;
  var bare2=(f2&&f2.bareMM)?f2.bareMM/50:0.6;
- var needLen=bare1+bare2+0.2;
+ var needLen=bare1+bare2+0.06;
  TL.tube.scale.y=needLen/0.55;
  console.log('热缩管长度调整: bare1='+bare1.toFixed(2)+' bare2='+bare2.toFixed(2)+' 总长='+needLen.toFixed(2)+' scale.y='+(needLen/0.55).toFixed(2));
  fbSet('✅ 热缩管已套住熔接点（管长'+(needLen*50).toFixed(0)+'mm覆盖裸纤），组件入炉…','ok');
