@@ -274,8 +274,8 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
     <a class="mnav-a" href="game-h5.html" style="color:#e2e8f0;font-size:12px;padding:3px 8px;border:1px solid rgba(255,255,255,.2);border-radius:5px;text-decoration:none">D5</a>
   </nav>
   <div class="mode-toggle">
-    <button class="mode-btn active" id="mode-newbie" onclick="setMode('newbie')">新手引导</button>
-    <button class="mode-btn" id="mode-exam" onclick="setMode('exam')">考核模式</button>
+    <button class="mode-btn active" id="mode-newbie" onclick="setMode('newbie')">新手流程</button>
+    <button class="mode-btn" id="mode-exam" onclick="setMode('exam')">正常练习</button>
   </div>
 </div>
 
@@ -1184,7 +1184,7 @@ function setFiber(g,bare,coat){
  var jl=Math.max(0.001,2.05-coat);
  u.jacket.scale.y=jl;u.jacket.position.x=coat+jl/2;
 }
-function fiberHome(i){var h=FIB3D[i].userData.home;moveTo(FIB3D[i],h.x,h.y,h.z,0.7);rotYTo(FIB3D[i],h.ry,0.7)}
+function fiberHome(i){var h=FIB3D[i].userData.home;moveTo(FIB3D[i],h.x,h.y,h.z,0.7);rotYTo(FIB3D[i],h.ry,0.7);var f=fi(i+1);if(f){f.slot=null;f.clamped=false}}
 function rotYTo(obj,val,dur,done){var f=obj.rotation.y;tw(dur,function(k){obj.rotation.y=lerp(f,val,k)},done)}
 function fiberToSlot(i){ // 0=左槽 1=右槽
  var g=FIB3D[i];
@@ -1590,13 +1590,18 @@ function commitStrip(i,pull){
   };
  }else{
   f.bareMM=Math.max(26,Math.min(48,(f.bareMM||0)+mm));
+  if(MODE==='newbie'&&f.bareMM<30)f.bareMM=30;
   setFiber(fib,f.bareMM/50,Math.max(f.bareMM/50,f.coatMM/50));
   spawnScrap(fib.position.x+0.3,0.1,fib.position.z,0xf0f4f8,mm/50);
   cableStripFX(2);
   var over=f.bareMM>42?'（略长，注意防折断）':'';
   fbSet('✅ 剥线完成：玻璃裸纤 <b>'+f.bareMM+'mm</b>'+over+'。观察裸纤是否笔直、无裂痕。','ok');
   toast('剥线完成 '+f.bareMM+'mm','ok');
-  handDrop(TL.pliers,-3.35,0,0.95,0.62);
+  if(i===1&&F.step===3){
+   fbSet('✅ 剥线完成：玻璃裸纤 <b>'+f.bareMM+'mm</b>。<b>钳子保留在手中</b>，继续剥光纤②','ok');
+  }else{
+   handDrop(TL.pliers,-3.35,0,0.95,0.62);
+  }
   setTimeout(function(){goStep(i===1?4:8)},1000);
  }
 }
@@ -1676,25 +1681,37 @@ function wipeStroke(){
   fbSet('✅ 擦拭 3 次完成，端面洁净度合格（最终以熔接机影像检测为准）','ok');
   toast('清洁完成','ok');
   DRAG.mode=null;
-  handDrop(TL.paper,TL.paperHome.x,TL.paperHome.y,TL.paperHome.z,0);
+  if(DRAG.fib===1&&F.step===4){
+   fbSet('✅ 擦拭 3 次完成。<b>无尘纸保留在手中</b>，继续清洁光纤②','ok');
+  }else{
+   handDrop(TL.paper,TL.paperHome.x,TL.paperHome.y,TL.paperHome.z,0);
+  }
   setTimeout(function(){goStep(DRAG.fib===1?5:9)},1000);
  }
 }
 function paperHome(){moveTo(TL.paper,TL.paperHome.x,TL.paperHome.y,TL.paperHome.z,0.5)}
+function nextStepNeedsTool(currentStep,toolAct){
+ var stepNeedsTool={3:['pliers'],4:['bottle','paper'],7:['pliers'],8:['bottle','paper']};
+ var needs=stepNeedsTool[currentStep+1];
+ return needs&&needs.indexOf(toolAct)>=0;
+}
 /* ---------- S5/S9 切割 ---------- */
 function cutPanel(i){
  setPT(i===1?5:9);camTo('cleave');
  $('panelBody').innerHTML=
   goal('将'+FNAME[i]+'放入CT50切割刀，压柄<b>快速下压到底</b>，切出≤1°平整端面。')+
   '<div class="act-list">'+
-  '<div class="act-item">① 点击 <b>'+FNAME[i]+'</b>（左手捏纤放入V槽，端头抵住挡板）</div>'+
-  '<div class="act-item">② 右手<b>按住压柄向下压到底</b>（一次到位）</div></div>'+
+  '<div class="act-item">① 点击 <b>'+FNAME[i]+'</b>（光纤横向放入CT50压槽，端头抵住挡板）</div>'+
+  '<div class="act-item">② 右手<b>按住压柄快速下压到底</b>（一次到位）</div></div>'+
   '<div class="live-strip">端面角度：<b id="cutAngle">待切割后由熔接机检测</b></div>'+
   (MODE==='newbie'?hintB('cut'+i,'新手提示','端面角度>1°真机<b>拒绝熔接</b>必须重切；压柄快压到底，犹豫慢压会产生斜端面。'):'')+
   fbEl();
  setElig([{act:'fiber'+i,label:FNAME[i],no:1}]);
  PICK=function(act){
   if(act==='fiber'+i){
+   var f=fi(i);
+   if(f._atCleaver){toast(FNAME[i]+'已放入切割刀，按压柄切割','info');return}
+   f._atCleaver=true;
    fiberToCleave(i);
    setTimeout(function(){
     setElig([{act:'ctHandle',label:'压柄',no:2}]);
@@ -1716,15 +1733,26 @@ function fiberToCleave(i){
  rotTo(CT.lid,'x',0,0.4);
  handPinchFiberAt(fp.x+0.6,0.2,fp.z+0.15);
  AU.play('clamp');
+ showCleaveSlotLabel();
+}
+function showCleaveSlotLabel(){
+ var p=CT.fiberPose.getWorldPosition(new THREE.Vector3());
+ var el=document.createElement('div');
+ el.className='obj-label';el.innerHTML='<span class="lbl-no">↓</span>光纤压槽';
+ el.style.left='50%';el.style.top='40%';
+ var layer=document.getElementById('labelLayer');
+ if(layer){layer.appendChild(el);
+  setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},2000);
+ }
 }
 function fireCleave(i){
  DRAG.mode=null;DRAG.fired=true;
  AU.play('cut');rig.shake=0.035;
  var f=fi(i);
- f.cleaveAngle=chance(0.3)?rand(1.2,2.6):rand(0.2,0.9);
+ f.cleaveAngle=(MODE==='newbie')?rand(0.2,0.8):(chance(0.3)?rand(1.2,2.6):rand(0.2,0.9));
  f.cleaved=true;
- f.stained=(f.strokes<3);
- if(chance(0.18))f.debris=true;
+ f.stained=(MODE!=='newbie')&&(f.strokes<3);
+ if(MODE!=='newbie'&&chance(0.18))f.debris=true;
  spawnStub();
  handRelease();
  fbSet('✅ 切割完成，废纤头已弹除。端面角度由熔接机影像检测。','ok');
@@ -1733,6 +1761,7 @@ function fireCleave(i){
   rotTo(CT.clamp,'x',(CT.clampOpenX!=null)?CT.clampOpenX:0.8,0.3);
   rotTo(CT.lid,'x',(CT.lidOpenX!=null)?CT.lidOpenX:-1.3,0.35);
   fiberHome(i-1);
+  fi(i)._atCleaver=false;
   setTimeout(function(){goStep(i===1?6:10)},800);
  },700);
 }
@@ -1779,14 +1808,14 @@ function placeFiber(i){
  var f=fi(i);
  if(!f.cleaved){toast('端面还没切割，先回切割步骤','warn');return}
  if(f.slot){toast(FNAME[i]+'已在槽内，点击压板压紧','info');return}
- if(f.debris){
+ if(MODE!=='newbie'&&f.debris){
   addFault('debris'+i,FNAME[i]+'入槽：V槽碎屑');
   AU.play('buzz');
   toast('光纤放置异常','err');
   fbSet('🚫 屏幕提示 <b>光纤放置异常</b>——切割产生的玻璃碎屑被带进了V型槽。'+btn('cleanV('+i+')','用无尘纸清理V型槽'),'err');
   return;
  }
- if(f.bareMM<25){
+ if(MODE!=='newbie'&&f.bareMM<25){
   addFault('short'+i,FNAME[i]+'裸纤不足夹不住');
   AU.play('buzz');
   toast('夹持爪夹不住裸纤','err');
@@ -2166,7 +2195,7 @@ function showResult(){
    window.feishuSync.sync('fiber_score',{
     '最终得分(分)':String(score),'评级':grade,'熔接损耗(dB)':loss.toFixed(2),
     '操作错误次数(次)':String(F.faults.length),'完成步骤':'13/13',
-    '操作模式':(MODE==='newbie'?'新手教学':'考核模式')},{silent:true});
+    '操作模式':(MODE==='newbie'?'新手流程':'正常练习')},{silent:true});
   }
  }catch(e){}
  try{
