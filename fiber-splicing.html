@@ -793,7 +793,7 @@ function buildSplicer(){
   var P={};
   var _pi=0;
   m.traverse(function(o){if(o.isMesh){P[_pi]=o;_pi++}});
-  console.log('CT50 GLB loaded, '+_pi+' meshes:');
+  console.log('88S GLB loaded, '+_pi+' meshes:');
   for(var ki=0;ki<_pi;ki++){var bk=new THREE.Box3().setFromObject(P[ki]);console.log('  P['+ki+'] center: '+((bk.min.x+bk.max.x)/2).toFixed(3)+','+((bk.min.y+bk.max.y)/2).toFixed(3)+','+((bk.min.z+bk.max.z)/2).toFixed(3)+'  size: '+(bk.max.x-bk.min.x).toFixed(3)+','+(bk.max.y-bk.min.y).toFixed(3)+','+(bk.max.z-bk.min.z).toFixed(3))}
   base.visible=false;plate.visible=false;wa.visible=false;gl1.visible=false;gl2.visible=false;silk.visible=false;
   bb.setFromObject(m);
@@ -889,10 +889,10 @@ function buildCleaver(){
  CT.fiberPose=new THREE.Object3D();CT.fiberPose.position.set(-0.12,0.36,-0.02);CT.fiberPose.rotation.y=0;g.add(CT.fiberPose);
  // ===== AI实物模型上线：CT50部件版GLB（11部件），三可动件锚定实物 =====
  loadGLB('https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/assets/models/ct50-parts.glb?v=p1',function(m){
-  if(!m||!CT.grp){return}
+  if(!m||!CT.grp){console.log('CT50 GLB SKIP: m='+(!!m)+' CT.grp='+(!!CT.grp));return}
   var bb=new THREE.Box3().setFromObject(m);
   var sx=bb.max.x-bb.min.x,sy=bb.max.y-bb.min.y,sz=bb.max.z-bb.min.z;
-  if(!(sx>0.05&&sy>0.05&&sz>0.05)){return}
+  if(!(sx>0.05&&sy>0.05&&sz>0.05)){console.log('CT50 GLB size fail: '+sx.toFixed(3)+','+sy.toFixed(3)+','+sz.toFixed(3));return}
   var sc=1.00/sz;   // 深度→1.0，宽0.81/高0.65，与88S级配
   m.scale.set(sc,sc,sc);  // 原生朝向即正确：+z朝操作者
   bb.setFromObject(m);
@@ -906,6 +906,8 @@ function buildCleaver(){
   var P={};
   var _pi=0;
   m.traverse(function(o){if(o.isMesh){P[_pi]=o;_pi++}});
+  console.log('CT50 GLB loaded, '+_pi+' meshes:');
+  for(var ki=0;ki<_pi;ki++){var bk=new THREE.Box3().setFromObject(P[ki]);console.log('  P['+ki+'] center: '+((bk.min.x+bk.max.x)/2).toFixed(3)+','+((bk.min.y+bk.max.y)/2).toFixed(3)+','+((bk.min.z+bk.max.z)/2).toFixed(3)+'  size: '+(bk.max.x-bk.min.x).toFixed(3)+','+(bk.max.y-bk.min.y).toFixed(3)+','+(bk.max.z-bk.min.z).toFixed(3))}
   base.visible=false;plate.visible=false;
   // 世界系建后缘铰链pivot（CT50不整体拖动→pivot挂scene，转轴纯净）
   function ctPivot(mesh){
@@ -915,6 +917,7 @@ function buildCleaver(){
    g.add(p);p.attach(mesh);
    return p}
   if(P[2]&&P[3]&&P[4]){
+   console.log('CT50 overlay EXECUTING: P[2]=lid P[3]=handle P[4]=clamp');
    // 顶盖 mesh_2：合=0 开=-0.95
    CT.lid=ctPivot(P[2]);CT.lidOpenX=-0.95;CT.lid.rotation.x=CT.lidOpenX;
    reg(P[2],'ctLid');
@@ -940,7 +943,7 @@ function buildCleaver(){
    plate.material.color.setHex(0x3a4248);plate.material.roughness=0.55;plate.material.metalness=0.78;plate.material.envMapIntensity=1.6;
    plate.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2-0.015,(b4.min.z+b4.max.z)/2)));
    bl.visible=true;bl.position.copy(CT.grp.worldToLocal(new THREE.Vector3((b4.min.x+b4.max.x)/2,(b4.min.y+b4.max.y)/2+0.003,(b4.min.z+b4.max.z)/2)));
-  }
+  }else{console.log('CT50 overlay SKIPPED: P[2]='+(!!P[2])+' P[3]='+(!!P[3])+' P[4]='+(!!P[4]));}
   // 废料盒贴右缘
   // bin mesh deleted, skip position set
   CT.bin.position.set(0.52,0.68,0.05);
@@ -2676,7 +2679,7 @@ function boot(){
  enterStep(1);
  updStats();
  switchVideo(2);
- console.log('%c D4光纤熔接 v8 (CT50根因修复+热缩管方向+内部腔体) ','background:#ef4444;color:#fff;padding:2px 8px;border-radius:3px');
+ console.log('%c D4光纤熔接 v10 (CT50调试日志+热缩管居中熔接点) ','background:#ef4444;color:#fff;padding:2px 8px;border-radius:3px');
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot)}
 else{boot()}
