@@ -1557,8 +1557,9 @@ function threadTube(){
  handPinchFiber(1);
  handTo(HANDS.R,fib.position.x+0.15,0.14,fib.position.z,0.5,function(){
   FIB3D[0].attach(TL.tube);
+  TL.tube.rotation.set(0,0,Math.PI/2);
   TL.tube.position.set(0.02,0,0);
-  TL.tube.scale.set(1,1,1);
+  TL.tube.scale.set(1,2.0,1);
   AU.play('pop');
   tw(0.9,function(k){TL.tube.position.x=lerp(0.02,1.32,k)},function(){
    f1.hasTube=true;f1.tubeAtEnd=true;
@@ -2212,7 +2213,7 @@ function reheat(){
 }
 function shrinkTube(){
  if(!TL.tube)return;
- TL.tube.scale.set(0.72,1,0.72);
+ TL.tube.scale.set(0.72,TL.tube.scale.y,0.72);
  TL.tube.material.opacity=0.68;
  TL.tube.material.color.setHex(0xf5dfb8);
 }
@@ -2311,6 +2312,7 @@ function resetScene3D(){
  if(HANDS.R)handsIdle();
  if(TL.tube){
   TL.tube.position.set(1.05,0.1,2.61);
+  TL.tube.rotation.set(0,0,Math.PI/2);
   TL.tube.scale.set(1,1,1);
   TL.tube.material.opacity=0.42;
   TL.tube.material.color.setHex(0xf0c88f);
