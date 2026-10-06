@@ -297,7 +297,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg)
           <div style="color:#6b7280;font-size:.7rem">视频加载中…</div>
         </div>
         <video id="videoEl" autoplay muted loop playsinline preload="auto" style="position:relative;z-index:1">
-          <source src="https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v2-small.mp4" type="video/mp4">
+          <source src="https://raw.githubusercontent.com/HH-web-8/jsjwl-site/master/f-v2-mini.mp4" type="video/mp4">
         </video>
       </div>
       <div class="video-controls" style="display:flex;gap:6px;margin-top:8px;justify-content:center;align-items:center;flex-wrap:wrap">
@@ -467,28 +467,54 @@ function toggleVideoSound(){
  if(!_videoMuted){v.volume=1.0;btn.innerHTML='🔊 声音开';btn.style.background='#065f46';btn.style.borderColor='#10b981';btn.style.color='#a7f3d0';btn.style.animation='none';v.play().catch(function(){});}
  else{btn.innerHTML='🔇 静音';btn.style.background='#92400e';btn.style.borderColor='#f59e0b';btn.style.color='#fde68a';}
 }
+/* 视频多源加载 */
+var VIDEO_MAP={
+ 1:{title:'熔接机与切割刀功能介绍',srcs:[
+   'https://raw.githubusercontent.com/HH-web-8/jsjwl-site/master/f-v1-mini.mp4',
+   'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v1-mini.mp4',
+   'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v1-h264.mp4'
+ ]},
+ 2:{title:'光纤熔接完整流程',srcs:[
+   'https://raw.githubusercontent.com/HH-web-8/jsjwl-site/master/f-v2-mini.mp4',
+   'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v2-mini.mp4',
+   'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v2-small.mp4'
+ ]},
+ 3:{title:'光纤盘纤工艺',srcs:[
+   'https://raw.githubusercontent.com/HH-web-8/jsjwl-site/master/f-v3-mini.mp4',
+   'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v3-mini.mp4',
+   'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v3-small.mp4'
+ ]}
+};
+var _videoSrcIdx=0,_videoCurN=2;
 function switchVideo(n){
- var v=$('videoEl'),name=$('videoStepName'),ld=$('videoLoading');
- var map={1:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v1-h264.mp4',title:'熔接机与切割刀功能介绍'},2:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v2-small.mp4',title:'光纤熔接完整流程'},3:{src:'https://cdn.jsdelivr.net/gh/HH-web-8/jsjwl-site@master/f-v3-small.mp4',title:'光纤盘纤工艺'}};
- if(ld)ld.style.display='flex';
- v.src=map[n].src;v.muted=_videoMuted;v.load();v.play().catch(function(){});name.textContent=map[n].title;
+ _videoCurN=n;_videoSrcIdx=0;
+ _loadVideoSrc();
+ var name=$('videoStepName');
+ name.textContent=VIDEO_MAP[n].title;
  for(var i=1;i<=3;i++){var b=$('btnVideo'+i),a=(i===n);b.style.background=a?'var(--cyan)':'var(--bg2)';b.style.color=a?'#000':'var(--txt)';b.style.borderColor=a?'var(--cyan)':'var(--bg3)';b.style.fontWeight=a?'600':'400';}
 }
-/* 视频加载/错误处理 */
+function _loadVideoSrc(){
+ var v=$('videoEl'),ld=$('videoLoading');
+ var info=VIDEO_MAP[_videoCurN];
+ if(!info||_videoSrcIdx>=info.srcs.length){
+  if(ld){ld.innerHTML='<div style="color:#6b7280;font-size:.72rem;text-align:center;padding:8px">视频加载失败<br><span style="color:#3b82f6;cursor:pointer;text-decoration:underline" onclick="_videoSrcIdx=0;_loadVideoSrc()">点击重试</span></div>';}
+  return;
+ }
+ if(ld){ld.innerHTML='<div style="width:28px;height:28px;border:3px solid rgba(255,255,255,0.2);border-top-color:#10b981;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="color:#6b7280;font-size:.7rem">视频加载中…('+( _videoSrcIdx+1)+'/'+info.srcs.length+')</div>';ld.style.display='flex';}
+ v.src=info.srcs[_videoSrcIdx];v.muted=_videoMuted;v.load();v.play().catch(function(){});
+}
+function _onVideoError(){
+ _videoSrcIdx++;
+ _loadVideoSrc();
+}
+function retryVideo(){_videoSrcIdx=0;_loadVideoSrc();}
 (function(){
  var v=$('videoEl'),ld=$('videoLoading');
  if(!v)return;
  v.addEventListener('canplay',function(){if(ld)ld.style.display='none';});
  v.addEventListener('playing',function(){if(ld)ld.style.display='none';});
- v.addEventListener('error',function(){
-  if(ld){ld.innerHTML='<div style="color:#6b7280;font-size:.72rem;text-align:center;padding:8px">视频加载失败<br><span style="color:#3b82f6;cursor:pointer;text-decoration:underline" onclick="retryVideo()">点击重试</span></div>';}
- });
+ v.addEventListener('error',_onVideoError);
 })();
-function retryVideo(){
- var v=$('videoEl'),ld=$('videoLoading');
- if(ld){ld.innerHTML='<div style="width:28px;height:28px;border:3px solid rgba(255,255,255,0.2);border-top-color:#10b981;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="color:#6b7280;font-size:.7rem">重新加载…</div>';ld.style.display='flex';}
- v.load();v.play().catch(function(){});
-}
 
 /* ---------- 浮条提示 ---------- */
 function toast(msg,type,dur){
@@ -1631,12 +1657,19 @@ function spawnScrap(x,y,z,color,len){
  var sc=new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,Math.min(0.4,len),8),mat(color,{r:0.6,m:0}));
  sc.rotation.z=Math.PI/2;
  sc.position.set(x,0.5,z);
- scene.add(sc);
+ scene.add(sc);WASTES.push(sc);
  var tx=x+rand(-0.6,0.2),tz=z+rand(0.4,1.1);
  tw(0.8,function(k){
   sc.position.set(lerp(x,tx,k),lerp(0.5,0.035,k)+Math.sin(k*Math.PI)*0.25,lerp(z,tz,k));
   sc.rotation.x=k*6;
  });
+}
+function clearScraps(){
+ for(var i=WASTES.length-1;i>=0;i--){
+  var w=WASTES[i];
+  if(w&&w.parent){w.parent.remove(w);if(w.geometry)w.geometry.dispose();if(w.material)w.material.dispose();}
+ }
+ WASTES.length=0;
 }
 /* ---------- S4/S8 清洁 ---------- */
 function wipePanel(i){
@@ -1714,6 +1747,7 @@ function nextStepNeedsTool(currentStep,toolAct){
 }
 /* ---------- S5/S9 切割 ---------- */
 function cutPanel(i){
+ clearScraps();
  setPT(i===1?5:9);camTo('cleave');
  $('panelBody').innerHTML=
   goal('将'+FNAME[i]+'放入CT50切割刀，压柄<b>快速下压到底</b>，切出≤1°平整端面。')+
@@ -2608,7 +2642,7 @@ function boot(){
  enterStep(1);
  updStats();
  switchVideo(2);
- console.log('%c D4光纤熔接 v3 (压柄转轴+光纤四元数对齐) ','background:#10b981;color:#fff;padding:2px 8px;border-radius:3px');
+ console.log('%c D4光纤熔接 v4 (视频多源+杂物清理+压柄修正) ','background:#10b981;color:#fff;padding:2px 8px;border-radius:3px');
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot)}
 else{boot()}
